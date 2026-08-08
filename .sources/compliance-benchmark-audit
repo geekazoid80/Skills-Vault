@@ -1,0 +1,91 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+Secondary source: vahagn-madatyan/netsec-skills-suite (Apache-2.0)
+URL: https://github.com/vahagn-madatyan/netsec-skills-suite
+
+compliance-benchmark-audit is the vendor-neutral GRC and technical-benchmark-auditing concepts umbrella.
+The GRC body (frameworks, risk, automation, evidence, TPRM, policy, maturity, platform routing) is
+sourced from chrishuffman5 (MIT). The technical benchmark-auditing methodology (CIS Benchmark
+assessment + NIST SP 800-53 control-family assessment) is genericised and merged from two vahagn
+network-security skills (Apache-2.0), attributed per the cloudflare-dns-ops + siem-soar-investigation
+mixed-licence precedent. Skill licensed MIT (the primary-source licence); the vahagn-derived material
+is methodology and structure, re-authored vendor-neutral, with control IDs referenced for traceability
+and no copyrighted benchmark text reproduced.
+
+This skill is a CREATE, not the "extend" the Chunk C disposition recorded. The disposition
+(chunk-c-final-dispositions.md lines 92 + 183) assumed compliance-benchmark-audit was a wave-1 adopted
+skill and listed it as "0 new + 1 extended". It did not exist on disk. Two skills already carried
+dangling cross-references to it (siem-soar-investigation/SKILL.md line 83; merged-skills-registry).
+Creating it resolves both pointers with no back-edit, the same pattern as EDR/NDR resolving the SIEM
+references in PR #131.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/grc/SKILL.md (routing agent: platform routing table for Vanta, Drata,
+    OneTrust, ServiceNow GRC, Archer; classify-the-request flow)
+  chrishuffman5 skills/security/grc/references/concepts.md (risk methodology + FAIR, control frameworks
+    SOC 2 / ISO 27001:2022 / PCI DSS v4.0, compliance automation architecture, audit lifecycle +
+    evidence quality, TPRM, policy management, GRC maturity model)
+    -> SKILL.md (condensed core: three pillars; framework-vs-benchmark; map-once-comply-many; risk
+       before controls; evidence is the currency; anti-patterns; request classification; reference router)
+    -> references/frameworks.md (SOC 2 TSC + Type I/II, ISO 27001:2022 themes + new controls, PCI DSS
+       v4.0 requirements, HIPAA Security Rule safeguards, NIST CSF 2.0 functions + 800-53 family list,
+       cross-framework mapping table)
+    -> references/risk-and-tprm.md (5x5 risk methodology, four treatment options, FAIR quantitative
+       model + worked example, GRC maturity model, TPRM vendor tiering + SIG/CAIQ + continuous
+       monitoring, policy hierarchy + attestation)
+    -> references/automation-and-evidence.md (pull/push/agent integration patterns, cloud + identity +
+       endpoint integration categories, six-stage audit lifecycle, evidence quality standards + red flags)
+    -> references/platform-selection.md (manual vs automated decision, GRC platform field as routing
+       context, selection factors; the five GRC platforms named only as routing context)
+  vahagn skills/cis-benchmark-audit/SKILL.md (Apache-2.0; CIS profile levels, plane-by-plane audit,
+    compliance scoring + gap analysis, remediation priority, severity tables, decision trees, report
+    template, benchmark version handling)
+  vahagn skills/nist-compliance-assessment/SKILL.md (Apache-2.0; NIST SP 800-53 Rev 5 control families
+    AC/AU/CM/IA/SC/SI, FIPS 199 impact baseline, CSF 2.0 PR/DE mapping, control-gap severity, POA&M,
+    remediation priority decision tree, report template)
+    -> references/benchmark-auditing.md (both genericised away from the network-device-only command
+       sets into a vendor-neutral method: CIS assessment flow + severity + remediation tree + version
+       handling; NIST 800-53 six-family assessment + impact baseline + CSF mapping + gap severity +
+       POA&M; combined reporting backbone). The vahagn per-platform read-only commands (Cisco IOS,
+       PAN-OS, JunOS, Check Point, EOS) were NOT carried over: device-level CIS hardening of specific
+       firewalls is owned by the firewall-audit quartet, which this umbrella cross-references.
+
+Customisations applied:
+  - Re-authored the agent-style upstreams ("You are a specialist...", "How to Approach Tasks",
+    "Technology Routing", "delegate to / route to the appropriate agent") into vault umbrella shape:
+    keyword-rich CSO description enumerating the five references and the cross-skill boundaries
+    (firewall-audit quartet, aws-networking-audit, wireless-security-audit, siem-soar-investigation,
+    identity-access-management, secrets-hygiene, utc-timestamps), four-field vault frontmatter (name,
+    description, license MIT, metadata.version 1.0.0 unquoted), skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Upstream names not carried over: chrishuffman5 "security-grc"; vahagn "cis-benchmark-audit" and
+    "nist-compliance-assessment" folded as methodology, not as named skills.
+  - Upstream metadata stripped: vahagn safety/author/openclaw fields and quoted metadata.version;
+    chrishuffman5 quoted metadata.version converted to bare semver.
+  - The vahagn benchmark methodology was genericised: the network-device "Management / Control / Data
+    Plane" structure is retained as the example for network-device benchmarks but framed as one case of
+    a general Pass/Fail/N-A assessment that also covers OS, cloud, Kubernetes, and database benchmarks.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" for arrows and flows;
+    commas, colons, semicolons, and parentheses for dash-style pauses; ASCII hyphen only in numeric
+    ranges and compound words.
+  - British/Pacific English applied: organisation, prioritise, minimise, centralise, behaviour,
+    licence (noun), defence, categorisation, authorisation. Proper nouns left intact (NIST, FIPS,
+    FedRAMP, CMMC, POA&M, framework control IDs).
+
+Boundary notes:
+  compliance-benchmark-audit = vendor-neutral GRC (governance, risk, compliance) plus technical
+  benchmark/control-family auditing methodology. It does NOT own: device-level CIS hardening of a
+  specific firewall (firewall-audit quartet); cloud security posture / CSPM / CNAPP scanning
+  (cloud-security-posture family, not yet in this vault, referenced in prose only, no dangling link);
+  vulnerability scoring and remediation programmes (vulnerability-management family, not yet in this
+  vault, prose only); the mechanics of the controls themselves (identity-access-management,
+  siem-soar-investigation, infrastructure skills). The five GRC platforms (Vanta, Drata, OneTrust,
+  ServiceNow GRC, Archer) are skipped/refer-only per the generic-only disposition; this umbrella names
+  them as routing context only.
+
+Cross-refs added: cisco-firewall-audit, fortigate-firewall-audit, palo-alto-firewall-audit,
+checkpoint-firewall-audit, aws-networking-audit, wireless-security-audit, siem-soar-investigation,
+identity-access-management, secrets-hygiene, utc-timestamps, systematic-debugging, oncall-runbooks.
+
+Chunk C GRC family (single PR, one new umbrella): vault 131 -> 132. Resolves the dangling
+compliance-benchmark-audit references in siem-soar-investigation and merged-skills-registry.

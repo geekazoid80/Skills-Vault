@@ -1,0 +1,113 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the bulk content source; all platform-specific skill depth and the umbrella RF/design
+material derive from this repo. MIT licence governs the umbrella SKILL.md and four of the five
+references (cisco-wireless, aruba-wireless, juniper-mist, rf-design).
+
+Secondary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+Contributes meraki-wireless.md content only (workspace/skills/meraki-wireless-ops/SKILL.md).
+Apache-2.0 is attributed here; the MIT primary licence governs the overall umbrella because
+chrishuffman5 is the bulk source (cloud-ops-triad precedent: MIT-primary when chrishuffman5
+is the dominant source). The Apache-2.0 attribution for the Meraki content is noted here and
+in the file-level mapping below.
+
+Files folded -> reference mapping:
+  skills/networking/wireless/SKILL.md
+    -> SKILL.md (umbrella body: platform selection, reference router table, ops loop, cross-refs,
+       red flags, bottom line) + rf-design.md (site survey methodology, platform comparison prose,
+       common pitfalls, channel planning quick reference)
+  skills/networking/wireless/references/concepts.md
+    -> rf-design.md (802.11 standards: Wi-Fi 6/6E/7, OFDMA, MU-MIMO, BSS Coloring, TWT, MLO,
+       preamble puncturing, 4096-QAM; channel planning per band; roaming protocols 802.11k/v/r/OKC;
+       WPA3/SAE/OWE/PMF; site survey methodology phases 1-5; AP placement; band strategy)
+  skills/networking/wireless/cisco-wireless/SKILL.md
+    -> cisco-wireless.md (hardware models, tag/profile model, deployment modes, AP families,
+       ISE integration, Catalyst Center, DNA Spaces, common pitfalls, RRM table)
+  skills/networking/wireless/cisco-wireless/references/architecture.md
+    -> cisco-wireless.md (IOS-XE foundation, CAPWAP internals, HA/SSO, deployment mode internals,
+       AP model details, DNA Spaces architecture)
+  skills/networking/wireless/cisco-wireless/references/diagnostics.md
+    -> cisco-wireless.md (radioactive tracing CLI and GUI, RA Trace log prefixes, show commands,
+       AP join troubleshooting table, client troubleshooting workflow, packet capture, performance metrics)
+  skills/networking/wireless/cisco-wireless/references/best-practices.md
+    -> cisco-wireless.md (RF design, WLAN config, SSID design, FlexConnect selection, security
+       best practices, RRM tuning, upgrade procedures)
+  skills/networking/wireless/cisco-wireless/17.15/SKILL.md
+    -> cisco-wireless.md Wi-Fi 7 on IOS-XE 17.15 section (802.11be profile, MLO, 320 MHz,
+       4096-QAM, 6 GHz AFC enhancements, migration guidance, common pitfalls)
+  skills/networking/wireless/aruba-wireless/SKILL.md
+    -> aruba-wireless.md (AOS 10 architecture, AirMatch vs ARM, ClearPass integration,
+       dynamic segmentation, AP families, AOS 10 vs AOS 8 table, deployment options, Central APIs,
+       common pitfalls)
+  skills/networking/wireless/aruba-wireless/references/architecture.md
+    -> aruba-wireless.md (Central architecture, AOS 10 AP architecture, Gateway architecture,
+       AP-Gateway tunnel, ClearPass component model, auth flow, profiling, AirMatch deep dive,
+       dynamic segmentation architecture, Tunneled Node, Central API namespaces)
+  skills/networking/wireless/aruba-wireless/references/best-practices.md
+    -> aruba-wireless.md (SSID design, segmentation strategy, role design, Central management,
+       firmware management, ClearPass integration best practices, RF design, upgrade procedures,
+       AOS 8 to AOS 10 migration checklist)
+  skills/networking/wireless/aruba-wireless/10.7/SKILL.md
+    -> aruba-wireless.md (AOS 10.7 Wi-Fi 7 AP 730 features, enhanced AirMatch 6 GHz, Central
+       Wi-Fi 7 monitoring, gateway enhancements, dynamic segmentation updates, migration notes)
+  skills/networking/wireless/juniper-mist/SKILL.md
+    -> juniper-mist.md (Mist AI cloud architecture, Marvis AI assistant, Marvis Minis, SLE framework,
+       Mist Edge, AP families, Wired Assurance, WAN Assurance, BLE/vBLE, Mist REST API, common pitfalls)
+  skills/networking/wireless/juniper-mist/references/architecture.md
+    -> juniper-mist.md (cloud platform architecture, Marvis AI engine and ML models, Marvis Actions
+       categories, agentic workflows, Marvis Minis architecture, SLE architecture with classifiers,
+       Mist Edge deployment model, Wired Assurance EX integration, WAN Assurance SSR, BLE/vBLE
+       location engine, API token scope notes)
+  workspace/skills/meraki-wireless-ops/SKILL.md (netclaw, Apache-2.0)
+    -> meraki-wireless.md (MCP server details, key operations table, three operational workflows,
+       RF thresholds table, SSID config notes, RF profile notes, environment variables,
+       important operational rules, common pitfalls)
+
+Customisations applied to all files:
+  - Re-authored agent-style upstreams into vault umbrella shape: CSO description (keyword-rich
+    triggers, five references enumerated, boundary callouts in description); four-field vault
+    frontmatter (name, description, license MIT, metadata.version 1.0.0); skill marker in SKILL.md
+    only; references carry no frontmatter and no skill marker (vault house style).
+  - GAIT audit-trail lines dropped from meraki-wireless.md (netclaw internal; Category-A skip
+    per merged-skills-registry; not carried into the vault). Specific line: "Record in GAIT --
+    log all wireless assessments and configuration changes".
+  - "$MCP_CALL python3 -u $XXX_MCP_SCRIPT TOOL '{json}'" harness invocation genericised to
+    "via the Meraki MCP server" throughout meraki-wireless.md; tool names and JSON parameters
+    preserved.
+  - markmap visualisation tool dependency dropped; genericised to "visual summary" where needed
+    (no markmap reference remained in meraki-wireless.md as content was restructured).
+  - netclaw-internal integration-table rows dropped from meraki-wireless.md:
+    meraki-network-ops (not yet adopted), meraki-monitoring (not yet adopted),
+    catc-client-ops (not yet adopted), servicenow-change-workflow (genericised to
+    "per change-control policy"), gait-session-tracking (dropped), slack-network-alerts
+    (not yet adopted).
+  - "ServiceNow CR required" gates genericised to "per change-control policy" in
+    meraki-wireless.md.
+  - netclaw author/openclaw metadata dropped.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files.
+    Verification method: Python byte-scan across all six written files using
+    b'\xe2\x80\x94' (em-dash) and b'\xe2\x80\x93' (en-dash) patterns.
+  - British/Pacific English applied throughout: optimise/optimisation, utilisation, modelled,
+    organisation, centre, analyse, behaviour, licence (noun), authorised, recognised,
+    minimise, prioritise, categorise.
+  - References carry no frontmatter and no skill marker (line 1 is # Title in each reference file).
+  - "You are a specialist" and "You are an expert" agent framing removed from all body text;
+    rewritten as operator-facing, concise, third-person/imperative prose.
+  - AireOS-to-IOS-XE migration note preserved in cisco-wireless.md (security skill cross-ref
+    also covers this; both note the tag-model gap independently without duplication).
+
+Boundary note:
+  wireless-ops = OPERATIONS (deploy, configure, optimise, troubleshoot).
+  wireless-security-audit = SECURITY AUDIT (SSID encryption posture, 802.1X/RADIUS validation,
+  rogue AP triage, WIDS/WIPS, WPA3 compliance, PCI DSS wireless). No content duplication between
+  the two skills; wireless-ops cross-references wireless-security-audit for the security half.
+  The six-platform OS-honest tags ([AireOS], [IOS-XE-WLC], [Aruba AOS], [Aruba AOS-CX],
+  [Meraki], [Mist]) remain in wireless-security-audit only; wireless-ops uses platform section
+  headers instead.
+
+Cross-refs added to vault skills: wireless-security-audit, multi-vendor-network-ops,
+incident-response-network, acl-rule-analysis, pyats-network-automation, secrets-hygiene,
+utc-timestamps, oncall-runbooks.
+
+Vault count: 100 -> 101

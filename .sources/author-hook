@@ -1,0 +1,1 @@
+https://github.com/anthropics/claude-code/tree/main/plugins/plugin-dev/skills/hook-development plus https://github.com/anthropics/claude-code/tree/main/plugins/hookify/skills/writing-rules (consolidates both; see local SKILL.md and merged-skills-registry)

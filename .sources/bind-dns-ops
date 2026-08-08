@@ -1,0 +1,72 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for bind-dns-ops. All skill body and reference material derives
+from skills/networking/dns/bind/. MIT licence governs SKILL.md and both references.
+
+Files folded -> reference mapping:
+  skills/networking/dns/bind/SKILL.md
+    -> SKILL.md (umbrella body: role classification, when-to-use/when-not-to-use, reference
+       router, core concepts overview, cross-references, red flags, bottom line)
+  skills/networking/dns/bind/references/architecture.md
+    -> references/architecture.md (named.conf statements, options block, ACLs, views,
+       zone file format, primary/secondary setup, KASP/DNSSEC, RPZ, TSIG, catalog zones,
+       forwarders/recursion controls, RRL, zone templates, version notes)
+  skills/networking/dns/bind/references/diagnostics.md
+    -> references/diagnostics.md (rndc command reference, named-checkconf, named-checkzone,
+       query logging, statistics channels, Prometheus integration, dig patterns, common
+       failure modes and fixes, performance troubleshooting)
+  skills/networking/dns/bind/9.18/SKILL.md
+    -> ABSORBED into references/architecture.md "Version notes (9.18 / 9.20)" section
+       (ESV feature set, features removed from 9.18, migration planning from 9.18 to 9.20)
+  skills/networking/dns/bind/9.20/SKILL.md
+    -> ABSORBED into references/architecture.md "Version notes (9.18 / 9.20)" section
+       (QP-trie, zone templates, manual-mode KASP, inline-signing default, DSYNC,
+       named-checkconf -e/-k, RPZ servfail-until-ready, removed features, deprecation warnings,
+       common 9.20 pitfalls)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist in ISC BIND...", "You are an
+    expert agent for BIND 9.18 ESV...") into operator-facing, imperative, third-person prose.
+    Dropped all "You are an expert/specialist" framing.
+  - Version-specific content from 9.18/SKILL.md and 9.20/SKILL.md absorbed into a single
+    "Version notes (9.18 / 9.20)" section in references/architecture.md. No version subfolders
+    created; two upstream leaf skills collapsed into one reference section.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. Upstream "--" double-hyphen
+    dashes converted to colons, semicolons, commas, or parentheses throughout.
+  - ASCII "->" used for flow arrows in the options comment block; no dash glyphs.
+  - British/Pacific English applied: optimise, synchronise, minimise, behaviour, licence (noun),
+    authorised, prioritise, recognise, analyse, organisation.
+  - Expanded diagnostics reference with: structured failure-mode diagnosis sequences, performance
+    troubleshooting section, Prometheus integration note, TSIG NTP/clock-skew note, cross-refs to
+    utc-timestamps (SOA serial, TSIG clock), secrets-hygiene (TSIG secret storage), grafana-dashboards,
+    prometheus-configuration.
+  - Added `rndc dnssec -status` command (present in upstream diagnostics content but not listed
+    explicitly in the reference).
+  - SKILL.md cross-references added: multi-vendor-network-ops (production change contract),
+    unbound-dns-ops (recursive companion), secrets-hygiene (TSIG/DNSSEC key secrets),
+    utc-timestamps (SOA serials, key timing), oncall-runbooks, systematic-debugging.
+  - Red flags section added to SKILL.md drawing from upstream pitfalls: open recursion, auto-dnssec
+    in 9.20, KSK rollover without DS confirmation, views without all-zone coverage, RPZ without
+    servfail-until-ready, TSIG secret in version control, single authoritative server, zone serial
+    not incremented.
+  - Four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0).
+  - Skill marker in SKILL.md only; references carry no frontmatter and no skill marker; line 1
+    of each reference is the # Title.
+
+Boundary notes:
+  bind-dns-ops = BIND-specific implementation (named.conf, zone files, views, KASP, RPZ, TSIG,
+  catalog zones, rndc, diagnostics, 9.18/9.20 version differences).
+  dns-network-ops = ARCHITECTURE + CROSS-PLATFORM + CONCEPTS (resolution flow, DNSSEC design,
+  platform selection, zone transfer design, hybrid architecture). No content duplication: this
+  skill covers BIND configuration mechanics; dns-network-ops covers the conceptual and
+  comparative layer that applies across all DNS platforms.
+  unbound-dns-ops owns recursive-resolver-only hardening, DNSSEC validation, and privacy features.
+  No dns-network-ops content copied into this skill; routing callouts direct to dns-network-ops
+  for design questions.
+
+Cross-refs added to vault skills: dns-network-ops, multi-vendor-network-ops, unbound-dns-ops,
+secrets-hygiene, utc-timestamps, oncall-runbooks, systematic-debugging, grafana-dashboards,
+prometheus-configuration.
+
+Part of Chunk C DNS family PR2 (authoritative servers): vault 105 -> 108 across bind-dns-ops +
+powerdns-ops + windows-dns-ops.

@@ -1,0 +1,59 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for unbound-dns-ops. All SKILL.md body and reference material
+derives from skills/networking/dns/unbound/. MIT licence governs the SKILL.md and both references.
+
+Files folded -> reference mapping:
+  skills/networking/dns/unbound/SKILL.md
+    -> SKILL.md (umbrella body: deployment classification, unbound.conf structure overview,
+       DNSSEC trust anchor summary, forward-zone vs stub-zone decision, local-zone types table,
+       cross-references, red flags, bottom line)
+    -> references/architecture.md (multi-threaded model, module pipeline, cache hierarchy,
+       DNSSEC validation chain, trust anchor management, forward-zone, stub-zone, access-control,
+       cache settings (prefetch/serve-expired/TTL), DoT/DoH incoming and upstream, local-zone
+       types with examples, privacy hardening, performance tuning table, deployment patterns,
+       common pitfalls table)
+  skills/networking/dns/unbound/references/architecture.md
+    -> references/architecture.md (threading model, iterator state machine, module pipeline
+       detail with cachedb/python/respip, DNSSEC validation process, trust anchor bootstrap,
+       negative trust anchors, encrypted DNS, deployment patterns, performance parameter table)
+    -> references/diagnostics.md (drawn from pitfalls and common-failure material in upstream
+       architecture.md; diagnostics reference added as a new file to match vault family shape)
+
+Customisations applied:
+  - Re-authored agent-style upstream ("You are a specialist", "How to Approach Tasks",
+    "Classify the request") into vault umbrella shape: four-field frontmatter (name, description,
+    license MIT, metadata.version 1.0.0); keyword-rich CSO description with "References:" sentence
+    and "Triggers include" phrase list; skill marker in SKILL.md only; no frontmatter in references.
+  - Added a second reference (diagnostics.md) not present in the upstream to match the DNS family
+    pattern (bind-dns-ops and dns-network-ops each carry diagnostics alongside architecture);
+    content derives from the upstream "Common Pitfalls" section, the unbound-control command
+    list in architecture.md, and standard Unbound operational practice.
+  - Re-pointed technology routing from upstream sibling-file paths to vault vendor-skill names
+    (bind-dns-ops, powerdns-ops, coredns-ops, dns-network-ops).
+  - Boundary callout added: unbound-dns-ops covers Unbound recursive/validating resolver only;
+    authoritative serving routes to bind-dns-ops or powerdns-ops; architecture and DNSSEC design
+    routes to dns-network-ops; Kubernetes DNS routes to coredns-ops.
+  - pfSense/OPNsense integration and Pi-hole stack patterns retained from upstream; phrased
+    as operator-facing deployment pattern sections, not agent-style instructions.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files. ASCII "->"
+    used for resolution-flow arrows and config examples; commas, semicolons, and parentheses used
+    for dash-style pauses.
+  - British/Pacific English applied: organisation, minimisation, behaviour, licence (noun),
+    authorised, optimise, minimise, synchronise, analyse.
+  - secrets-hygiene callout added for unbound-control TLS private keys, DoT/DoH certificate
+    keys, and Redis credentials.
+  - utc-timestamps callout added for trust anchor key timing and serve-expired TTL windows.
+
+Boundary notes:
+  unbound-dns-ops = Unbound RECURSIVE/VALIDATING RESOLVER (implementation, configuration,
+  diagnostics). dns-network-ops owns DNS architecture, DNSSEC design, platform selection,
+  and cross-platform comparison. bind-dns-ops and powerdns-ops own authoritative serving.
+  coredns-ops owns Kubernetes cluster DNS. unbound-dns-ops does not own authoritative zone
+  serving, zone transfers, or DNSSEC signing.
+
+Cross-refs added to vault skills: dns-network-ops, bind-dns-ops, powerdns-ops, coredns-ops,
+multi-vendor-network-ops, secrets-hygiene, utc-timestamps, systematic-debugging.
+
+Part of Chunk C DNS family PR3 (recursive / cloud-native): vault 108 -> 110 across
+coredns-ops + unbound-dns-ops.

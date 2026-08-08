@@ -1,0 +1,54 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the okta skill. All body and reference material derives
+from skills/security/iam/okta/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/okta/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering Universal
+       Directory/profile mastering/authentication policies/adaptive MFA/Lifecycle Management/
+       Workflows/API Access Management/ThreatInsight/Identity Threat Protection/OIG;
+       reference router; cross-references; red flags; bottom line)
+    -> references/operations.md (authentication policy design and checklist; MFA authenticator
+       strategy table; Lifecycle Management JML patterns; SCIM provisioning checklist;
+       Workflows patterns; API Access Management setup; System Log monitoring and critical
+       events; System Log API queries; log streaming; ThreatInsight and Identity Threat
+       Protection configuration; OIG campaign configuration)
+  skills/security/iam/okta/references/architecture.md
+    -> references/architecture.md (platform architecture: cell model, org URL, data residency,
+       certifications; agent architecture table with five agent types; Universal Directory data
+       model: user profile standard attributes, profile mastering, group types; OIN integration
+       patterns: SAML 2.0 SP-initiated flow, OIDC configuration, SCIM operations table; event
+       hooks and inline hook types table; rate limits reference table and headers; OEL reference
+       with string/conditional/array/date/null expressions and group rule expressions; security
+       architecture: data protection, session security, network zones)
+
+Customisations applied:
+  - Re-authored the agent-framing ("You are a specialist...", "How to Approach Tasks",
+    "Classify the request") into vault skill voice: When to use / When not to use /
+    core-model sections describing what the skill covers, not "you are an expert".
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream author/tags/quoted-version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Upstream SKILL.md content re-distributed: operational patterns moved to operations.md;
+    architecture internals consolidated into architecture.md (folding in the upstream
+    references/architecture.md). The upstream SKILL.md's "Identity and Scope" and
+    "Core Expertise" sections are rewritten as SKILL.md "Core model" (thin) plus
+    deep material in references.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences. ASCII "->" for flow arrows;
+    commas, semicolons, and parentheses for prose pauses.
+  - British/Pacific English: authorise, organisation, licence (noun), enrol, behaviour,
+    prioritise. Product names and API identifiers kept verbatim.
+
+Boundary notes:
+  okta = WORKFORCE IAM implementation. Authentication policies, Universal Directory,
+  Lifecycle Management, Workflows, API Access Management, OIN, ThreatInsight, OIG.
+  Conceptual layer (federation protocols, IdP selection, access-control models, JML design)
+  routes to identity-access-management. Customer-facing (CIAM) identity routes to auth0.
+  Credential custody routes to secrets-hygiene. Token-expiry reasoning routes to utc-timestamps.
+
+Cross-refs added to vault skills: identity-access-management, auth0, sailpoint,
+secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR2 (SaaS / self-hosted identity providers): vault 114 -> 119 across okta + auth0 + ping-identity + sailpoint + keycloak.

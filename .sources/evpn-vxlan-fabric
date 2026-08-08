@@ -1,0 +1,23 @@
+https://github.com/automateyournetwork/netclaw/tree/main/workspace/skills/evpn-vxlan-fabric (customised; substantially expanded from 55 LOC upstream to 322 LOC local; added multi-vendor command tables for NX-OS / EOS / Junos / Cumulus, RT-1 to RT-5 detail with RFC references, six-section diagnostic flow with underlay-before-overlay iron rule, multihoming sub-procedure with DF election walk, severity table with 14 findings, decision tree for silent-host / asymmetric-flooding, report template mapped onto nine-element response contract; original netclaw "primary backends" MCP-style references dropped in favour of vendor-neutral show commands; see merged-skills-registry)
+
+Extension (Chunk C DC-fabric disposition, single PR): EVPN-overlay design fold.
+Secondary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+Upstream path: skills/networking/dc-fabric (SKILL.md + references/concepts.md); pulled 2026-07-17,
+upstream commit 3e208b2 dated 2026-04-14.
+Added references/overlay-design-and-platform-selection.md, re-authored and genericised from the
+chrishuffman5 dc-fabric umbrella. Scope limited to the EVPN-OVERLAY design residual that neither this
+skill's troubleshooting body nor routing-switching-design owns: symmetric-vs-asymmetric IRB, anycast-
+gateway / ARP-suppression / BUM-replication design trade-offs, EVPN Multi-Site + border-gateway +
+Type-5 DCI patterns, and the Cisco ACI vs VMware NSX vs open-EVPN platform + operating-model comparison
+with overlay design anti-patterns. Deliberately EXCLUDED (owned by
+routing-switching-design/references/datacenter-architecture.md, created after the 2026-05-21
+disposition): spine-leaf vs super-spine topology selection, underlay protocol choice (eBGP/OSPF/IS-IS),
+ECMP sizing, VXLAN fabric MTU (9214), VRF / segmentation design; the reference forward-refs it rather
+than duplicating it. Per-vendor implementation subdirs (cisco-aci, sonic, dent, vmware-nsx = the "skip
+4 vendors") NOT folded; containerlab (lab tooling) not folded. RFC 7432 / 8365 / 9135 + ACI/NSX vendor
+docs CITED, not reproduced (cite-sources). Additive only: the always-on troubleshooting body is
+unchanged; a short "Fabric design and platform selection" pointer section + a routing-switching-design
+cross-ref were added; frontmatter version 1.0.0 -> 1.1.0; licence stays Apache-2.0 (folding MIT content
+into an Apache-2.0 skill is licence-compatible; the MIT secondary is attributed here). Em-dash /
+en-dash byte-scan == 0; British/Pacific English. Vault count unchanged (extension, not a new skill).

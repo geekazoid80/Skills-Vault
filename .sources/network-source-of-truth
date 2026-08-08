@@ -1,0 +1,53 @@
+Primary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+This is the first Apache-2.0-primary umbrella in the vault fold series (the cloud-ops
+triad was MIT-primary chrishuffman5 with netclaw stubs as secondary sources). Here all
+three sources are netclaw, so the umbrella carries license: Apache-2.0.
+
+Files folded (three netclaw source skills -> one vault umbrella with 4 references):
+  workspace/skills/infrahub-sot/SKILL.md -> references/infrahub.md
+    (OpsMill Infrahub: schema-driven models, Git-like versioned branches, GraphQL-native,
+    10 MCP tools across node / schema / GraphQL / branch operations; discover, audit,
+    branch-change, and GraphQL-exploration workflows; Infrahub-vs-NetBox-vs-Nautobot table)
+  workspace/skills/nautobot-sot/SKILL.md -> references/nautobot.md
+    (Nautobot IPAM: read-only, 5 MCP tools; IPAM audit / IP lookup / VRF reconciliation /
+    site IP summary workflows; VRF and multi-tenancy discipline)
+  workspace/skills/netbox-reconcile/SKILL.md -> references/netbox.md + references/reconciliation.md
+    (split: NetBox platform tools + object-type model + changelog audit + golden rule -> netbox.md;
+    the platform-agnostic drift methodology, 7-type discrepancy taxonomy with severity model,
+    per-type diff engine, severity-sorted report, ServiceNow ticketing, and fleet-wide rollup
+    -> reconciliation.md, presented as a general technique rather than NetBox-coupled)
+
+Customisations applied to all files:
+  - Re-authored the agent-style upstreams into a vault umbrella: CSO description (keyword-rich
+    triggers, references enumerated, no "you are a specialist" framing); four-field vault
+    frontmatter (name, description, license Apache-2.0, metadata.version 1.0.0); skill marker.
+  - References carry NO frontmatter and NO skill marker (vault house style).
+  - Dropped the netclaw-internal "Record in GAIT" audit-trail rule from every file (the GAIT
+    session-tracking skill is a netclaw-internal Category-A skip, not carried into the vault).
+  - Genericised the netclaw harness invocation pattern ($MCP_CALL "python3 -u $XXX_MCP_SCRIPT"
+    TOOL '{json}') into vendor-neutral "via the NetBox/Nautobot/Infrahub MCP server" phrasing;
+    tool names and parameters preserved.
+  - Genericised the netclaw markmap visualisation step into a vendor-neutral "visual drift
+    summary (mind-map or colour-coded topology)" with no hard tool dependency.
+  - Dropped Integration-table rows pointing at netclaw-internal or not-yet-adopted skills
+    (gait-session-tracking, aci-fabric-audit, meraki-network-ops, aws-network-ops,
+    radkit-remote-access); re-pointed the surviving rows (pyats -> pyats-network-automation,
+    cross-platform SoT rows -> the sibling references).
+  - Em-dash and en-dash glyphs purged across all files (Python byte-scan verified == 0).
+  - British / Pacific English applied (modelled, utilisation, optimise, organisation, etc).
+
+Cross-refs added to existing vault skills: pyats-network-automation (live-state source),
+multi-vendor-network-ops, ansible-network-modules, nornir-automation, napalm-netmiko,
+acl-rule-analysis, bgp-analysis, igp-routing-analysis, incident-response-network,
+oncall-runbooks, aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops, aws-networking-audit,
+secrets-hygiene, systematic-debugging. ServiceNow change/incident workflow and
+network-topology-discovery referenced as forthcoming (not yet adopted; do not hard-link).
+
+Reconciliation live-state boundary:
+  This skill consumes live device state but does not own the collection transport; pyATS
+  (vault skill pyats-network-automation) supplies show-command output and CDP/LLDP neighbours.
+  The reconciliation methodology is platform-agnostic on the intent side (NetBox, Nautobot,
+  or Infrahub).
+
+Vault count: 96 -> 97

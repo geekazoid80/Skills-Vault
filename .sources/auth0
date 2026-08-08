@@ -1,0 +1,52 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the auth0 skill. All body and reference material derives
+from skills/security/iam/auth0/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/auth0/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering tenant
+       architecture/Universal Login/Connections/Actions/Organizations/RBAC/Attack
+       Protection; reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (tenant model and custom domains; Universal Login:
+       New vs. Classic comparison table, hosted-vs-embedded comparison table; Connection
+       types: database/social/enterprise/passwordless; custom database connection lazy-
+       migration script; Actions pipeline execution model, Post Login Action example,
+       Actions vs. Rules vs. Hooks table; Organizations B2B model, Management API code
+       examples, org login flow; RBAC token payload example; M2M client credentials flow;
+       Okta FGA/OpenFGA brief; Attack Protection reference table)
+    -> references/operations.md (environment strategy: dev/staging/prod table; Deploy CLI
+       setup commands and config.json; Terraform auth0 provider examples; logging: critical
+       log event codes table; log streaming destinations; Management API rate limits and
+       token handling; Actions deployment workflow and testing checklist; Rules-to-Actions
+       migration steps; custom domain setup steps; Classic-to-New Universal Login migration;
+       user migration from legacy system via custom database connection)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist...", "How to Approach Tasks",
+    "Identify deployment model", "Classify the request") into vault skill voice.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream author/tags/quoted-version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker.
+  - Upstream content was a single SKILL.md; split into SKILL.md (thin) +
+    references/architecture.md + references/operations.md for progressive disclosure.
+    The "Deployment and Operations" section of the upstream SKILL.md became operations.md;
+    the core-model/Connection/Actions/Organizations/RBAC/Attack Protection content became
+    architecture.md with code examples preserved.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+  - British/Pacific English: customise, organisation, licence (noun), behaviour. Auth0
+    product feature names kept verbatim (Universal Login, Actions, Organizations, etc.).
+
+Boundary notes:
+  auth0 = CIAM implementation (customer-facing identity). Tenant architecture, Universal
+  Login, Connections, Actions, Organizations, RBAC, Attack Protection, M2M.
+  Workforce identity (Okta) routes to okta. Conceptual/selection layer routes to
+  identity-access-management. Credential custody routes to secrets-hygiene.
+  Token-expiry reasoning routes to utc-timestamps.
+  auth0 and okta are sibling products under one company; the CIAM-vs-workforce boundary
+  is the primary split; this is called out explicitly in both SKILL.md files.
+
+Cross-refs added to vault skills: identity-access-management, okta, sailpoint,
+secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR2 (SaaS / self-hosted identity providers): vault 114 -> 119 across okta + auth0 + ping-identity + sailpoint + keycloak.

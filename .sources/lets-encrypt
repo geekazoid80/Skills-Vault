@@ -1,0 +1,51 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for lets-encrypt. All body and reference material
+derives from skills/security/secrets/pki/lets-encrypt/. MIT licence governs the SKILL.md
+and the single reference.
+
+Files folded -> reference mapping:
+  skills/security/secrets/pki/lets-encrypt/SKILL.md (344 lines, single upstream file)
+    -> SKILL.md (umbrella body: request classification matrix, condensed core model (challenge
+       type comparison table, certificate lifetime profile table), reference router pointing to
+       the single reference file, cross-refs, red flags, bottom line)
+    -> references/architecture.md (ACME client comparison table, HTTP-01 and DNS-01 and
+       TLS-ALPN-01 challenge mechanics, certbot installation (snap/apt/brew/pip), certbot
+       issuance modes (nginx/Apache/standalone/webroot/DNS-01), certificate file locations,
+       certbot DNS-01 plugin table and Cloudflare credentials pattern, certbot renewal commands
+       and systemd timer, renewal hook directories (deploy/pre/post), acme.sh install and issue
+       and renew commands including wildcard and staging, Caddy built-in ACME config, Traefik
+       certificatesResolvers config, rate-limit table with all five limits, staging endpoint
+       URL, rate-limit exception link, alternative CAs, common issue fixes (port 80 / DNS
+       propagation / renewal not firing / CAA records), nginx challenge-path pattern, production
+       checklist)
+
+Customisations applied:
+  - Re-authored agent-style upstream ("You are a specialist...", "How to Approach Tasks",
+    "Expert agent") into vault umbrella shape: keyword-rich CSO description enumerating the
+    reference file and all cross-skill boundaries (cert-manager, hashicorp-vault-ops,
+    secrets-hygiene, utc-timestamps), four-field vault frontmatter (name, description, license
+    MIT, metadata.version 1.0.0 unquoted), skill marker in SKILL.md only.
+  - Reference carries no YAML frontmatter and no skill marker. Line 1 is the # Title heading.
+  - Condensed the 344-line upstream single file into the umbrella SKILL.md plus the single
+    reference above for progressive disclosure. Technical tables, command sequences, and config
+    examples live in the reference; SKILL.md carries only the routing layer.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" used for
+    resolution arrows; commas, colons, and parentheses used for pauses.
+  - British/Pacific English applied: behaviour, licence (noun).
+  - Agent-framing purged: no "You are a specialist", no "Expert agent", no "How to Approach
+    Tasks". Re-authored into direct declarative skill prose.
+
+Boundary notes:
+  lets-encrypt = the free public ACME CA operated by ISRG and the ecosystem of ACME clients
+  that consume it outside Kubernetes (certbot, acme.sh, Caddy, Traefik, LEGO, step CLI),
+  challenge types, rate limits, and certificate lifetimes. It does NOT own Kubernetes ACME
+  client logic (cert-manager), Vault's PKI engine (hashicorp-vault-ops), the PKI concept layer
+  (secrets-hygiene), or UTC expiry arithmetic (utc-timestamps).
+  cert-manager is the Kubernetes ACME client; it points its ACME ClusterIssuer server: field
+  at the Let's Encrypt directory URL. The consuming relationship is the link between the two
+  skills; this skill covers everything outside Kubernetes.
+
+Cross-refs added: cert-manager, hashicorp-vault-ops, secrets-hygiene, utc-timestamps.
+
+Part of Chunk C Secrets/PKI family PR2 (cert-manager + lets-encrypt, certificate-issuance theme): vault 126 -> 128.

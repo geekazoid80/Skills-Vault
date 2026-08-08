@@ -1,0 +1,55 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+network-monitoring-selection is the vendor-neutral network monitoring and NMS DESIGN, monitoring-paradigm,
+and platform-selection umbrella: which paradigm answers the question (SNMP polling for device health, flow
+analytics for traffic, synthetic for user experience, packet capture for forensics), what the golden
+signals are for a network, how to design alerts that get acted on, how monitoring scales across sites, and
+which platform earns the deployment. It is the design-and-selection entry point for the NMS family;
+per-vendor configuration and operations live in the sibling skills (prtg-network-monitoring,
+kentik-network-monitoring land in PR 2 of this family; cacti-network-monitoring lands in PR 3).
+Skill licensed MIT (the primary-source licence).
+
+Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion):
+  - Naming = scope-explicit: umbrella `network-monitoring-selection` + `prtg-network-monitoring` +
+    `kentik-network-monitoring` + `cacti-network-monitoring`.
+  - PR cadence = three PRs: PR 1 = this umbrella; PR 2 = PRTG + Kentik (MIT single-source); PR 3 = Cacti
+    (external, public-docs draft).
+  - Vendor-skill scope = full ops (architecture + config + operations) per the DNS + Load-balancer
+    precedent, since there are no pre-existing NMS diagnostic skills to route to.
+  - This umbrella owns DESIGN / PARADIGM-CHOICE / PLATFORM-COMPARISON only; per-vendor configuration is
+    routed out via "When not to use" to the three vendor skills.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/network-monitoring/SKILL.md (network-monitoring routing agent: monitoring
+    paradigms, golden signals, alerting design, platform comparison, monitoring architecture, data
+    collection, technology routing)
+  chrishuffman5 skills/networking/network-monitoring/references/concepts.md (SNMP internals, flow protocol
+    details, synthetic testing, alerting theory, traps and syslog, topology discovery, monitoring at scale,
+    integration patterns)
+    -> SKILL.md (condensed core: pick-the-paradigm-from-the-question; golden signals frame what to measure;
+       alert on actionable signals; collect at the right interval and retain in tiers; scale with
+       distributed polling; then choose the platform; request classification; reference router;
+       design-vs-config boundary)
+    -> references/concepts.md (SNMP versions/security/OIDs/operations/polling; NetFlow v5/v9, IPFIX, sFlow,
+       VPC Flow Logs, flow enrichment; SNMP traps + syslog; topology discovery LLDP/CDP/SNMP/BGP)
+    -> references/paradigms-and-signals.md (the four paradigms + what each is best for; golden signals for
+       the network; synthetic test types, agent types, path visualisation)
+    -> references/alerting-and-scale.md (threshold strategies static/baseline/rate-of-change/composite;
+       severity tiers; alert-fatigue mitigation; escalation; data-collection best practices; distributed
+       polling; storage tiers; capacity-planning matrix)
+    -> references/platform-selection.md (platform profiles SolarWinds/LibreNMS/PRTG/Kentik/Cacti/Zabbix/
+       Nagios/ThousandEyes; decision method; architecture patterns single-site/distributed/hybrid;
+       integration NMS+flow+synthetic, SIEM, ITSM, Grafana)
+
+Skipped / refer-only:
+  - chrishuffman5 network-monitoring per-vendor skills: librenms + solarwinds-npm are named in
+    platform-selection.md as routing context only; deep per-vendor depth for those is not yet in this
+    vault. prtg + kentik are re-authored as vault vendor skills in PR 2 (not refer-only).
+  - chrishuffman5 thousandeyes (synthetic monitoring): named as routing context only; not folded.
+  - automateyournetwork/netclaw (Apache-2.0) monitoring skills (te-network-monitoring, meraki-monitoring,
+    suzieq-observability, prometheus-monitoring, grafana-observability): synthetic / vendor-specific /
+    observability-stack skills owned by other vault skills or refer-only; not folded here. This is
+    therefore an MIT single-source umbrella.
+  - vahagn-madatyan/netsec-skills-suite (Apache-2.0) monitoring-dashboard-audit: a separate disposition
+    row (vahagn rest), not part of the NMS family; not folded here.

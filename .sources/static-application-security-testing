@@ -1,0 +1,4 @@
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/security/skills/sast (MIT, sole source) -> SKILL.md re-authored into static-application-security-testing/SKILL.md + references/concepts-and-analysis.md + pipeline-and-triage.md (taint + data-flow analysis, rule types, language coverage, finds-vs-misses; CI/CD integration, incremental + PR scanning, quality gates, SARIF, false-positive triage)
+
+--- Chunk C AppSec family PR 2 of 2, 2026-08-02 ---
+NEW SAST technique concepts skill. MIT. Routes strategy UP to application-security; secret-scanning -> secrets-hygiene, CI -> gh-actions-ci/cicd-platforms-ops, scoring -> vulnerability-management. Vendors Semgrep/SonarQube/Checkmarx/Veracode/Snyk Code refer-only. Gated: dash-scan == 0, yaml.safe_load parses, cross-refs resolve, no persona/vendor links. British / Pacific English; references headerless.

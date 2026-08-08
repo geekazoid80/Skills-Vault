@@ -1,0 +1,49 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+aws-load-balancing is the AWS Elastic Load Balancing (ALB / NLB / GWLB) configuration and operations
+skill in the load-balancer family (PR 2 of 2). The design and platform-selection decision lives in
+load-balancer-selection (PR 1). Skill licensed MIT (the primary-source licence). AWS Classic ELB is
+legacy and out of scope.
+
+Boundary with adjacent AWS skills (no duplication):
+  - aws-networking-audit owns the VPC-side security review of the load balancer (security-group rules,
+    ENI/subnet placement, public-exposure audit, NACLs). It already defers ALB/NLB configuration content
+    to this skill; this skill defers exposure auditing back to it. Reciprocal, clean boundary.
+  - aws-cloud-ops owns broader AWS service-selection and cost framing; it already defers load-balancer
+    depth to this skill. Reciprocal.
+  This skill resolves the forward-refs both of those carried ("the load-balancer families") with no
+  back-edit.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/load-balancing/aws-lb/SKILL.md (AWS ELB expert agent: ALB L7 routing
+    rules + weighted target groups + target types + WAF/Cognito/ACM integrations + 2025 features; NLB
+    L4 capabilities + static IP + TLS modes + PrivateLink + QUIC + ALB-as-target; GWLB L3 appliance
+    insertion + GENEVE; target groups; health checks; cross-zone; pitfalls; Terraform)
+  chrishuffman5 skills/networking/load-balancing/aws-lb/references/architecture.md (ALB request
+    processing + listener rules + sticky + connection handling + WAF + Cognito + 2025; NLB packet
+    processing + static/Elastic IP + TLS + PrivateLink + weighted + QUIC; GWLB packet flow + GENEVE
+    protocol + symmetric hashing + endpoints + appliance requirements; target-group deep dive + types +
+    draining + attributes; health-check deep dive + timing; access logging formats; cost; integration
+    patterns)
+    -> SKILL.md (condensed core: three-load-balancers-three-layers; target-groups-are-the-backend;
+       listener-rules-are-priority-ordered; security-groups-attach-to-ALB-not-NLB; cross-zone-defaults-
+       and-cost; anti-patterns; request classification; reference router)
+    -> references/elb-architecture.md (ALB request processing + listener rules + sticky + connection
+       handling + integrations; NLB packet processing + static IP + TLS + PrivateLink + weighted + QUIC;
+       GWLB packet flow + GENEVE protocol + symmetric hashing + endpoints; target groups + types +
+       draining + attributes; health-check timing maths; access-log formats; cost)
+    -> references/configuration-and-integration.md (ALB routing rules + actions + weighted groups, target
+       types, health-check parameters, ACM/TLS policies, AWS WAF v2, Cognito/OIDC, NLB TLS + PrivateLink
+       + QUIC, sticky sessions, Terraform/CloudFormation)
+    -> references/operations.md (LB-type selection, NLB+ALB / CloudFront / GWLB+Transit-Gateway patterns,
+       cross-zone cost trade-off, CloudWatch monitoring, common-pitfalls catalogue, the aws-networking-
+       audit / aws-cloud-ops boundary)
+
+Skipped / refer-only:
+  - AWS Classic ELB: legacy, superseded by ALB/NLB; excluded.
+Customisations: agent-style upstream ("You are a specialist...", "How to Approach Tasks", "Identify the
+right LB type") re-authored into vault skill shape with four-field frontmatter (license MIT) + skill
+marker; references carry no frontmatter / no skill marker (line 1 is # Title); upstream name
+networking-load-balancing-aws-lb not carried over; em-dash / en-dash purge (byte-scan == 0); British /
+Pacific English; ASCII -> arrows. MIT single-source (no netclaw/vahagn AWS-LB content).

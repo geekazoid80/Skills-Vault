@@ -1,0 +1,54 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the ad-cs skill. All body and reference material derives
+from skills/security/iam/ad-cs/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/ad-cs/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering CA hierarchy/
+       certificate templates/enrolment methods/certificate revocation/key event IDs/
+       hardening checklist; reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (CA hierarchy, template flags and EKU reference, enrolment
+       method detail, revocation mechanics, CA configuration flags, certificate mapping/
+       KB5014754, common troubleshooting)
+    -> references/vulnerabilities.md (ESC1-ESC16 attack path documentation)
+  skills/security/iam/ad-cs/references/vulnerabilities.md
+    -> references/vulnerabilities.md (ESC1-ESC16: full conditions, exploitation examples,
+       detection via event IDs and tooling, step-by-step remediation per ESC, proactive
+       scanning commands, event-based detection table, continuous monitoring guidance)
+
+Optional reference decision:
+  The upstream ad-cs skill had only one reference file (vulnerabilities.md). The upstream
+  SKILL.md itself contained substantial PKI architecture content (CA hierarchy, templates,
+  enrolment, revocation, hardening checklist, troubleshooting table). This content was
+  substantial enough to warrant a separate architecture.md reference rather than leaving it
+  all in SKILL.md. The split keeps SKILL.md thin (~165 lines) and the architecture
+  reference self-contained. Two references total: architecture.md (new; split from SKILL.md
+  body content) and vulnerabilities.md (direct from upstream reference file).
+
+Customisations applied:
+  - Re-authored all agent-framing ("You are a specialist", "Identity and Scope",
+    "How to Approach Tasks", "Assess vulnerability exposure") into skill voice.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream name (security-iam-ad-cs)
+    and quoted version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - British/Pacific English: enrolment (not enrollment in prose; enrollment kept verbatim in
+    PowerShell/UI strings), organis*, authoris*, licence (noun). Product names (Certify,
+    Certipy, Locksmith, PSPKIAudit, certutil, certsvc, EDITF_ATTRIBUTESUBJECTALTNAME2,
+    ESC1-ESC16, PKINIT, NDES) kept verbatim.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+
+Boundary notes:
+  ad-cs = enterprise PKI built on AD CS: CA hierarchy, certificate templates, enrolment,
+  revocation, ESC attack paths, hardening. PKINIT and smart card authentication depend on
+  AD CS but the directory layer (Kerberos protocol, FSMO, replication) belongs to ad-ds.
+  AD FS token-signing certificates are issued by AD CS but AD FS operations belong to ad-fs.
+  CA private key storage and HSM credentials route to secrets-hygiene.
+
+Cross-refs added to vault skills: identity-access-management, ad-ds, ad-fs, entra-id,
+secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR4 (Active Directory roles): vault skills ad-ds + ad-cs + ad-fs.
+Part of Chunk C IAM family PR4 (Active Directory roles, FINAL): vault 122 -> 125 across ad-ds + ad-cs + ad-fs.

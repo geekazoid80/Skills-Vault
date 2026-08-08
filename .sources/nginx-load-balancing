@@ -1,0 +1,47 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+nginx-load-balancing is the NGINX (OSS + Plus) load-balancer / reverse-proxy / Kubernetes-ingress skill
+in the load-balancer family (PR 2 of 2). It is scoped to NGINX's load-balancing role, NOT general
+web-server hosting. The design and platform-selection decision lives in load-balancer-selection (PR 1).
+Skill licensed MIT (the primary-source licence).
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/load-balancing/nginx/SKILL.md (NGINX expert agent: master/worker
+    model, hot reload, upstream + reverse-proxy config, balancing algorithms, server params, passive
+    health, SSL termination, rate/connection limiting, proxy caching, Plus features active-health/
+    sticky/live-API/key-value/JWT, NGINX Ingress Controller + VirtualServer CRD, stream L4, pitfalls)
+  chrishuffman5 skills/networking/load-balancing/nginx/references/architecture.md (master/worker model,
+    event loop, connection capacity, shared memory zones, Plus runtime API + active-health + persistence
+    + key-value architecture, Ingress Controller design + resource types + 5.x, performance
+    characteristics)
+  chrishuffman5 skills/networking/load-balancing/nginx/references/best-practices.md (upstream keepalive,
+    timeouts, header forwarding, buffering, production SSL + SNI + redirect, rate-limiting patterns,
+    caching design + cache keys, Kubernetes canary/blue-green/multi-team patterns + community-to-F5
+    migration, performance tuning, monitoring stub_status + Plus API)
+    -> SKILL.md (condensed core: master-configures-workers-serve; upstream-blocks-are-the-load-balancer;
+       OSS-passive-Plus-active; always-forward-client-context; caching-buys-resilience; anti-patterns;
+       request classification; reference router; LB-role scoping)
+    -> references/architecture.md (master/worker model, event loop + connection capacity, shared memory
+       zones, hot reload, Plus runtime API + active-health + persistence + key-value architecture,
+       Ingress Controller design + resource types + 5.x, performance characteristics)
+    -> references/configuration.md (upstream + reverse proxy, balancing methods + server parameters,
+       passive health, timeouts + buffering, SSL termination, rate + connection limiting, proxy caching,
+       stream L4, performance tuning, stub_status monitoring)
+    -> references/ingress-and-plus.md (Plus active health checks + match blocks, sticky cookie/learn/
+       route, live API, key-value, JWT, F5 Ingress Controller, Ingress vs VirtualServer/
+       VirtualServerRoute/TransportServer CRDs, canary/blue-green/multi-team, ConfigMap, community-to-F5
+       migration, Plus API monitoring)
+
+Skipped / refer-only:
+  - chrishuffman5 skills/networking/load-balancing/nginx/plus-r35/SKILL.md (NGINX Plus R35 version
+    specifics): version deltas folded inline into the references rather than carried as a version
+    sub-skill (DNS-family precedent of absorbing version subdirs).
+  - General NGINX web-server hosting (static sites, PHP-FPM/FastCGI app serving): out of scope; this
+    skill covers the load-balancer / reverse-proxy / ingress role only.
+Customisations: agent-style upstream ("You are a specialist...", "How to Approach Tasks", "delegate to
+the appropriate version agent") re-authored into vault skill shape with four-field frontmatter (license
+MIT) + skill marker; references carry no frontmatter / no skill marker (line 1 is # Title); upstream
+name networking-load-balancing-nginx not carried over; em-dash / en-dash purge (byte-scan == 0);
+British / Pacific English; ASCII -> arrows. This is an MIT single-source skill (no netclaw/vahagn NGINX
+content).

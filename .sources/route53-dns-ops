@@ -1,0 +1,69 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the route53-dns-ops skill. All SKILL.md body and
+architecture reference material derive from skills/networking/dns/route53/. MIT licence
+governs the SKILL.md and architecture reference.
+
+Files folded -> reference mapping:
+  skills/networking/dns/route53/SKILL.md
+    -> SKILL.md (umbrella body: classify hosted zone type, Alias vs CNAME, routing policy
+       quick guide, health check private-endpoint pattern, cross-references, red flags,
+       bottom line; source "How to Approach Tasks" and "Core Concepts" re-authored into
+       operator prose per vault shape)
+    -> references/architecture.md (hosted zones public/private, Alias record properties and
+       targets, all eight routing policies with config detail, health check types endpoint/
+       calculated/CloudWatch alarm/ARC, DNSSEC KMS KSK/ZSK requirements and enablement steps
+       and KSK rotation procedure and CloudWatch alarms, Route 53 Resolver inbound/outbound
+       endpoints and resolver rules with common hybrid DNS architecture diagram, DNS Firewall
+       components and multi-account management, Traffic Flow, ARC readiness checks and routing
+       controls and safety rules, pricing notes, Terraform resource reference and AWS CLI
+       reference)
+  skills/networking/dns/route53/references/architecture.md
+    -> references/architecture.md (all source content folded in and expanded; source was
+       ~81 lines; expanded to full operator prose with tables, Terraform examples, CLI
+       reference, ARC detail, and pricing notes)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist", "How to Approach Tasks")
+    into vault operator prose: classify-first pattern, reference router table, When to use /
+    When not to use sections, red flags, bottom line.
+  - Four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0);
+    skill marker in SKILL.md only; references/architecture.md carries no frontmatter and no
+    skill marker; line 1 of the reference is the # Title.
+  - Single reference file (architecture.md) retained rather than splitting: source volume
+    (~228 lines when expanded) fit within one reference without progressive-disclosure loss.
+  - Expanded the "Common Pitfalls" upstream section into the structured Red flags format
+    matching vault house style (bold flag name, prescriptive fix).
+  - Added "Pricing notes" table (Alias free-query optimisation, Traffic Flow USD 50/month per
+    policy record); not in source but directly relevant to Route 53 design decisions.
+  - Added Route 53 Profiles cross-reference note in the description trigger phrase list;
+    Route 53 Profiles (multi-VPC/multi-account DNS standardisation) surfaced from source SKILL.md
+    but not elaborated as a separate reference section (feature is relatively narrow and the
+    Resolver + RAM sharing coverage addresses the same hybrid use case).
+  - Cross-repo boundary maintained: ARC (Application Recovery Controller) is included as it is
+    a Route 53 DNS mechanism; deeper ARC readiness-check infrastructure (CloudWatch rules,
+    zonal shift) is not elaborated here and routes to aws-cloud-ops.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" used for
+    resolution-flow arrows and architecture diagrams; commas, semicolons, and parentheses used
+    for dash-style pauses. Source contained "--" in descriptions; converted to commas or
+    parentheses throughout.
+  - British/Pacific English applied: organisation, authorised, behaviour, optimisation, licence
+    (noun), analyse, summarise, recognise. "skillset" -> "skill set".
+
+Boundary notes:
+  route53-dns-ops = Route 53 IMPLEMENTATION: hosted zones, Alias records, routing policies,
+  health checks, Resolver endpoints and rules, DNS Firewall, DNSSEC KMS steps, Traffic Flow,
+  ARC DNS controls, Terraform/CloudFormation/CLI.
+  dns-network-ops = ARCHITECTURE + DNSSEC DESIGN + CROSS-PLATFORM COMPARISON: resolution flow,
+  chain of trust, platform selection, hybrid design patterns. No content duplication: design
+  decisions route to dns-network-ops; Route 53-specific implementation stays here.
+  aws-networking-audit = VPC layout, Security Groups, Transit Gateway, NACLs. Route 53 Resolver
+  endpoint ENI placement and Security Group rules for health checkers are touched here but
+  detailed VPC architecture decisions route there.
+  aws-cloud-ops = IAM and KMS policy for DNSSEC, CloudWatch alarm setup for health checks and
+  DNSSEC monitoring, broader AWS service ops.
+
+Cross-refs added to vault skills: dns-network-ops, aws-networking-audit, aws-cloud-ops,
+multi-vendor-network-ops, secrets-hygiene, utc-timestamps, systematic-debugging.
+
+Part of Chunk C DNS family PR4 (managed cloud): vault 110 -> 113 across route53-dns-ops + azure-dns-ops + cloudflare-dns-ops

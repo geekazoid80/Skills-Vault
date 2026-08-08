@@ -1,0 +1,60 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the keycloak skill. All body and reference material
+derives from skills/security/iam/keycloak/. MIT licence governs SKILL.md and all
+references.
+
+Files folded -> reference mapping:
+  skills/security/iam/keycloak/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering realm
+       topology/client types/client scopes/authentication flows/identity brokering/
+       user federation/fine-grained authorization/Organizations/Quarkus deployment;
+       reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (realm topology and design rules; client types table;
+       PKCE note; client scope categories; protocol mapper reference table with claim
+       paths; authentication flow built-in flows table; flow execution structure diagram
+       and execution types; custom authenticator SPI notes; identity brokering flow,
+       supported protocols, first-login flow options table; LDAP federation configuration
+       block with all key parameters; sync mode table; group mapper note; fine-grained
+       authorization components table with policy evaluation strategies; UMA explanation;
+       Organizations: realms-vs-Organizations comparison table, configuration notes;
+       admin REST API examples: token, create user, create client, list roles)
+    -> references/operations.md (version history table: WildFly to Quarkus; production
+       startup commands kc.sh build and kc.sh start; Kubernetes container deployment;
+       production checklist; HA and clustering: session replication, JGroups discovery
+       table and DNS_PING example, cross-DC deployment with external Infinispan; metrics
+       endpoint and key metrics table; health check endpoints; upgrade path: WildFly-to-
+       Quarkus migration steps; Quarkus-to-Quarkus upgrade steps with version-specific
+       notes; common operational tasks: admin password reset, client secret rotation,
+       token claim diagnosis)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist...", "How to Approach Tasks",
+    "Identify Keycloak version", "Classify the request", "Recommend") into vault skill
+    voice.
+  - Four-field vault frontmatter only; dropped upstream author/tags/quoted-version.
+  - Skill marker in SKILL.md only; references headerless (line 1 is # Title).
+  - Upstream content was a single SKILL.md; split into SKILL.md (thin) +
+    references/architecture.md + references/operations.md. The "Deployment (Quarkus-based)"
+    and "High Availability / Clustering" and "Admin REST API" sections of the upstream
+    SKILL.md were distributed: deployment and HA to operations.md; admin REST API to
+    architecture.md (usage patterns) and operations.md (operational tasks). Architecture
+    reference covers the logical model; operations reference covers runtime/deployment.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+  - British/Pacific English: organisation, authorise, customise, licence (noun), behaviour.
+    Keycloak product names kept verbatim (Quarkus, Infinispan, JGroups, WildFly, PKCE, UMA,
+    DNS_PING, JDBC_PING). KC_ environment variable names kept verbatim.
+
+Boundary notes:
+  keycloak = SELF-HOSTED IAM (open-source, no per-seat licensing). Realm design,
+  client integration, authentication flows, identity brokering, user federation,
+  fine-grained authorization, Organizations, Quarkus deployment, clustering.
+  Conceptual/selection layer routes to identity-access-management. Managed/SaaS IdPs
+  (Okta, Auth0, Entra ID, Ping Identity) route to their respective vendor skills.
+  Credential custody routes to secrets-hygiene. Token-expiry and session-timeout
+  reasoning routes to utc-timestamps.
+
+Cross-refs added to vault skills: identity-access-management, sailpoint, secrets-hygiene,
+utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR2 (SaaS / self-hosted identity providers): vault 114 -> 119 across okta + auth0 + ping-identity + sailpoint + keycloak.

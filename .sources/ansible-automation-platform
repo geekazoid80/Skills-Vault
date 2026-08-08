@@ -1,0 +1,107 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+This is the MIT-primary umbrella in the fold series (consistent with the cloud-ops triad pattern
+where chrishuffman5 provides the bulk content). The general Ansible content (umbrella + 4
+references + 3 version-delta skills) comes from chrishuffman5; netclaw provides the MCP operations
+layer as secondary content.
+
+Secondary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+Three source skills folded: aap-automation, aap-eda, aap-lint.
+
+License rationale: MIT primary (chrishuffman5 bulk); netclaw Apache-2.0 content attributed and
+folded per the cloud-ops precedent established in PR4-PR6 (azure-cloud-ops, gcp-cloud-ops,
+aws-cloud-ops). Vault carries MIT overall because chrishuffman5 content dominates by volume.
+Apache-2.0 content is acknowledged in this provenance file.
+
+Files folded and where content landed:
+
+chrishuffman5 sources:
+  skills/devops/config-mgmt/ansible/SKILL.md
+    -> umbrella SKILL.md (description, core model, when-to-use, check-mode-first loop, cross-refs,
+       red flags, bottom line; agent framing replaced with CSO operator-facing tone)
+  skills/devops/config-mgmt/ansible/references/architecture.md
+    -> references/architecture.md (control/managed node model, execution internals, connection
+       plugins, playbook/play/task structure, collection architecture, roles, variable precedence,
+       Jinja2 templating, handlers, facts, idempotency model)
+  skills/devops/config-mgmt/ansible/references/best-practices.md
+    -> references/best-practices.md (repo structure, role design, naming, idempotency discipline,
+       variable hygiene, vault discipline, tags, rollout strategy, testing with Molecule,
+       ansible-lint, collection version pinning, performance, CI integration, common mistakes)
+  skills/devops/config-mgmt/ansible/references/aap-platform.md
+    -> references/aap-platform.md (AAP architecture, Automation Mesh / Receptor, Execution
+       Environments, RBAC, organisations, projects, inventories, credentials, job templates,
+       workflow templates, schedules, Private Automation Hub, EDA, REST API, awx CLI,
+       performance tuning, backup/restore, logging and auditing, job failure table)
+  skills/devops/config-mgmt/ansible/references/diagnostics.md
+    -> references/diagnostics.md (SSH / WinRM / become failures, module errors, variable
+       resolution issues, Jinja2 errors, idempotency drift, fact-gathering issues, vault decrypt
+       errors, performance debugging, check/step mode, debugging commands, callback plugins,
+       ansible-lint diagnostics, Controller job diagnostics)
+  skills/devops/config-mgmt/ansible/2.18/SKILL.md
+    -> references/architecture.md section "ansible-core version deltas: 2.18"
+       (Python 3.11+ control node, collection dep resolution, module defaults groups,
+       removed hash_behaviour merge, non-FQCN warnings, include: deprecation)
+  skills/devops/config-mgmt/ansible/2.19/SKILL.md
+    -> references/architecture.md section "ansible-core version deltas: 2.19"
+       (Jinja2 3.2+ required, native types default, stricter argspec validation, async
+       improvements, constructed/aws_ec2/azure_rm inventory improvements)
+  skills/devops/config-mgmt/ansible/2.20/SKILL.md
+    -> references/architecture.md section "ansible-core version deltas: 2.20"
+       (non-FQCN now errors, include: removed, with_* removed, Python 3.9+ managed nodes,
+       role dependency version constraints, assert quiet: param, EE signing)
+
+netclaw sources (Apache-2.0):
+  workspace/skills/aap-automation/SKILL.md
+    -> references/aap-platform.md (inventory and host management tools table, group management
+       tools table, job and template management tools table, project management tools table,
+       ad-hoc commands tools table, inventory sources tools table; workflows genericised;
+       AAP MCP server tool invocations genericised to "via the AAP MCP server" phrasing;
+       key concepts table; environment variables documented as AAP_URL / AAP_TOKEN)
+    -> references/diagnostics.md (Controller job diagnostics: job stuck in Pending, retrieve
+       job logs workflow via MCP server, EE pull failures, project sync failure, licence errors)
+  workspace/skills/aap-eda/SKILL.md
+    -> references/aap-platform.md (EDA operations tools table with all 12 tools; activation
+       management workflow; EDA event-driven automation audit workflow; EDA_URL / EDA_TOKEN)
+  workspace/skills/aap-lint/SKILL.md
+    -> references/aap-platform.md (ansible-lint in CI section; tools table with all 9 tools;
+       profile descriptions; lint gates before AAP job execution workflow)
+
+Customisations applied to all skill files:
+
+netclaw-specific removals:
+  - Dropped all "Record in GAIT" / GAIT audit-trail lines (gait-session-tracking is a
+    netclaw-internal Category-A skip; not carried into the vault).
+  - Genericised MCP invocation pattern ($MCP_CALL "python3 -u $XXX_MCP_SCRIPT" TOOL '{json}')
+    to "via the AAP MCP server" phrasing; tool names and JSON parameter shapes preserved.
+  - Dropped markmap / visualisation dependency references.
+  - Dropped netclaw-internal integration-table rows (gait-session-tracking, openclaw metadata,
+    servicenow-change-workflow hard references replaced with generic "per change-control policy").
+  - Dropped `author: openclaw` and `openclaw` metadata fields from adapted content.
+
+Style applied to all files:
+  - British / Pacific English throughout: optimise, utilisation, behaviour, organisation, centre,
+    analyse, modelled, authorised, recognised, categorised, licence.
+  - Zero em dashes (U+2014) and zero en dashes (U+2013) anywhere; verified by grep
+    byte-scan before finalising each file. Replacements used: commas, semicolons,
+    parentheses, or colons as appropriate.
+  - Agent framing ("You are a specialist") replaced with CSO operator-facing description tone.
+  - Skill marker present ONLY in SKILL.md (not in any reference file).
+  - Reference files begin with `# Title` (no frontmatter, no skill marker) per house style.
+  - Tone and density matched to terraform-iac-ops (sibling umbrella, same fold series session).
+
+Boundary: network-device automation (cisco.ios, junipernetworks.junos, arista.eos,
+network_cli / httpapi / netconf connection plugins, resource modules) is the domain of
+ansible-network-modules. This skill explicitly cross-references ansible-network-modules as the
+network sub-specialist and does NOT duplicate network-collection content. The connection-plugins
+table in architecture.md lists network plugins with a pointer to ansible-network-modules.
+
+Cross-references added in SKILL.md:
+  ansible-network-modules (network sub-specialist, non-duplication boundary)
+  terraform-iac-ops (infrastructure provisioning complement)
+  secrets-hygiene (vault password storage, CI injection, token rotation)
+  linux-host-ops (OS-level tasks that Ansible automates)
+  systematic-debugging (root-cause diagnosis for failed tasks / unreachable hosts)
+
+Vault count: 102 -> 103

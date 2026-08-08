@@ -1,0 +1,97 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is a MIT-primary fold in the vault series, consistent with the cloud-ops triad (aws-cloud-ops,
+azure-cloud-ops, gcp-cloud-ops) which also used chrishuffman5 as the primary bulk source.
+
+Secondary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+Three netclaw skills contributed MCP-driven ops stubs for diagnostics.md and terraform-cloud.md.
+Apache-2.0 content is attributed and does not change the skill's license; MIT applies to the vault
+skill as a whole, following cloud-ops precedent for the same mixed-source pattern.
+
+Files folded -> reference mapping:
+
+  skills/devops/iac/terraform/SKILL.md
+    -> terraform-iac-ops/SKILL.md (umbrella shape: four-field frontmatter, skill marker, reference
+       router, thin body, cross-references, red flags, bottom line)
+
+  skills/devops/iac/terraform/references/architecture.md
+    -> terraform-iac-ops/references/architecture.md (provider plugin protocol, state file internals,
+       dependency graph, plan/apply mechanics, backend comparison, lifecycle meta-arguments, module
+       composition, data sources, for/dynamic expressions)
+
+  skills/devops/iac/terraform/1.14/SKILL.md
+    -> folded into terraform-iac-ops/references/architecture.md (version-gated features table,
+       ephemeral resources stabilisation, provider-defined functions, for_each on import blocks,
+       multiple validation blocks per variable)
+
+  skills/devops/iac/terraform/1.15/SKILL.md
+    -> folded into terraform-iac-ops/references/architecture.md (Terraform Stacks, enhanced testing
+       framework, write-only attributes, HCL and CLI improvements, version-gated features table)
+       and terraform-iac-ops/references/terraform-cloud.md (Stacks architecture section)
+
+  skills/devops/iac/terraform/references/best-practices.md
+    -> terraform-iac-ops/references/best-practices.md (module design conventions, repository
+       structure, remote state organisation, environment separation, DRY patterns, variable
+       validation, naming, secret handling, policy-as-code, tagging, version pinning, CI/CD)
+
+  skills/devops/iac/terraform/references/terraform-cloud.md
+    -> terraform-iac-ops/references/terraform-cloud.md (HCP Terraform / Terraform Cloud:
+       workspace types, runs lifecycle, remote state sharing, variable sets, run triggers,
+       dynamic credentials, private module registry, agents, drift detection, continuous
+       validation, no-code provisioning, Sentinel/OPA policies, TFE provider, API automation,
+       troubleshooting)
+
+  workspace/skills/terraform-workspaces/SKILL.md (netclaw, Apache-2.0)
+    -> terraform-iac-ops/references/terraform-cloud.md (workspace operations table: list, get,
+       create, update, delete, trigger run, get run status, list runs, cancel run; genericised
+       from netclaw tool invocation pattern to vendor-neutral tool names and parameters)
+
+  workspace/skills/terraform-registry/SKILL.md (netclaw, Apache-2.0)
+    -> terraform-iac-ops/references/terraform-cloud.md (registry search table: search providers,
+       get provider details, list provider versions, search modules, get module details, list
+       module versions; genericised from netclaw tool invocation pattern)
+
+  workspace/skills/terraform-operations/SKILL.md (netclaw, Apache-2.0)
+    -> terraform-iac-ops/references/diagnostics.md (local run workflow table: init, validate,
+       fmt, plan, apply, destroy, output, state list, import; genericised from netclaw tool
+       invocation pattern; ServiceNow CR gate genericised to "per change-control policy")
+
+  skills/devops/iac/terraform/references/diagnostics.md
+    -> terraform-iac-ops/references/diagnostics.md (common errors, state lock, provider auth,
+       dependency cycles, drift, resource-already-exists, provider version conflict, debugging
+       with TF_LOG, state recovery, state surgery, import workflows, moved blocks,
+       provider-defined functions, performance issues)
+
+Customisations applied to all files:
+
+  - Re-authored chrishuffman5 "You are a specialist" agent framing into vault operator-facing prose.
+  - Four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0) in SKILL.md only.
+  - Skill marker only in SKILL.md; references carry NO frontmatter and NO skill marker.
+  - References: line 1 is the title heading, no frontmatter.
+  - Dropped `author: christopher huffman` and `author: netclaw` metadata fields.
+  - Dropped chrishuffman5 "Version Routing" table (version-specific sub-skills not adopted;
+    version features folded directly into architecture.md).
+  - Dropped netclaw "Record in GAIT" / GAIT audit-trail lines from all files.
+  - Genericised netclaw harness invocation ($MCP_CALL "python3 -u $XXX_MCP_SCRIPT" TOOL '{json}')
+    to "via the Terraform MCP server" with tool names and JSON parameters preserved.
+  - Dropped markmap / visualisation dependencies.
+  - Dropped netclaw-internal integration-table rows and openclaw metadata.
+  - ServiceNow change-control-required gates genericised to "per change-control policy".
+  - British / Pacific English applied throughout (organisation, licence, initialise, behaviour,
+    optimise, modelled, utilisation, analyse, favour).
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences (Python byte-scan verified).
+  - Pricing tiers table retained in terraform-cloud.md as reference context; exact figures are
+    as of 2025 from chrishuffman5 upstream; operators should verify current pricing at
+    https://www.hashicorp.com/products/terraform/pricing.
+
+Cross-references added to vault skills:
+  aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops (cloud provider service selection and OIDC auth)
+  ansible-network-modules (config management complement to IaC provisioning)
+  secrets-hygiene (state files contain sensitive values; CI credentials handling)
+  systematic-debugging (root-cause diagnosis before re-applying)
+  gh-actions-ci (Terraform CI pipelines in GitHub Actions)
+  utc-timestamps (run timestamps, drift schedules, auto-destroy dates)
+  ansible-automation-platform referenced as forthcoming (not yet adopted; do not hard-link)
+
+Vault count: 101 -> 102

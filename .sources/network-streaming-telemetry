@@ -1,0 +1,59 @@
+Primary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+
+network-streaming-telemetry is the vendor-neutral model-driven-streaming-telemetry skill: the push-based
+counterpart to the poll-based paradigms in network-monitoring-selection. It owns the device-side transports
+(gNMI, gNOI, NETCONF/YANG-push, Cisco MDT over OpenConfig or native YANG), subscription design (SAMPLE /
+ON_CHANGE / TARGET_DEFINED, dial-in vs dial-out, encodings), and the receiver/collector tier (gnmic,
+Telegraf gNMI + cisco_telemetry_mdt inputs, the OpenTelemetry gNMI/OpenConfig receiver, TLS/mTLS, pipeline
+buffering/backpressure, scaling, hand-off to a TSDB/Kafka). Skill licensed Apache-2.0 (the primary-source
+licence).
+
+Scope + cadence (decided with the user at plan time, 2026-07-18 AskUserQuestion):
+  - The 2026-05-21 disposition ("Network-telemetry-receivers + VPN": telemetry umbrella + extend
+    vpn-tunnel-troubleshooting) reshaped against live disk. Flow (NetFlow / sFlow / IPFIX) is already
+    DOUBLY owned (network-monitoring-selection design + kentik-network-monitoring engine), so the residual
+    a new skill can own is the model-driven STREAMING-telemetry stack only.
+  - User decision: CREATE a new narrow ops skill (not an nms extension), scoped to streaming telemetry +
+    the receiver/collector tier. A minimal, user-sanctioned fifth-paradigm route-out was added to
+    network-monitoring-selection (When-not-to-use + a Cross-references bullet); the nms four-paradigm core
+    is unchanged.
+  - Shape = design + ops umbrella with 3 references, per the network-monitoring-selection CREATE precedent.
+
+Files folded -> reference mapping:
+  netclaw workspace/skills/gnmi-telemetry/SKILL.md (gNMI streaming telemetry: Capabilities/Get/Set/Subscribe,
+    SAMPLE vs ON_CHANGE, YANG path browse, gNMI-vs-CLI validation, vendor ports IOS-XR 57400 / Juniper 32767
+    / Arista 6030 / Nokia 57400, JSON_IETF encoding, TLS/mTLS). Its netclaw-specific gnmi-mcp MCP-server
+    framing (the ~10 gnmi_* tool names, ServiceNow CR-gating on Set, GAIT audit-trail, pyATS integration)
+    was GENERICISED OUT; only the vendor-neutral gNMI protocol content was retained.
+    -> SKILL.md (condensed core: push-not-poll; pick the subscription mode from the signal; dial-in vs
+       dial-out; the collector tier; encoding/sensor-path portability; request classification; reference
+       router; boundary route-outs)
+    -> references/protocols-and-subscriptions.md (gNMI four RPCs + Subscribe modes + dial-in/out +
+       encodings + ports [netclaw-derived]; gNOI, NETCONF/YANG-push RFC 8639/8641, Cisco MDT sensor-group/
+       subscription/destination-group, OpenConfig vs native YANG [authored fresh from public docs])
+    -> references/collectors-and-pipeline.md (gnmic, Telegraf gnmi + cisco_telemetry_mdt, OTel gNMI
+       receiver; TLS/mTLS; dial-out target config; buffering/backpressure; scaling; hand-off to TSDB/Kafka
+       [authored fresh from public tool/vendor docs])
+    -> references/paradigm-and-platform.md (streaming vs SNMP vs flow; when MDT beats polling; cardinality/
+       scale; per-vendor support map; adoption path [authored fresh; dual-run + gNMI-vs-CLI validation idea
+       from the netclaw upstream])
+
+Deliberately EXCLUDED (owned elsewhere; cross-referenced OUT, NOT folded):
+  - netclaw workspace/skills/ipfix-receiver/SKILL.md (IPFIX / NetFlow v5/v9 flow receiver): flow is DOUBLY
+    owned (network-monitoring-selection owns the flow paradigm/design; kentik-network-monitoring owns a
+    flow engine end to end). Folding it would violate SSOT. Streaming telemetry and flow are different
+    data planes; the SKILL.md When-not-to-use routes flow to those two skills.
+  - SNMP polling / traps / syslog / NMS design -> network-monitoring-selection.
+  - metrics store / dashboards / traces the collector feeds -> prometheus-configuration / grafana-dashboards
+    / distributed-tracing.
+  - gNMI/NETCONF as a config-push transport -> ansible-network-modules / nornir-automation / napalm-netmiko.
+
+Standards + vendor docs CITED, not reproduced (cite-sources): OpenConfig gNMI + gNOI specifications +
+OpenConfig models; RFC 6241 (NETCONF), RFC 8639 (YANG datastore subscription), RFC 8641 (YANG-push); Cisco
+IOS-XR/IOS-XE MDT guides; Juniper Junos Telemetry Interface; Arista EOS + Nokia SR OS/SR Linux telemetry
+docs; gnmic (OpenConfig), Telegraf, and OpenTelemetry Collector documentation.
+
+Licence: folding Apache-2.0 netclaw content into an Apache-2.0 skill is a direct match. New skill; vault
+count 159 -> 160. Registry Merge-entry row added; the netclaw telemetry-* family deferred note updated to
+partially-adopted. Em-dash / en-dash byte-scan == 0; British/Pacific English.

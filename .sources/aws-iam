@@ -1,0 +1,47 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the aws-iam skill. All body and reference material derives
+from skills/security/iam/aws-iam/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/aws-iam/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering policy language/
+       policy evaluation logic/roles and trust policies/IAM Identity Center/SCPs/ABAC with tags/
+       credential management; reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (policy type taxonomy: identity-based/resource-based/permission
+       boundaries/SCPs/session policies; trust policy patterns: cross-account/OIDC/service
+       principal; IAM Identity Center component model and SCIM provisioning; IAM Access Analyzer
+       analyser types and custom policy checks; credential model: IAM user credentials/STS
+       temporary credentials/service-linked roles)
+    -> references/operations.md (policy authoring checklist; cross-account access patterns;
+       permission-set design; SCP testing approach; Access Analyzer remediation workflow;
+       access-denied troubleshooting; CLI commands for common tasks)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist", "How to Approach Tasks", "Classify",
+    "Recommend") into skill voice: When to use / When not to use / core-model sections.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream quoted version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Upstream SKILL.md content redistributed: policy evaluation logic and architecture
+    details moved to architecture.md; operational patterns (checklists, CLI commands,
+    troubleshooting) moved to operations.md.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences. ASCII "->" for flow arrows;
+    commas, semicolons, and parentheses for prose pauses.
+  - British/Pacific English: organisation, authorised, favour. Product names and API
+    identifiers kept verbatim (ARNs, condition keys, CLI flags, policy field names).
+
+Boundary notes:
+  aws-iam = AWS IAM policy language, evaluation logic, role trust, Identity Center,
+  SCPs, ABAC, Access Analyzer, and credential management.
+  Conceptual layer (access-control model choice, federation protocol) routes to
+  identity-access-management. AWS resource configuration routes to aws-cloud-ops.
+  Network-level access control routes to aws-networking-audit. Credential custody
+  routes to secrets-hygiene.
+
+Cross-refs added to vault skills: identity-access-management, aws-cloud-ops,
+aws-networking-audit, secrets-hygiene, utc-timestamps, terraform-iac-ops.
+
+Part of Chunk C IAM family PR3 (cloud-provider IAM): aws-iam + gcp-iam + entra-id.
+Part of Chunk C IAM family PR3 (cloud-provider IAM): vault 119 -> 122 across aws-iam + gcp-iam + entra-id (plus entra-app-lifecycle extended with an entra-id cross-ref + boundary note).

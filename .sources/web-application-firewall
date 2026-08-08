@@ -1,0 +1,4 @@
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/security/skills/waf (MIT, sole source) -> SKILL.md re-authored into web-application-firewall/SKILL.md + references/rules-and-tuning.md + waap-and-operations.md (rule management, OWASP Core Rule Set + paranoia levels, detection vs blocking, false-positive tuning, virtual patching; WAAP L7 DDoS/bot/rate-limit/API, deployment models, monitoring)
+
+--- Chunk C AppSec family PR 2 of 2, 2026-08-02 ---
+NEW WAF technique concepts skill. MIT. Routes strategy UP to application-security. BOUNDARY (stated in the skill): a WAF is layer 7, distinct from the layer 3/4 firewall-audit family (cisco/fortigate/palo-alto/checkpoint/sophos/bsd); network DDoS + IDS/IPS -> network-detection-response. Vendors Akamai/AWS WAF/Cloudflare WAF/F5 refer-only. Gated: dash-scan == 0, yaml.safe_load parses, cross-refs resolve, boundary present. British / Pacific English; references headerless.

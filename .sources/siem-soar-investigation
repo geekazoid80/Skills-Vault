@@ -1,0 +1,80 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+Secondary source: vahagn-madatyan/netsec-skills-suite (Apache-2.0)
+URL: https://github.com/vahagn-madatyan/netsec-skills-suite
+
+siem-soar-investigation is the vendor-neutral SIEM/SOAR concepts umbrella. The SIEM and SOAR
+strategy, detection engineering, normalisation, onboarding, platform-selection, and SOC-operations
+material is sourced from chrishuffman5 (MIT) and is the primary bulk. The network-device log-forensics
+reference is genericised from two vahagn (Apache-2.0) skills; concepts and methodology only, no
+verbatim copy. Skill licensed MIT; the Apache-2.0 secondary is attributed here per the cloudflare-dns-ops
+precedent (DNS PR4, MIT-primary + netclaw Apache genericised).
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/siem/SKILL.md (routing agent: SIEM fundamentals, detection-engineering
+    lifecycle, SIGMA, normalisation standards, onboarding, alert-triage tiers, SOC metrics, cost,
+    anti-patterns, platform comparison)
+  chrishuffman5 skills/security/siem/references/concepts.md (log-management lifecycle, correlation
+    rule types, SIGMA rule language deep-dive, detection methodology, detection quality tiers,
+    detection-as-code, SOC maturity, SOAR fundamentals)
+    -> SKILL.md (condensed core: pipeline, detection engineering, SIGMA at a glance, normalisation
+       quick table, triage tiers, SOC metrics, SOAR, anti-patterns; request classification; routers)
+    -> references/detection-engineering.md (lifecycle, correlation types + best practices, SIGMA
+       structure/modifiers/worked-example/backends, ATT&CK mapping, detection quality tiers,
+       detection-as-code layout, SOC maturity model)
+    -> references/normalisation-and-onboarding.md (collection methods, parsing, the five normalisation
+       standards in depth, enrichment, indexing/storage trade-offs, retention by compliance, onboarding
+       priority P1-P4, ingestion-cost tactics)
+  chrishuffman5 skills/security/siem/soar/SKILL.md (SOAR routing agent: when-to-use, what-to-automate,
+    playbook patterns, automation maturity, ROI, integration architecture, platform comparison)
+    -> references/soar-automation.md (when to use SOAR, what to automate first, playbook patterns
+       enrichment/triage/containment/notification/full-lifecycle, automation maturity model, ROI
+       metrics, integration architecture)
+    -> references/platform-selection.md (SOAR platform comparison + selection guide)
+  chrishuffman5 skills/security/siem/SKILL.md (SIEM platform comparison + decision tree)
+    -> references/platform-selection.md (SIEM platform comparison + decision tree, genericised; the
+       skipped vault vendors named only as routing context)
+  vahagn skills/siem-log-analysis/ (SKILL.md + references/query-reference.md + cli-reference.md):
+    network-device SIEM forensic timeline, six-step procedure, cross-platform query patterns for seven
+    use cases, severity/anomaly/confidence thresholds, report template, troubleshooting
+  vahagn skills/network-log-analysis/ (SKILL.md + references/syslog-patterns.md + cli-reference.md):
+    raw-syslog-without-SIEM forensics (rsyslog/syslog-ng, grep/awk/sort), vendor syslog formats
+    (Cisco IOS-XE / Juniper JunOS / Arista EOS), RFC 5424 facility/severity, causal-chain detection,
+    NTP-aware timestamp normalisation, report template
+    -> references/network-log-forensics.md (merged + genericised: the six-step procedure with both
+       SIEM and raw-syslog tracks, cross-platform query patterns, vendor syslog formats, threshold +
+       confidence tables, report template, pitfalls)
+
+Customisations applied:
+  - Re-authored the agent-style upstreams ("You are the routing agent...", "Use this agent when...",
+    "How to Approach Tasks", "Route to a technology agent") into vault umbrella shape: keyword-rich
+    CSO description enumerating the five references and the cross-skill boundaries (graylog-log-
+    investigation, the metrics skills, EDR/NDR, oncall-runbooks, secrets-hygiene), four-field vault
+    frontmatter (name, description, license MIT, metadata.version 1.0.0), skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - vahagn openclaw/safety metadata and [Splunk]/[ELK]/[QRadar] inline-label convention dropped;
+    methodology genericised, query examples kept as illustrative side-by-side patterns.
+  - Two vahagn companion skills merged into a single network-log-forensics.md (with-SIEM and
+    without-SIEM tracks), deduped against the umbrella core.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files. ASCII "->"
+    used for pipeline and resolution arrows; commas, colons, and parentheses for dash-style pauses.
+  - British/Pacific English applied: normalise, normalisation, prioritise, organise, behaviour,
+    licence (noun), defence.
+
+Boundary notes:
+  siem-soar-investigation = vendor-neutral SIEM/SOAR strategy, detection engineering, the data
+  pipeline, SOAR automation, platform selection, and network-device log forensics. It does NOT own
+  Graylog hands-on (graylog-log-investigation, which also holds the Elastic-Stack-as-log-backend
+  comparison), metrics-side triage (grafana-dashboards, prometheus-configuration, zabbix-templates-
+  and-triage), or sensor operation (endpoint-detection-response, network-detection-response). The
+  SIEM/SOAR vendor skills (splunk, sentinel, qradar, chronicle, xsiam, logscale, elastic-security,
+  xsoar, splunk-soar, tines, torq, sentinel-playbooks) are skipped/refer-only in this vault per the
+  generic-only disposition; this umbrella names them as routing context only.
+
+Cross-refs added: graylog-log-investigation, grafana-dashboards, prometheus-configuration,
+zabbix-templates-and-triage, endpoint-detection-response, network-detection-response, oncall-runbooks,
+systematic-debugging, secrets-hygiene, compliance-benchmark-audit, igp-routing-analysis, bgp-analysis,
+utc-timestamps.
+
+Part of Chunk C SIEM/SOAR family (single PR: siem-soar-investigation new + graylog-log-investigation
+extended with the ELK log-backend fold): vault 128 -> 129.

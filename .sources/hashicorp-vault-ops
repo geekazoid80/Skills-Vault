@@ -1,0 +1,56 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for hashicorp-vault-ops. All body and reference material
+derives from skills/security/secrets/vault/. MIT licence governs the SKILL.md and all three
+references.
+
+Files folded -> reference mapping:
+  skills/security/secrets/vault/SKILL.md
+    -> SKILL.md (umbrella body: request classification, edition identification, condensed
+       core model (barrier/seal/unseal/Raft), secret-engine and auth-method quick-reference
+       tables, reference router, cross-refs, red flags, bottom line)
+    -> references/secrets-engines-and-auth.md (hands-on usage: seal/unseal, storage config,
+       KV v2 / database / PKI / transit / cloud secret engines, auth methods (token, AppRole,
+       Kubernetes, OIDC, AWS IAM), policy HCL, Vault Agent config and templates, Vault Secrets
+       Operator manifests, audit devices, Enterprise feature map)
+  skills/security/secrets/vault/references/architecture.md
+    -> references/architecture.md (barrier, Raft consensus and cluster sizing, storage-backend
+       comparison, performance and DR replication, namespace architecture, plugin system, token
+       architecture, request pipeline, leases, performance and capacity planning, telemetry,
+       backup/restore, upgrade, lease cleanup, break-glass)
+  skills/security/secrets/vault/references/best-practices.md
+    -> references/best-practices.md (secret-engine selection, KV/database/transit patterns,
+       auth-method selection, AppRole SecretID protection, policy design and least privilege,
+       Sentinel, PKI production deployment, audit configuration, Vault Agent vs VSO, HA network
+       and health endpoints, common misconfigurations)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist...", "How to Approach Tasks",
+    "Expert agent") into vault umbrella shape: keyword-rich CSO description enumerating the three
+    references and the cross-skill boundaries (secrets-hygiene, cert-manager, lets-encrypt,
+    cloud IAM), four-field vault frontmatter (name, description, license MIT, metadata.version
+    1.0.0), skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Split the 561-line upstream SKILL.md body into the condensed umbrella core (SKILL.md) plus
+    the hands-on usage reference (secrets-engines-and-auth.md), keeping the two upstream
+    references (architecture, best-practices) as focused deep-dives for progressive disclosure.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files. ASCII "->"
+    used for pipeline and resolution arrows; commas, colons, and parentheses used for dash-style
+    pauses.
+  - British/Pacific English applied: organise, randomised, initialised, licence (noun).
+
+Boundary notes:
+  hashicorp-vault-ops = Vault-the-product (seal/unseal, secret engines incl. its own PKI engine,
+  auth methods, policies, Agent/VSO, replication, namespaces, HA cluster operations).
+  secrets-hygiene owns secret-handling hygiene and the secrets-management plus PKI concept layer
+  (chain of trust, CA hierarchy, key types, revocation). cert-manager owns the Kubernetes
+  certificate-issuance controller; lets-encrypt owns the public ACME CA and certbot. Vault's PKI
+  engine can act as an ACME provider, which is the consuming link to those two skills. No content
+  duplication: this skill covers Vault CLI/API/HCL specifics; the concept layer routes up to
+  secrets-hygiene.
+
+Cross-refs added: secrets-hygiene, cert-manager, lets-encrypt, aws-iam, gcp-iam, entra-id,
+utc-timestamps.
+
+Part of Chunk C Secrets/PKI family PR1 (hashicorp-vault-ops + secrets-hygiene concepts extension):
+vault 125 -> 126.

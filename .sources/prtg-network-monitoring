@@ -1,0 +1,41 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+prtg-network-monitoring is the PRTG Network Monitor (Paessler) configuration, operations, and tuning skill:
+the sensor-based monitoring model and sensor-count optimisation, licensing tiers, auto-discovery and device
+templates, the sensor catalogue (SNMP/WMI/flow/HTTP/custom), on-premises core-plus-probe architecture vs
+PRTG Hosted Monitor SaaS, remote probe design, maps/dashboards/reports, notifications and escalation, and
+the HTTP API. It is a vendor ops skill in the NMS family; the DESIGN/paradigm/platform-selection decision
+lives in network-monitoring-selection (PR 1), to which this skill routes the design question back.
+Skill licensed MIT (the primary-source licence).
+
+Part of NMS family PR 2 of 3 (PRTG + Kentik, MIT single-source). Scope = full ops per the DNS +
+Load-balancer precedent.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/network-monitoring/prtg/SKILL.md (PRTG technology expert: sensor-based
+    model + licensing, auto-discovery + device templates, sensor types, architecture on-prem + Hosted
+    Monitor + remote probes, maps/dashboards/reports, notifications + escalation + maintenance windows,
+    HTTP API, common pitfalls)
+    -> SKILL.md (condensed core: everything-is-a-sensor-and-sensors-are-the-licence-unit, auto-discovery+
+       templates-for-consistency, probes-put-polling-where-the-devices-are, prefer-SNMP-over-WMI,
+       API-is-scriptable-but-server-is-authoritative, anti-patterns; request classification; reference
+       router; design-vs-ops boundary routing back to network-monitoring-selection)
+    -> references/architecture.md (sensor model + licensing tiers + sensor-count optimisation; on-prem core
+       server/local probe/embedded DB/web interface; Hosted Monitor SaaS; remote probe architecture over
+       TLS 23560 + use cases + single-core-HA caveat)
+    -> references/sensors-and-discovery.md (auto-discovery process + device templates + schedule; SNMP/WMI/
+       flow/HTTP/custom sensor catalogue; polling intervals)
+    -> references/operations.md (maps/dashboards/reports; notification triggers/methods/escalation/
+       maintenance windows; HTTP API endpoints + authentication + use cases; common pitfalls)
+
+Customisations:
+  - Agent-style upstream ("You are a specialist...", "How to Approach Tasks") re-authored into vault skill
+    shape with four-field frontmatter (license MIT) + skill marker; references carry no frontmatter / no
+    skill marker (line 1 is # Title).
+  - Upstream name networking-network-monitoring-prtg not carried over.
+  - API examples keep apitoken=TOKEN placeholders (never a live token); secret-store discipline noted.
+  - em-dash / en-dash purge (byte-scan == 0); British / Pacific English; ASCII -> arrows.
+
+Skipped / refer-only:
+  - netclaw + vahagn-netsec have no PRTG-specific content. MIT single-source.

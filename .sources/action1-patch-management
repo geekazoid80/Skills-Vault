@@ -1,0 +1,44 @@
+EXTERNAL ADDITION: no upstream third-party skill.
+Original authored content describing Action1 from its public documentation and public product coverage.
+
+Cited sources (per the cite-sources skill), verified 2026-06-18:
+  - https://www.action1.com/ (vendor product page: "Unified Cross-Platform Patch Management"; cloud-native
+    autonomous endpoint management, free for the first 200 endpoints with full functionality)
+  - https://www.helpnetsecurity.com/2026/03/24/product-showcase-action1-endpoint-patch-management-solution/
+    (product showcase, published 2026-03-24: SaaS, agent on port 443 / 22543 fallback, AD/GPO/third-party
+    enrolment, Windows + macOS + Linux [Dec 2025: Debian + Ubuntu LTS + Red Hat-based], policy-based
+    automation, time-based update rings, CVE + CVSS + CISA KEV + ransomware indicators, compliance
+    templates + PowerShell-scriptable custom reports, Entire Enterprise multi-org, RBAC, PowerShell signing,
+    200 free endpoints)
+  - 4sysops + iFeeltech + Gartner Peer Insights + Software Advice + Capterra public reviews
+    (corroborating the 200-endpoint free tier, Windows/Mac patching, peer-to-peer distribution)
+
+Skill text licensed MIT (vault convention for external additions, as with cacti-network-monitoring); Action1
+itself is a commercial SaaS product. action1-patch-management is the patch-DEPLOYMENT end of the VulnMgmt +
+ASM family: where vulnerability-management decides what to patch and the SLA, Action1 deploys the patch and
+verifies it. VulnMgmt + ASM family PR 4 of 4 (external; kept in its own PR because its provenance is
+public-docs not an upstream skill). Resolves the forward-ref from the vulnerability-management umbrella
+(PR 1) to action1-patch-management.
+
+AUDIT NOTE: this entry has no upstream skill to diff; refresh by re-checking the public Action1 docs and
+product pages (Linux distro coverage in particular is expanding), not by diffing an upstream repo. Verified
+state at authoring: cloud-native SaaS, agent port 443/22543, Windows/macOS/Linux, 200 free endpoints,
+time-based update rings, CVE/CVSS/KEV/ransomware patch intelligence (as of 2026-06-18).
+
+Content -> reference mapping:
+  -> SKILL.md (condensed core: cloud-native agent-based no on-prem; automate then stage with rings; patch
+     OS + third-party together; patching is vulnerability-aware; peer-to-peer + scale; classification;
+     router; deployment-vs-prioritisation boundary)
+  -> references/architecture-and-agent.md (SaaS model, the cloud-managed agent + ports, enrolment AD/GPO/
+     third-party, platform support Windows/macOS/Linux, peer-to-peer distribution, multi-org, RBAC, free tier)
+  -> references/patching-and-automation.md (automation policies approval/scheduling/maintenance-windows/
+     reboot, time-based update rings, third-party app patching, software repository, software deployment,
+     relationship to the VM programme)
+  -> references/vulnerability-and-reporting.md (built-in CVE/CVSS/KEV/ransomware intelligence, compliance +
+     custom reporting, remote script execution + PowerShell signing, multi-organisation aggregation)
+
+Customisations: original authored vault skill shape with four-field frontmatter (license MIT) + skill marker
+on SKILL.md; references carry no frontmatter / no skill marker (line 1 is # Title); agent-enrolment
+credential + PowerShell-signing-key discipline noted (secret store); em-dash / en-dash purge (byte-scan ==
+0); British / Pacific English; ASCII -> arrows. Cross-refs: action1-patch-management -> vulnerability-
+management (reciprocal) + nvd-cve + endpoint-detection-response + compliance-benchmark-audit + secrets-hygiene.

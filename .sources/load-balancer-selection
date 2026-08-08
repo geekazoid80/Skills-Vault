@@ -1,0 +1,57 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+load-balancer-selection is the vendor-neutral load-balancing and application-delivery (ADC) DESIGN and
+platform-selection umbrella: which layer to balance at (L4 vs L7), which proxy model fits the traffic
+(full-proxy / transparent / DSR), which algorithm and persistence method the application needs, where
+TLS terminates, and which platform earns the deployment. It is the design-and-selection entry point for
+the load-balancer family; per-vendor configuration and operations live in the sibling skills
+(haproxy-load-balancing, nginx-load-balancing, aws-load-balancing), which land in PR 2 of this family.
+Skill licensed MIT (the primary-source licence).
+
+Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion):
+  - Naming = scope-explicit: umbrella `load-balancer-selection` + `haproxy-load-balancing` +
+    `nginx-load-balancing` + `aws-load-balancing`.
+  - PR cadence = two PRs: PR 1 = this umbrella; PR 2 = the three vendor ops skills.
+  - Vendor-skill scope = full ops (architecture + config + best-practices/ops + diagnostics) per the
+    DNS-family precedent, since there are no pre-existing load-balancer diagnostic skills to route to.
+  - This umbrella owns DESIGN / ARCHITECTURE-SELECTION / PLATFORM-COMPARISON only; per-vendor
+    configuration is routed out via "When not to use" to the three vendor skills.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/load-balancing/SKILL.md (load-balancing routing agent: L4 vs L7,
+    deployment patterns, algorithm tables + selection guide, health-check design, persistence methods,
+    SSL offload, platform comparison + decision matrix, Kubernetes ingress vs service mesh, migration
+    guidance)
+  chrishuffman5 skills/networking/load-balancing/references/concepts.md (full-proxy vs transparent vs
+    DSR, algorithm details, health-check types + endpoint design, persistence methods + statelessness,
+    SSL offload + re-encryption, connection pooling/multiplexing/draining, HA patterns, rate limiting,
+    caching, observability)
+    -> SKILL.md (condensed core: pick-the-layer-first; the-model-follows-the-layer; algorithm is a
+       smaller decision than persistence; health-check the application not the port; TLS terminates
+       where you need visibility; then choose the platform; request classification; reference router;
+       design-vs-config boundary)
+    -> references/concepts.md (L4 vs L7; full-proxy / transparent / DSR models; static + dynamic
+       algorithm catalogue + selection guide; connection pooling / multiplexing / draining; deployment
+       patterns)
+    -> references/health-and-persistence.md (active vs passive health checks; the ICMP/TCP/HTTP/content/
+       script hierarchy; parameters + anti-patterns; health-endpoint design; persistence methods +
+       trade-offs; persistence vs statelessness; HA patterns active-passive / active-active /
+       clustering)
+    -> references/tls-and-traffic-management.md (TLS offload vs passthrough vs re-encryption; TLS best
+       practices; content switching path/host/header/weighted; rate limiting token bucket; caching;
+       WAF placement; observability)
+    -> references/platform-selection.md (platform profiles F5 / NGINX / HAProxy / NetScaler / Envoy /
+       cloud LBs; decision matrix; short selection method; Kubernetes ingress vs service mesh;
+       hardware-to-software migration + feature-gap mapping)
+
+Skipped / refer-only:
+  - chrishuffman5 per-vendor load-balancing skills (f5-bigip + 17.5, netscaler, azure-appgw, envoy):
+    f5-bigip, netscaler, azure-appgw, and envoy are named in platform-selection.md as routing context
+    only; deep per-vendor depth for those is not yet in this vault. haproxy, nginx, and aws-lb are
+    re-authored as the three vault vendor skills in PR 2 (not refer-only).
+  - chrishuffman5 AWS Classic ELB: excluded as legacy (superseded by ALB / NLB).
+  - automateyournetwork/netclaw (Apache-2.0) F5 skills (f5-config-mgmt, f5-health-check,
+    f5-troubleshoot, pyats-f5-ltm, pyats-f5-platform): F5-specific operational / diagnostic / pyATS
+    automation; not folded. This is therefore an MIT single-source umbrella.
+  - vahagn-madatyan/netsec-skills-suite (Apache-2.0): no load-balancing content.

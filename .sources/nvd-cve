@@ -1,0 +1,29 @@
+Primary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+
+nvd-cve is the NVD/CVE lookup ops skill, re-authored from the netclaw nvd-cve MCP-tool skill into a vault
+skill (SKILL + 2 references). Apache-2.0 primary (matching the netclaw source licence, per the
+network-source-of-truth + graylog Apache-primary precedent). It is the CVE-lookup tool; prioritisation and
+remediation of what it returns are routed to the vulnerability-management umbrella (PR 1). VulnMgmt + ASM
+family PR 3 of 4 (Apache open-source tools).
+
+Files folded -> reference mapping:
+  netclaw workspace/skills/nvd-cve/SKILL.md (NVD CVE vulnerability search: get_cve / search_cve, CVSS
+    severity mapping, vulnerability-audit workflow, exposure correlation, fleet-wide scan matrix,
+    feature-keyword searches, GAIT audit trail)
+    -> SKILL.md (condensed core: two query modes; the NVD score is a starting point not the priority;
+       exposure correlation is what makes the lookup useful; tool wrapper note; classification; router;
+       lookup-vs-prioritisation boundary)
+    -> references/lookup-and-scoring.md (NVD REST API, get-by-id + search-by-keyword + parameters, CVE
+       record contents, CVSS severity-to-action-timeline mapping, API key + rate limits)
+    -> references/correlation-and-reporting.md (version-to-CVE audit workflow, exposure correlation against
+       running config, feature-keyword searches, fleet-wide matrix, audit trail)
+
+Customisations: netclaw MCP-bound plumbing ($MCP_CALL / $NVD_MCP_SCRIPT invocations, openclaw metadata,
+user-invocable frontmatter) genericised to the vendor-neutral NVD REST API + the marcoeg/mcp-nvd wrapper
+noted by name (not as required harness); GAIT-specific audit-trail command generalised to "the environment's
+audit log"; four-field frontmatter (license Apache-2.0) + skill marker added; references headerless (line 1
+is # Title); NVD API key framed as a secret-store credential; em-dash / en-dash purge (byte-scan == 0);
+British / Pacific English; ASCII -> arrows. Cross-refs vulnerability-management (reciprocal) +
+nmap-scanning + attack-surface-management + multi-vendor-network-ops + the firewall-audit skills +
+secrets-hygiene + utc-timestamps.

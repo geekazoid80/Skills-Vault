@@ -1,0 +1,7 @@
+# Pattern-1 (adopt-as-is) skill register. Machine-readable companion to the
+# "Pattern 1: adopt-as-is register" section in merged-skills-registry/SKILL.md.
+# Consumed by check-pattern1.sh, list-skills.sh, and update-skill.sh.
+# Tab-separated. Append new columns at the end; never reorder or rename existing ones.
+# check_type: pypi (version from PyPI JSON) | git-dir (latest tag via git ls-remote; refresh via update-skill.sh)
+# version_file: path (relative to vault root) whose contents are the pinned version (single source of truth for the pin).
+name	check_type	upstream_id	version_file	repo	repo_path

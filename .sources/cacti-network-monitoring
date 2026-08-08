@@ -1,0 +1,47 @@
+Primary source: EXTERNAL (no upstream skill) - drafted from public Cacti documentation
+Skill text: original authored content, licensed MIT (the vault skill convention).
+NB: the Cacti software itself is GPLv2; this skill is original descriptive prose ABOUT Cacti drafted
+from its public documentation, not a copy of Cacti source or docs, so the skill text carries the vault's
+standard MIT licence. No upstream third-party SKILL was folded.
+
+cacti-network-monitoring is the external addition in the NMS family (PR 3 of 3). It is the open-source
+RRDtool-based SNMP graphing and polling platform skill: LAMP architecture, RRDtool data storage, the poller
+(cmd.php vs Spine), distributed polling via remote data collectors, the template + data-query model, CDEF/
+GPRINT presentation, Thold threshold alerting, the plugin ecosystem, install + MySQL sizing, the Boost
+plugin, and common pitfalls. The DESIGN/paradigm/platform-selection decision lives in
+network-monitoring-selection (PR 1), to which this skill routes the design question back.
+
+Cited sources (per the cite-sources skill; verified 2026-06-18):
+  - Cacti downloads / current release: https://www.cacti.net/info/downloads
+    (current stable Cacti 1.2.31, released 2026-06-15; requires PHP, MySQL/MariaDB, RRDtool, net-snmp,
+    a PHP-capable web server)
+  - Cacti releases: https://github.com/Cacti/cacti/releases
+    (1.2.31 raises the minimum supported PHP to 8.1; security-focused release)
+  - Cacti project + documentation: https://www.cacti.net/ and https://github.com/Cacti/cacti
+    (architecture, poller, template model, plugin architecture - the Cacti manual)
+
+Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion):
+  - 3-PR cadence: PR 1 umbrella; PR 2 PRTG + Kentik (MIT single-source); PR 3 = this skill (external,
+    public-docs draft, distinct provenance, separated for review clarity).
+  - Full-ops scope per the DNS + Load-balancer precedent.
+
+Reference layout (authored from public-doc knowledge, no file-to-file fold mapping since there is no
+upstream skill):
+  -> SKILL.md (condensed core: RRDtool-shape-fixed-at-creation, poller-must-finish-inside-the-interval,
+     templates-make-it-repeatable + data-queries-make-it-dynamic, CDEF/GPRINT-presentation,
+     alerting-and-scale-are-plugins, anti-patterns; request classification; reference router;
+     design-vs-ops boundary routing back to network-monitoring-selection)
+  -> references/architecture.md (LAMP component versions, RRDtool data sources/RRAs/consolidation, poller
+     cmd.php vs Spine, cron/systemd scheduling + the poller cycle, remote data collectors)
+  -> references/templates-and-graphing.md (template hierarchy data-input/data/graph/host, data input
+     methods, SNMP data queries for interface discovery, CDEF RPN transforms, GPRINT legends, graph trees +
+     aggregates)
+  -> references/operations.md (install + MySQL/MariaDB sizing, poller tuning threads/processes/interval +
+     overrun, Boost plugin, Thold threshold alerting, plugin ecosystem Weathermap/Monitor/Syslog/FlowView,
+     common pitfalls, 1.2.x version notes + PHP 8.1 minimum + security posture)
+
+Customisations / conventions:
+  - Vault skill shape: four-field frontmatter (license MIT) + skill marker on SKILL.md; references carry no
+    frontmatter / no skill marker (line 1 is # Title).
+  - SNMP credential discipline noted (secret store, never inline); security posture of the web UI flagged.
+  - em-dash / en-dash purge (byte-scan == 0); British / Pacific English; ASCII -> arrows.

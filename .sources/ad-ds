@@ -1,0 +1,75 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the ad-ds skill. All body and reference material derives
+from skills/security/iam/ad-ds/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/ad-ds/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering directory
+       structure/FSMO roles/replication model/Group Policy/Kerberos/tiered administration;
+       reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (AD DS architecture deep-dive)
+    -> references/best-practices.md (hardening and operational guidance)
+    -> references/diagnostics.md (diagnostic playbooks and event IDs)
+  skills/security/iam/ad-ds/references/architecture.md
+    -> references/architecture.md (NTDS.dit database, replication internals, sites and
+       subnets, Global Catalog, schema, trust authentication flow, RODC, DFS-R SYSVOL)
+  skills/security/iam/ad-ds/references/best-practices.md
+    -> references/best-practices.md (tiered administration, PAWs, LAPS, gMSA, GPO security
+       baselines, Protected Users, fine-grained password policies, monitoring, DC placement,
+       backup and recovery, NTLM reduction)
+  skills/security/iam/ad-ds/references/diagnostics.md
+    -> references/diagnostics.md (dcdiag, repadmin, nltest, replication error codes,
+       replication failure workflow, critical event IDs, DNS troubleshooting, authentication
+       failure troubleshooting, performance diagnostics, backup and recovery scenarios)
+  skills/security/iam/ad-ds/2016/SKILL.md
+    -> references/architecture.md "Version differences" section: Server 2016 subsection
+       (PAM, temporal groups, functional level 2016, PKInit Freshness, AD FS 4.0, upgrade
+       prerequisites and support timeline)
+  skills/security/iam/ad-ds/2019/SKILL.md
+    -> references/architecture.md "Version differences" section: Server 2019 subsection
+       (no new FL, hybrid identity (Azure AD Connect V2, Azure AD Password Protection,
+       Seamless SSO), Defender for Endpoint, LEDBAT, AD FS 5.0, support timeline)
+  skills/security/iam/ad-ds/2022/SKILL.md
+    -> references/architecture.md "Version differences" section: Server 2022 subsection
+       (TLS 1.3 for LDAPS, Kerberos AES-256 and FAST, Credential Guard default, Cloud
+       Kerberos trust, SMB over QUIC, TLS 1.0/1.1 disabled by default, support timeline)
+  skills/security/iam/ad-ds/2025/SKILL.md
+    -> references/architecture.md "Version differences" section: Server 2025 subsection
+       (functional level 10, 32K database pages optional feature, NTLM deprecation and NTLMv1
+       removal, Kerberos with certificate trust (PKINIT SHA-256/384), Credential Guard enforced,
+       upgrade sequence, support timeline) + version comparison table
+
+Customisations applied:
+  - Re-authored all agent-framing ("You are a specialist", "How to Approach Tasks",
+    "Version Agents", "Classify the request") into skill voice: When to use / When not to use /
+    core-model sections describing what the skill covers.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream name (security-iam-ad-ds),
+    quoted version, and any tags.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Version sub-skills (2016/2019/2022/2025) absorbed into references/architecture.md
+    as a "Version differences" section with per-version subsections and a comparison table.
+    No version subfolders created in the vault skill.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences. ASCII "->" for flow arrows;
+    commas, semicolons, and parentheses for prose pauses.
+  - British/Pacific English: organis*, authoris*, minimis*, enrol (single l), licence (noun),
+    behaviour, optimis*. Product names (NTDS.dit, repadmin, dcdiag, Kerberoasting, gMSA,
+    AdminSDHolder) and cmdlets kept verbatim.
+
+Boundary notes:
+  ad-ds = on-premises Active Directory directory services: NTDS, replication, FSMO, Group
+  Policy, Kerberos, hardening, tiered administration, LAPS, gMSA, trusts, sites, RODC,
+  SYSVOL, version differences across 2016/2019/2022/2025.
+  Certificate services (PKI, ESC vulnerabilities) routes to ad-cs.
+  Federation services (SAML, claims rules, WAP) routes to ad-fs.
+  Entra ID (Azure AD, Conditional Access, PIM, Entra Connect) routes to entra-id.
+  AD-integrated DNS routes to windows-dns-ops.
+  Credential custody (KRBTGT, keytabs, gMSA root key) routes to secrets-hygiene.
+
+Cross-refs added to vault skills: identity-access-management, ad-cs, ad-fs, entra-id,
+windows-dns-ops, secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR4 (Active Directory roles): vault skills ad-ds + ad-cs + ad-fs.
+Part of Chunk C IAM family PR4 (Active Directory roles, FINAL): vault 122 -> 125 across ad-ds + ad-cs + ad-fs.

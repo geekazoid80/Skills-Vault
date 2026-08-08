@@ -1,0 +1,54 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+routing-switching-design is the vendor-neutral routing and switching DESIGN umbrella: topology
+selection, redundancy-model selection, segmentation design, and platform comparison. It is the
+design-and-selection counterpart to the vault's existing diagnostic skills (igp-routing-analysis,
+bgp-analysis, evpn-vxlan-fabric) and to the diagnose-first operating entry point
+(multi-vendor-network-ops). Skill licensed MIT (the primary-source licence).
+
+Scope boundary (decided with the user at plan time, 2026-06-17): this skill owns DESIGN /
+ARCHITECTURE-SELECTION / PLATFORM-COMPARISON only. ALL protocol and fabric TROUBLESHOOTING is routed
+out via "When not to use" to the four existing skills, so there is zero diagnostic duplication:
+  - OSPF / EIGRP / IS-IS diagnostics      -> igp-routing-analysis (already on disk, Apache-2.0)
+  - BGP diagnostics                        -> bgp-analysis (already on disk)
+  - EVPN-VXLAN fabric troubleshooting      -> evpn-vxlan-fabric (already on disk, Apache-2.0)
+  - diagnose-first multi-vendor operations -> multi-vendor-network-ops (already on disk)
+The chrishuffman5 source umbrella mixes design tables with protocol-fundamentals (BGP path selection,
+OSPF area/LSA types, EVPN route types). Those protocol fundamentals were deliberately NOT folded here;
+they are owned by bgp-analysis / igp-routing-analysis / evpn-vxlan-fabric. Only the design / selection
+material was carried over, re-authored vendor-neutral.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/routing-switching/SKILL.md (routing agent: platform comparison
+    tables, campus + DC architecture-selection tables, redundancy-technology comparison, common
+    pitfalls)
+  chrishuffman5 skills/networking/routing-switching/references/concepts.md (the design-relevant
+    portions only: STP variants + features + root placement, VLAN design, ECMP, VRF; the BGP / OSPF /
+    EVPN protocol-fundamentals sections were intentionally excluded as owned elsewhere)
+    -> SKILL.md (condensed core: bound L2 / route everything; STP as safety net; redundancy per layer;
+       underlay choice as scaling decision; platform follows operating model; request classification;
+       reference router; design-vs-diagnostics boundary)
+    -> references/campus-architecture.md (hierarchical model + layer roles; topology selection
+       collapsed-core / three-tier / routed-access / SD-Access; STP root placement at design level;
+       first-hop redundancy selection HSRP / VRRP / GLBP; scale + growth checklist)
+    -> references/switching-and-redundancy.md (VLAN design strategy + roles + trunk / native-VLAN
+       hygiene; STP variant selection RSTP / Rapid PVST+ / MST + protection features; switch / link
+       redundancy selection StackWise / StackWise Virtual / vPC / MLAG / ESI-LAG)
+    -> references/datacenter-architecture.md (east-west rationale; fabric selection spine-leaf /
+       super-spine / multi-site / ACI; underlay protocol choice eBGP / OSPF / IS-IS; ECMP design;
+       VXLAN MTU; VRF + segmentation design)
+  chrishuffman5 skills/networking/routing-switching/{cisco-ios-xe,cisco-nxos,arista-eos,aruba-aoscx,
+    juniper-junos,meraki}/SKILL.md (six per-vendor expert agents; positioning + feature parity +
+    management / API / telemetry model extracted)
+    -> references/platform-selection.md (platform positioning, feature parity affecting selection,
+       management + automation model, selection method, quick decision guide)
+
+Skipped / refer-only:
+  - chrishuffman5 six per-vendor skills (cisco-ios-xe, cisco-nxos, arista-eos, aruba-aoscx,
+    juniper-junos, meraki) and their version sub-skills + per-vendor reference files: the per-vendor
+    command surface is refer-only; operating CLI is owned by multi-vendor-network-ops.
+  - automateyournetwork/netclaw (Apache-2.0) routing/switching skills (aruba-cx-switching,
+    meraki-switch-ops, pyats-routing, pyats-junos-routing, aci-fabric-audit, arista-cvp): vendor /
+    tool-specific and diagnostic / automation-oriented; overlap with multi-vendor-network-ops and
+    evpn-vxlan-fabric; not folded. This is therefore an MIT single-source umbrella.

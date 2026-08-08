@@ -1,0 +1,52 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the sailpoint skill. All body and reference material
+derives from skills/security/iam/sailpoint/. MIT licence governs SKILL.md and all
+references.
+
+Files folded -> reference mapping:
+  skills/security/iam/sailpoint/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering
+       IdentityNow architecture/identity cube/JML lifecycle; reference router;
+       cross-references; red flags; bottom line)
+    -> references/architecture.md (IdentityNow component model table; source types:
+       authoritative vs. target; identity profiles and correlation; Access Profile and
+       Role hierarchy; IT Role vs. Business Role table; connector types table; transforms:
+       transform type reference table and concat example JSON; JML lifecycle flows:
+       Joiner/Mover/Leaver with step-by-step sequences; SailPoint API examples for
+       search/campaign/access-request/SOD-violations)
+    -> references/governance.md (access certification campaign types table; campaign
+       configuration checklist; remediation tracking; role management: role explosion
+       signs, role mining workflow, role governance; SOD policy structure and example;
+       SOD implementation workflow: report-only to enforcement; SOD checks in access
+       request flow; IdentityAI risk score components table; outlier detection; acting
+       on IdentityAI outputs; access request catalog design; approval workflow patterns
+       table; access request API examples)
+
+  The governance content (certifications, SOD, role mining, IdentityAI, access requests)
+  split cleanly from the component/connector/lifecycle architecture; two references
+  created. The split matches the primary audience: architects and admins use architecture.md;
+  governance programme designers and compliance teams use governance.md.
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist...", "How to Approach Tasks",
+    "Identify SailPoint product", "Classify the request") into vault skill voice.
+  - Four-field vault frontmatter only; dropped upstream author/tags/quoted-version.
+  - Skill marker in SKILL.md only; references headerless.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+  - British/Pacific English: organisation, licence (noun), behaviour. SailPoint product
+    names kept verbatim (IdentityNow, IdentityIQ, SailPoint Atlas, IdentityAI,
+    Access Profile, Identity Cube).
+
+Boundary notes:
+  sailpoint = IGA (Identity Governance and Administration). Certifications, lifecycle,
+  roles, SOD, provisioning, IdentityAI, access requests. NOT an IdP.
+  Authentication/SSO/MFA routes to the relevant IdP skill (okta, ping-identity,
+  entra-id, keycloak). Conceptual/selection layer routes to identity-access-management.
+  Credential custody routes to secrets-hygiene. Deadline/expiry reasoning routes to
+  utc-timestamps. SailPoint always works alongside an IdP, not instead of one.
+
+Cross-refs added to vault skills: identity-access-management, okta, ping-identity,
+secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR2 (SaaS / self-hosted identity providers): vault 114 -> 119 across okta + auth0 + ping-identity + sailpoint + keycloak.

@@ -1,0 +1,40 @@
+Primary source: chrishuffman5/domain-expert
+URL: https://github.com/chrishuffman5/domain-expert
+Path: skills/cloud-platforms/gcp/
+License: MIT
+Files folded: SKILL.md, references/compute.md, references/storage.md, references/database.md,
+  references/networking.md, references/security.md, references/ai-data.md, references/cost.md
+
+Secondary sources: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+Files folded:
+  workspace/skills/gcp-compute-ops/SKILL.md -> absorbed into references/compute.md
+    (Section 6: Operational Tooling -- MCP server auth, infrastructure audit workflow,
+    VM troubleshooting workflow, capacity planning workflow, write-operation gating rule)
+  workspace/skills/gcp-cloud-logging/SKILL.md -> absorbed into references/observability.md
+    (Section 1: MCP server, 6 tools, VPC flow log / firewall / audit / troubleshooting workflows,
+    log source table, filter examples)
+  workspace/skills/gcp-cloud-monitoring/SKILL.md -> absorbed into references/observability.md
+    (Section 2: MCP server, 6 tools, network monitoring / alert investigation / resource health
+    workflows, common network metrics table)
+  workspace/skills/gcp-compute-ops/SKILL.md was a stub (29 tool descriptions + 3 workflows);
+    MCP endpoint detail (remote HTTP, OAuth 2.0, GCP_PROJECT_ID) preserved verbatim.
+  Note: "Record in GAIT" audit-trail rule is netclaw-internal; not carried into the vault.
+
+Customisations applied to all files:
+  - Re-authored umbrella SKILL.md: agent-style framing removed; CSO description added
+    (keyword-rich triggers, references enumerated, no "you are a specialist" framing).
+  - Four-field vault frontmatter (name, description, license, metadata.version).
+  - Vault skill cross-refs added; forward pointer to forthcoming gcp-networking-audit noted.
+  - Em-dash and en-dash glyphs purged across all files.
+  - British / Pacific English applied (optimise, centralise, utilisation, materialised, etc.).
+  - Sentence-level "--" separators replaced with colons, commas, or parentheticals.
+  - CLI flag "--dry_run" and MCP tool "--" in comment text preserved.
+
+Networking boundary note:
+  There is no gcp-networking-audit in the vault yet (analogous to azure-networking-audit,
+  which is also forthcoming). The networking.md reference carries design and operational
+  depth; the audit procedure (VPC firewall compliance, flow log analysis, CIS GCP Benchmark)
+  will live in the forthcoming gcp-networking-audit skill.
+
+Vault count: 95 -> 96

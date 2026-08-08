@@ -1,0 +1,57 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+endpoint-detection-response is the vendor-neutral EDR/XDR concepts umbrella. All material is sourced
+from chrishuffman5 (MIT); single-source, no secondary attribution needed. Skill licensed MIT.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/edr/SKILL.md (routing agent: platform routing table, EDR platform
+    comparison matrix, deployment decision guide, cross-platform concepts, telemetry vs detection,
+    EDR vs XDR, response action taxonomy)
+  chrishuffman5 skills/security/edr/references/concepts.md (EDR fundamentals: behavioural vs
+    signature detection, IOA vs IOC, MITRE ATT&CK methodology, telemetry architecture, detection-
+    engineering lifecycle, EDR vs XDR architecture, metrics and performance)
+    -> SKILL.md (condensed core: telemetry-not-detection, the layered detection methodology, ATT&CK
+       at a glance, EDR/EPP/XDR/MDR, response-by-blast-radius, tuning, anti-patterns; request
+       classification; reference router)
+    -> references/detection-methodology.md (IOC vs IOA vs ML vs threat-intel, detection hierarchy,
+       ATT&CK framework + high-value techniques + coverage evaluation, EDR/EPP/XDR/MDR taxonomy and
+       cross-domain phishing-to-ransomware example)
+    -> references/telemetry-and-hunting.md (sensor event types, telemetry pipeline, telemetry-vs-
+       detection, retention defaults, the five-phase detection-engineering lifecycle, threat hunting)
+    -> references/response-and-tuning.md (response action taxonomy, false-positive sources, tuning
+       and exclusion hygiene, sensor health monitoring, performance overhead, detection-quality metrics)
+    -> references/platform-selection.md (feature matrix, per-platform deployment decision guide,
+       selection factors; the eight vault-skipped vendors named only as routing context)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist...", "How to Approach Tasks",
+    "delegate to the appropriate agent") into vault umbrella shape: keyword-rich CSO description
+    enumerating the four references and the cross-skill boundaries (siem-soar-investigation,
+    network-detection-response, incident-response-*, identity-access-management, secrets-hygiene,
+    utc-timestamps), four-field vault frontmatter (name, description, license MIT, metadata.version
+    1.0.0), skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Upstream name "security-edr" not carried over; renamed to endpoint-detection-response.
+  - Added EPP and MDR to the upstream's EDR/XDR taxonomy so the four-way distinction is explicit.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" for arrows and
+    pipelines; commas, colons, and parentheses for dash-style pauses; ASCII hyphen only in numeric
+    ranges and compound words.
+  - British/Pacific English applied: behaviour, behavioural, normalise, prioritise, licence (noun),
+    defence, analyse.
+
+Boundary notes:
+  endpoint-detection-response = vendor-neutral EDR/XDR strategy, endpoint detection methodology,
+  telemetry and hunting, response and tuning, and platform selection. It does NOT own SIEM/SOAR
+  correlation (siem-soar-investigation), network-side sensors (network-detection-response), or the
+  identity surface that credential-access attacks target (identity-access-management). The EDR
+  vendor skills (crowdstrike, defender-endpoint, sentinelone, carbon-black, cortex-xdr, elastic-
+  defend, sophos, wazuh) are skipped/refer-only in this vault per the generic-only disposition;
+  this umbrella names them as routing context only.
+
+Cross-refs added: siem-soar-investigation, network-detection-response, incident-response-lifecycle,
+incident-response-network, oncall-runbooks, identity-access-management, systematic-debugging,
+secrets-hygiene, utc-timestamps.
+
+Part of Chunk C EDR + NDR pair (single PR: endpoint-detection-response + network-detection-response,
+both new): vault 129 -> 130 (this skill is the first of the pair).

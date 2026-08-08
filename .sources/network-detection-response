@@ -1,0 +1,69 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+network-detection-response is the vendor-neutral NDR/IDS/IPS/NAC/micro-segmentation concepts
+umbrella. All material is sourced from chrishuffman5 (MIT); single-source, no secondary attribution
+needed. Skill licensed MIT.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/network-security/SKILL.md (routing agent: IDS/IPS, NAC, and micro-
+    segmentation categories and comparison tables, detection methodology, network visibility
+    architecture, encrypted-traffic challenge, network forensics, technology routing table,
+    anti-patterns)
+  chrishuffman5 skills/security/network-security/references/concepts.md (network security
+    fundamentals: IDS vs IPS vs NSM, detection taxonomy by method and direction, visibility
+    architecture, traffic-access methods, east-west vs north-south, network forensics methodology,
+    protocol analysis, NAC concepts, micro-segmentation concepts)
+    -> SKILL.md (condensed core: see/judge/control the traffic, the visibility problem, detection
+       layers, encrypted-traffic fingerprinting, NAC and micro-segmentation at a glance,
+       anti-patterns; request classification; reference router)
+    -> references/detection-and-visibility.md (IDS vs IPS vs NSM, deployment decision framework,
+       detection taxonomy by method and direction, the visibility problem, visibility coverage
+       model, traffic-access methods, packet brokers, east-west vs north-south, encrypted-traffic
+       strategy)
+    -> references/nac-and-segmentation.md (why NAC, 802.1X components and EAP methods, NAC
+       deployment phases, traditional vs micro-segmentation, application-dependency mapping,
+       enforcement boundaries, east-west segmentation value and ATT&CK mitigations)
+    -> references/forensics-and-hunting.md (forensic evidence sources, five-phase investigation
+       methodology, retention guidance, per-protocol detection (DNS/HTTP/SMB/Kerberos/NTLM), ATT&CK
+       network coverage, detection coverage tiers, the attacker east-west playbook)
+    -> references/platform-selection.md (IDS/IPS comparison, NAC comparison, micro-segmentation
+       comparison, decision factors, how the three categories complement each other; the eight
+       vault-skipped vendors named only as routing context)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are the routing agent...", "Use this agent when...",
+    "How to Approach Tasks", "Route to a technology agent") into vault umbrella shape: keyword-rich
+    CSO description enumerating the four references and the cross-skill boundaries (siem-soar-
+    investigation, endpoint-detection-response, acl-rule-analysis, multi-vendor-network-ops,
+    network-source-of-truth, identity-access-management, incident-response-network, secrets-hygiene,
+    utc-timestamps), four-field vault frontmatter (name, description, license MIT, metadata.version
+    1.0.0), skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Upstream name "security-network-security" not carried over; renamed to network-detection-response.
+  - Framed the umbrella around the modern NDR term while keeping the upstream's IDS/IPS/NSM/NAC/
+    micro-segmentation breadth.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" for arrows and
+    pipelines; commas, colons, and parentheses for dash-style pauses; "to" for numeric ranges where
+    a hyphen would read as a dash; ASCII hyphen only in compound words.
+  - British/Pacific English applied: behaviour, behavioural, normalise, prioritise, centre, licence
+    (noun), defence, analyse, visualisation.
+
+Boundary notes:
+  network-detection-response = vendor-neutral network-layer detection (IDS/IPS/NSM/NDR), visibility,
+  forensics, NAC, and micro-segmentation. It does NOT own SIEM/SOAR correlation (siem-soar-
+  investigation), host-side sensors (endpoint-detection-response), firewall/ACL rulebase audits
+  (acl-rule-analysis), or the device configuration of SPAN/TAP/802.1X (multi-vendor-network-ops).
+  The network-security vendor skills (suricata, snort, zeek; cisco-ise, clearpass, fortinac;
+  illumio, guardicore) are skipped/refer-only in this vault per the generic-only disposition; this
+  umbrella names them as routing context only. Zero-trust is referenced as a concept in prose; the
+  zero-trust-assessment skill is a planned (not-yet-adopted) vault skill, so no cross-ref link is
+  added to avoid a dangling reference.
+
+Cross-refs added: siem-soar-investigation, endpoint-detection-response, acl-rule-analysis,
+multi-vendor-network-ops, network-source-of-truth, identity-access-management,
+incident-response-network, incident-response-lifecycle, oncall-runbooks, systematic-debugging,
+secrets-hygiene, utc-timestamps.
+
+Part of Chunk C EDR + NDR pair (single PR: endpoint-detection-response + network-detection-response,
+both new): vault 130 -> 131 (this skill is the second of the pair).

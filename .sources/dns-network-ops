@@ -1,0 +1,57 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the dns-network-ops umbrella. All umbrella body and
+reference material derives from skills/networking/dns/. MIT licence governs the umbrella
+SKILL.md and all four references.
+
+Files folded -> reference mapping:
+  skills/networking/dns/SKILL.md
+    -> SKILL.md (umbrella body: authoritative vs recursive classification, platform selection,
+       reference router, vendor-skill routing table, cross-refs, red flags, bottom line)
+    -> references/platform-architecture.md (cross-platform feature matrix, platform comparison,
+       architecture patterns, DNS security layers by platform, platform routing summary)
+  skills/networking/dns/references/concepts.md
+    -> references/concepts.md (resolution flow, record types, zone transfers AXFR/IXFR/NOTIFY/TSIG,
+       caching and TTL strategy, negative caching, split-horizon implementation)
+    -> references/dnssec.md (chain of trust, KSK/ZSK/CSK key types, DS records, validation process,
+       algorithm recommendations, NSEC vs NSEC3, plus an added rollover-failure-modes section)
+    -> references/dns-security-and-encryption.md (DoH/DoT/DoQ comparison, RPZ triggers and actions,
+       DNS sinkholing, cloud DNS firewall, response rate limiting)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("DNS Subdomain Agent", "You are the routing agent...")
+    into vault umbrella shape: keyword-rich CSO description enumerating the four references and
+    the eight vendor skills, with boundary callouts; four-field vault frontmatter (name,
+    description, license MIT, metadata.version 1.0.0); skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Split the single upstream concepts.md (resolution + records + transfers + DNSSEC + DoH +
+    caching + split-horizon + security, 265 lines) into three focused references (concepts,
+    dnssec, dns-security-and-encryption) for progressive disclosure; the platform comparison and
+    architecture patterns moved from the upstream SKILL.md into platform-architecture.md.
+  - Upstream technology-routing pointed at sibling file paths (windows-dns/SKILL.md, bind/SKILL.md,
+    route53/SKILL.md, cloudflare-dns/SKILL.md). Re-pointed to the vault vendor-skill names
+    (windows-dns-ops, bind-dns-ops, powerdns-ops, coredns-ops, unbound-dns-ops, route53-dns-ops,
+    azure-dns-ops, cloudflare-dns-ops), extending the four upstream platforms to the full eight-skill
+    DNS family per the Chunk C disposition.
+  - Added a DNSSEC rollover-failure-modes section (DS desync, premature retirement, expired
+    signatures, algorithm rollover) drawn from the upstream pitfalls and standard DNSSEC operational
+    practice; framed as change-controlled operations.
+  - Added the Dyn-2016 multi-provider lesson to platform-architecture.md (standard DNS resilience
+    reference; reinforces the upstream multi-provider pattern).
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files. ASCII "->"
+    used for resolution-flow arrows; commas, semicolons, and parentheses used for dash-style pauses.
+  - British/Pacific English applied: synchronisation, defence, licence (noun), authorised,
+    minimise, optimise, mitigate.
+
+Boundary notes:
+  dns-network-ops = ARCHITECTURE + CROSS-PLATFORM + CONCEPTS (resolution, DNSSEC design, security
+  layers, platform selection, hybrid design). Platform-specific implementation lives in the eight
+  vendor skills. No content duplication: the vendor skills cover named.conf/PowerShell/Corefile/API
+  specifics; this umbrella covers the conceptual and comparative layer and routes to them.
+  network-source-of-truth owns IPAM and the DNS record-of-intent; dns-network-ops operates the
+  resulting zones.
+
+Cross-refs added to vault skills: network-source-of-truth, multi-vendor-network-ops, bgp-analysis,
+smtp-deliverability, secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Vault count: 104 -> 105

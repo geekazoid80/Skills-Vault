@@ -1,0 +1,50 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the gcp-iam skill. All body and reference material derives
+from skills/security/iam/gcp-iam/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/gcp-iam/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering resource
+       hierarchy and inheritance/IAM policy bindings/role types/service accounts/Workload
+       Identity Federation/organisation policies/IAM Conditions; reference router;
+       cross-references; red flags; bottom line)
+    -> references/architecture.md (resource hierarchy and inheritance semantics; IAM policy
+       binding structure and concurrent modification pattern; service account types and
+       impersonation; Workload Identity Federation pool and provider model, direct resource
+       access vs. service-account impersonation; organisation policy types and evaluation order;
+       VPC Service Controls perimeter model, protected services, dry-run mode; IAM Recommender
+       algorithm and recommendation states; BeyondCorp / IAP architecture and access levels)
+    -> references/operations.md (policy binding CLI commands; Workload Identity Federation setup
+       patterns for GitHub Actions and AWS; organisation policy authoring; VPC Service Controls
+       dry-run workflow; IAM Recommender review and apply workflow; access troubleshooting with
+       Policy Analyzer and Cloud Audit Logs)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist", "How to Approach Tasks", "Classify",
+    "Recommend") into skill voice: When to use / When not to use / core-model sections.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream quoted version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Upstream SKILL.md content redistributed: deep architecture (pool/provider model, perimeter
+    model, Recommender algorithm, IAP architecture) moved to architecture.md; operational
+    procedures (CLI commands, setup patterns, dry-run workflow, troubleshooting) moved to
+    operations.md.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences. ASCII "->" for flow arrows;
+    commas, semicolons, and parentheses for prose pauses.
+  - British/Pacific English: authorised, organisation, favour. Product names, gcloud flags,
+    IAM role identifiers, constraint names, and CEL expressions kept verbatim.
+
+Boundary notes:
+  gcp-iam = GCP IAM bindings, role types, service accounts, Workload Identity Federation,
+  org policies, VPC Service Controls, IAM Conditions, IAM Recommender, BeyondCorp/IAP.
+  Conceptual layer (access-control model choice, IdP selection, zero trust) routes to
+  identity-access-management. GCP resource configuration routes to gcp-cloud-ops.
+  Credential custody routes to secrets-hygiene.
+
+Cross-refs added to vault skills: identity-access-management, gcp-cloud-ops,
+secrets-hygiene, utc-timestamps, terraform-iac-ops.
+
+Part of Chunk C IAM family PR3 (cloud-provider IAM): aws-iam + gcp-iam + entra-id.
+Part of Chunk C IAM family PR3 (cloud-provider IAM): vault 119 -> 122 across aws-iam + gcp-iam + entra-id (plus entra-app-lifecycle extended with an entra-id cross-ref + boundary note).

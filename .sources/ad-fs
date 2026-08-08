@@ -1,0 +1,50 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the ad-fs skill. All body and reference material derives
+from skills/security/iam/ad-fs/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/ad-fs/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering architecture/
+       claims pipeline/claims rule language/certificate management; reference router;
+       cross-references; red flags; bottom line)
+    -> references/architecture.md (farm topology, WID vs SQL Server limits, claims pipeline
+       detail, relying party trust PowerShell configuration (SAML and OIDC), AD FS 4.0 vs
+       5.0 feature comparison, certificate management procedures, extranet smart lockout
+       configuration (2016 basic vs 2019 smart lockout), troubleshooting playbook, migration
+       to Entra ID assessment and steps, claims rule migration mapping table, decommissioning
+       procedure)
+
+Customisations applied:
+  - Re-authored all agent-framing ("You are a specialist", "Identity and Scope",
+    "How to Approach Tasks", "Determine AD FS version", "Classify the request") into skill
+    voice.
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream name (security-iam-ad-fs)
+    and quoted version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Upstream SKILL.md "Common Pitfalls" content redistributed: most pitfalls absorbed into
+    SKILL.md "Red flags" section (canonical Shape-A location); remaining operational detail
+    moved to references/architecture.md troubleshooting section.
+  - Decommissioning section added to references/architecture.md (not in upstream; added
+    based on upstream guidance about migration path completion).
+  - British/Pacific English: organis*, authoris*, licence (noun). Product names (AD FS, WAP,
+    WID, Get-AdfsCertificate, AdfsSmartLockoutEnforce, Add-AdfsRelyingPartyTrust) and all
+    PowerShell cmdlets kept verbatim.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+
+Boundary notes:
+  ad-fs = on-premises federation services: claims-based auth, SAML 2.0, WS-Federation,
+  OAuth 2.0/OIDC, claims rules, relying party trusts, WAP, certificate management, migration
+  to Entra ID. AD FS authenticates against AD DS (route Kerberos/replication to ad-ds).
+  AD FS uses certificates from AD CS (route PKI and ESC vulnerabilities to ad-cs).
+  Entra ID is the recommended replacement for AD FS (route new federation design to entra-id).
+  Token-signing certificate private keys and service account credentials route to
+  secrets-hygiene.
+
+Cross-refs added to vault skills: identity-access-management, ad-ds, ad-cs, entra-id,
+secrets-hygiene, utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR4 (Active Directory roles): vault skills ad-ds + ad-cs + ad-fs.
+Part of Chunk C IAM family PR4 (Active Directory roles, FINAL): vault 122 -> 125 across ad-ds + ad-cs + ad-fs.

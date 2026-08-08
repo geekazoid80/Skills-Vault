@@ -1,0 +1,1 @@
+https://github.com/anthropics/claude-code/tree/main/plugins/plugin-dev (consolidates plugin-structure + plugin-settings + command-development + agent-development + mcp-integration; see local SKILL.md and merged-skills-registry)

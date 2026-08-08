@@ -1,0 +1,62 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the entra-id skill. All body and reference material derives
+from skills/security/iam/entra-id/. MIT licence governs SKILL.md and all references.
+
+Files folded -> reference mapping:
+  skills/security/iam/entra-id/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering tenant
+       architecture/Conditional Access signals and controls/PIM eligible vs active/Identity
+       Protection detections/hybrid identity options/external identities B2B and B2C/
+       Entra ID Governance access reviews, entitlement management, lifecycle workflows/
+       passwordless authentication methods; reference router; cross-references; red flags;
+       bottom line)
+  skills/security/iam/entra-id/references/architecture.md
+    -> references/architecture.md (tenant model: isolation, object types, AUs;
+       authentication flows: cloud-only, PHS, PTA, Seamless SSO;
+       token types and lifetimes: ID/access/refresh/PRT;
+       Continuous Access Evaluation (CAE);
+       directory synchronisation: Entra Connect ADSync architecture, filtering,
+       source anchor, Cloud Sync vs Entra Connect comparison;
+       Graph API IAM endpoints and permissions model;
+       licensing tier feature matrix)
+  skills/security/iam/entra-id/references/best-practices.md
+    -> references/best-practices.md (CA policy framework: baseline and targeted policies table;
+       CA design principles; break-glass account configuration and KQL monitoring query;
+       PIM role settings table and access review configuration;
+       B2B governance: cross-tenant access settings, guest lifecycle management;
+       monitoring and alerting: critical events table, key logs and retention;
+       Entra Connect server hardening and sync account permissions)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist", "How to Approach Tasks", "Classify",
+    "Recommend", "Identify license tier") into skill voice: When to use / When not to use /
+    core-model sections describing what the skill covers, not "you are an expert".
+  - Four-field vault frontmatter only: name, description, license MIT,
+    metadata.version 1.0.0 (unquoted). Dropped upstream quoted version.
+  - Skill marker in SKILL.md only; references carry no frontmatter and no marker
+    (line 1 is the # Title).
+  - Upstream SKILL.md content redistributed: deep architecture material (token model, CAE,
+    ADSync, Graph API, licensing matrix) moved to references/architecture.md; operational
+    hardening and policy framework moved to references/best-practices.md.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences. ASCII "->" for flow arrows;
+    commas, semicolons, and parentheses for prose pauses.
+  - British/Pacific English: organisation, authorise, licence (noun), behaviour, minimise,
+    recognise. Product names, PowerShell cmdlets, Graph API paths, and KQL kept verbatim.
+
+Boundary decision (locked design):
+  entra-id = PLATFORM / TENANT-ADMIN skill. Owns: tenant architecture, Conditional Access,
+  PIM, Identity Protection, Entra Connect / Cloud Sync / hybrid identity, B2B/B2C external
+  identities, Entra ID Governance (access reviews, entitlement management, lifecycle workflows).
+  Does NOT own app-registration lifecycle. The existing vault skill "entra-app-lifecycle" owns
+  app type -> OAuth flow, MSAL integration, service principal creation, API permission grants,
+  and the credential ladder. Where upstream content touched "app registrations / service
+  principals / managed identities", entra-id skill keeps it BRIEF and cross-references
+  entra-app-lifecycle for the depth. The When not to use section, the Cross-references section,
+  and multiple inline notes all state this boundary explicitly.
+
+Cross-refs added to vault skills: entra-app-lifecycle, identity-access-management,
+azure-cloud-ops, secrets-hygiene, utc-timestamps, sailpoint, oncall-runbooks.
+
+Part of Chunk C IAM family PR3 (cloud-provider IAM): aws-iam + gcp-iam + entra-id.
+Part of Chunk C IAM family PR3 (cloud-provider IAM): vault 119 -> 122 across aws-iam + gcp-iam + entra-id (plus entra-app-lifecycle extended with an entra-id cross-ref + boundary note).

@@ -1,0 +1,60 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+Bulk: the CI/CD umbrella router (skills/devops/cicd/SKILL.md + references/concepts.md)
+and five platform agent sub-trees, each with a SKILL.md and references/ subdir:
+  skills/devops/cicd/github-actions/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  skills/devops/cicd/gitlab-ci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md + version subdirs 18.7/18.8/18.9)
+  skills/devops/cicd/jenkins/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  skills/devops/cicd/azure-devops/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  skills/devops/cicd/circleci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+License: MIT (primary)
+
+Secondary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+  workspace/skills/jenkins-cicd/SKILL.md -> jenkins.md (MCP job/build/log ops, genericised)
+  workspace/skills/gitlab-devops/SKILL.md -> gitlab-ci.md + diagnostics.md (MCP pipeline-status ops, genericised)
+License: Apache-2.0 (secondary; attributed, consistent with cloud-ops fold precedent)
+
+Files folded -> reference mapping:
+  chrishuffman5 cicd/SKILL.md (decision matrix, platform comparison, design principles) -> SKILL.md + concepts.md
+  chrishuffman5 cicd/references/concepts.md (pipeline anatomy, triggers, caching, OIDC, matrix, deployment strategies) -> concepts.md
+  chrishuffman5 github-actions/SKILL.md + references/ -> github-actions.md
+  chrishuffman5 gitlab-ci/SKILL.md + references/ + 18.7/18.8/18.9 SKILL.md files -> gitlab-ci.md
+  chrishuffman5 jenkins/SKILL.md + references/ -> jenkins.md
+  chrishuffman5 azure-devops/SKILL.md + references/ -> azure-devops.md
+  chrishuffman5 circleci/SKILL.md + references/ -> circleci.md
+  netclaw jenkins-cicd/SKILL.md -> jenkins.md (MCP ops section) + diagnostics.md (Jenkins log retrieval section)
+  netclaw gitlab-devops/SKILL.md -> gitlab-ci.md (MCP pipeline ops section) + diagnostics.md (GitLab retrieval section)
+
+Customisations applied:
+  - Re-authored all agent-framing ("You are a specialist...") into operator-facing vault house style (no agent framing).
+  - Four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0) in SKILL.md only.
+  - References carry no frontmatter and no skill marker (vault house style; line 1 = "# Title").
+  - Skill marker blockquote in SKILL.md only.
+  - Dropped GAIT audit-trail logging sections (GAIT is netclaw-internal, not carried into the vault).
+  - Genericised "$MCP_CALL python3 -u $XXX_MCP_SCRIPT TOOL '{json}'" to "via the Jenkins MCP server" / "via the GitLab MCP server"; tool names and JSON parameters preserved.
+  - Dropped markmap/visualisation dependencies (netclaw-internal tool dependency).
+  - Dropped netclaw-internal integration table rows (aci-change-deploy, canvas-a2ui, gait_mcp, suzieq-observability, servicenow-change-workflow, openclaw metadata, author: fields).
+  - Genericised ServiceNow-change-control gate references to "per change-control policy" where they appeared in MR description examples.
+  - Dropped openclaw metadata block from netclaw sources.
+  - Author fields removed from chrishuffman5 frontmatter; vault frontmatter substituted.
+  - British/Pacific English applied throughout (optimise, behaviour, organisation, artefact, utilisation, modelled, prioritise, analyse).
+  - Em-dashes (U+2014) and en-dashes (U+2013) purged; verified by Python byte-scan post-write.
+
+Boundary notes:
+  - GitOps continuous delivery (ArgoCD, Flux, FluxCD): NOT included in this skill.
+    These tools operate a separate delivery layer and belong in a gitops skill. The SKILL.md
+    and boundary callouts direct users to a forthcoming gitops skill; ArgoCD/Flux patterns
+    were not folded in.
+  - gh-actions-ci (existing vault skill): NOT duplicated. That skill covers specific GitHub
+    Actions recipes (changelog automation tag-to-tag, mkdocs strict staging, gh run list as
+    Checks substitute). Cross-referenced from github-actions.md and SKILL.md; this umbrella
+    covers the broad multi-platform surface.
+  - Terraform in CI pipelines: cross-referenced to terraform-iac-ops (not duplicated).
+  - Ansible in CI pipelines: cross-referenced to ansible-automation-platform (not duplicated).
+
+Cross-refs added to vault skills:
+  secrets-hygiene, terraform-iac-ops, ansible-automation-platform, gh-actions-ci,
+  systematic-debugging (all from SKILL.md cross-references section).
+
+Vault count: 103 -> 104

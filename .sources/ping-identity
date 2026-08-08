@@ -1,0 +1,49 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the ping-identity skill. All body and reference material
+derives from skills/security/iam/ping-identity/. MIT licence governs SKILL.md and all
+references.
+
+Files folded -> reference mapping:
+  skills/security/iam/ping-identity/SKILL.md
+    -> SKILL.md (skill body: When to use, When not to use, core model covering deployment
+       models/PingOne/PingFederate/PingAccess/PingDirectory/DaVinci/PingOne
+       Protect/PingOne Neo; reference router; cross-references; red flags; bottom line)
+    -> references/architecture.md (PingOne environment model and API examples; PingFederate
+       network topology diagram, connection types table, adapter model with IdP/SP adapter
+       types and policy-chain example, clustering notes; PingAccess deployment models:
+       reverse-proxy and agent-based, request-flow diagram, session-vs-token model table;
+       PingDirectory key characteristics, LDAP connection config, PingDirectory-vs-AD-DS
+       comparison table; DaVinci connector categories, flow patterns: progressive profiling/
+       step-up/self-service registration, DaVinci-vs-PingFederate comparison table;
+       PingOne Protect client-side SDK example, risk-score-to-policy-response table;
+       PingOne Neo standards table and verifiable credential lifecycle)
+
+Customisations applied:
+  - Re-authored agent-framing ("You are a specialist...", "How to Approach Tasks",
+    "Identify deployment model") into vault skill voice.
+  - Four-field vault frontmatter only; dropped upstream author/tags/quoted-version.
+  - Skill marker in SKILL.md only; references headerless (line 1 is # Title).
+  - Upstream content was a single SKILL.md; split into SKILL.md (thin) +
+    references/architecture.md for progressive disclosure. No operations.md added:
+    upstream content did not split cleanly into a separate operations topic;
+    operational notes (certificate tracking, connection drift, JVM sizing, DaVinci
+    debugging) are captured in the SKILL.md Red flags section and architecture.md notes.
+  - API code examples from the upstream PingOne APIs section preserved in
+    references/architecture.md.
+  - Em-dash (U+2014) and en-dash (U+2013): zero occurrences.
+  - British/Pacific English: organisation, behaviour, customise. Ping product names kept
+    verbatim (PingFederate, PingAccess, PingDirectory, DaVinci, PingOne Protect,
+    PingOne Neo, PingOne Credentials, PingOne Authorize).
+
+Boundary notes:
+  ping-identity = ENTERPRISE IAM (cloud and on-premises). PingOne, PingFederate,
+  PingAccess, PingDirectory, DaVinci, PingOne Protect, PingOne Neo.
+  Conceptual/selection layer routes to identity-access-management. Credential custody
+  routes to secrets-hygiene. Token-expiry reasoning routes to utc-timestamps.
+  SailPoint IGA pairs with Ping Identity in large enterprise deployments.
+
+Cross-refs added to vault skills: identity-access-management, sailpoint, secrets-hygiene,
+utc-timestamps, oncall-runbooks.
+
+Part of Chunk C IAM family PR2 (SaaS / self-hosted identity providers): vault 114 -> 119 across okta + auth0 + ping-identity + sailpoint + keycloak.

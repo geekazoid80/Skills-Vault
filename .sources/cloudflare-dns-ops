@@ -1,0 +1,90 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the bulk content source; all platform-specific DNS depth and the core Cloudflare
+architecture material derive from this repo. MIT licence governs the umbrella SKILL.md and
+both references (architecture.md, analytics.md) because chrishuffman5 is the dominant source
+(cloud-ops / wireless-ops precedent: MIT-primary when chrishuffman5 is the bulk provider).
+
+Secondary source: automateyournetwork/netclaw (Apache-2.0)
+URL: https://github.com/automateyournetwork/netclaw
+Contributes analytics MCP content only (workspace/skills/cloudflare-dns/SKILL.md): the
+tool listing (list_zones, get_zone, list_dns_records, get_dns_analytics, get_dns_performance,
+get_dns_trends), environment variable prerequisites (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
+CLOUDFLARE_ZONE_ID), and example query patterns. Apache-2.0 is attributed here; the MIT
+primary licence governs the overall skill because chrishuffman5 is the dominant source
+(cloud-ops-triad / wireless-ops precedent).
+
+Files folded -> reference mapping:
+  skills/networking/dns/cloudflare-dns/SKILL.md (chrishuffman5, MIT)
+    -> SKILL.md (umbrella body: proxied vs DNS-only classification section, zone setup table,
+       when-to-use / when-not-to-use lists, reference router table, cross-refs, red flags,
+       bottom line)
+    -> references/architecture.md (anycast network, proxied vs DNS-only detail and TTL table,
+       origin IP leakage section, zone setup options full/CNAME/secondary, CNAME flattening,
+       DNSSEC one-click/multi-signer/Foundation-DNS-per-account-keys, Foundation DNS feature
+       table, 1.1.1.1 resolver + encrypted transport table, DNS Firewall, Load Balancing and
+       health checks, page rules/redirect interaction, API v4 REST reference, Terraform
+       provider examples, troubleshooting commands and failure-mode table)
+  skills/networking/dns/cloudflare-dns/references/architecture.md (chrishuffman5, MIT)
+    -> references/architecture.md (anycast deep-dive: 4+ Tbps capacity, 300+ PoPs;
+       secondary DNS propagation SLAs: <5 s edge, ~800 ms P99 transfer; secondary DNS
+       override for proxied records; Foundation DNS two-week software soak; troubleshooting
+       commands with NSID, DS verification, secondary transfer status endpoint)
+  workspace/skills/cloudflare-dns/SKILL.md (netclaw, Apache-2.0)
+    -> references/analytics.md (tool listing: list_zones / get_zone / list_dns_records /
+       get_dns_analytics / get_dns_performance / get_dns_trends; environment variable
+       prerequisites; example query strings; MCP server concept genericised per customisations)
+
+Customisations applied to all files:
+  - Re-authored agent-style upstream ("You are a specialist in Cloudflare DNS") into vault
+    umbrella shape: keyword-rich CSO description (triggers enumerated, two references named,
+    boundary callout to dns-network-ops); four-field vault frontmatter (name, description,
+    license MIT, metadata.version 1.0.0); skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker; line 1 is # Title in each
+    (vault house style per dns-network-ops/SKILL.md precedent).
+  - "You are a specialist" / "You are an expert" agent framing removed; rewritten as
+    operator-facing, concise, imperative prose.
+  - netclaw frontmatter dropped entirely: author: netclaw, version: 1.0.0, license: Apache-2.0,
+    tags: []. None of these fields carry into the vault.
+  - Remote MCP server reference genericised: "the `cloudflare-dns-analytics` remote MCP
+    server at `dns-analytics.mcp.cloudflare.com`" -> "the Cloudflare DNS Analytics MCP
+    server". Tool names (list_zones, get_zone, list_dns_records, get_dns_analytics,
+    get_dns_performance, get_dns_trends) and environment variable names (CLOUDFLARE_API_TOKEN,
+    CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID) preserved exactly as upstream.
+  - GAIT / $MCP_CALL / markmap / openclaw residue: none present in either source file
+    (confirmed by inspection). No removal action required.
+  - Upstream SKILL.md used double-hyphens (--) as em-dash substitutes; these were converted
+    to commas, semicolons, or restructured as prose. All other dash characters checked:
+    zero em-dash (U+2014) and zero en-dash (U+2013) in output files.
+  - British/Pacific English applied throughout: utilisation, optimise, recognise, behaviour,
+    licence (noun), authorised, minimise, prioritise.
+  - Upstream "Common Pitfalls" section restructured into the SKILL.md Red flags section
+    (vault house style) and expanded with additional failure modes from architecture.md
+    troubleshooting table.
+  - Upstream API code examples preserved and expanded with secondary DNS endpoint and
+    additional curl patterns for completeness.
+  - Terraform examples retained from upstream; added secrets-hygiene annotation for
+    CLOUDFLARE_API_TOKEN environment variable and remote state guidance.
+  - Analytics availability table (plan tier vs feature) added in analytics.md to clarify
+    Foundation DNS extended analytics; not in either source file (synthesised from feature
+    descriptions in chrishuffman5 architecture.md and netclaw tool reference).
+  - secrets-hygiene callout added to analytics.md prerequisites section (CLOUDFLARE_API_TOKEN
+    as bearer credential, rotation guidance, env-var-only pattern); aligns with vault
+    secrets-hygiene skill and dns-network-ops cross-ref precedent.
+
+Boundary note:
+  cloudflare-dns-ops = IMPLEMENTATION + OPERATIONS (zone setup, record management, proxied
+  vs DNS-only decisions, DNSSEC enablement, Foundation DNS, secondary DNS, 1.1.1.1, DNS
+  Firewall, API/Terraform, analytics read-ops).
+  dns-network-ops = ARCHITECTURE + CROSS-PLATFORM + CONCEPTS (resolution flow, DNSSEC
+  design, platform selection, hybrid design). No content duplication: cloudflare-dns-ops
+  covers the Cloudflare-specific implementation surface; dns-network-ops covers the
+  conceptual and comparative layer and routes to vendor skills.
+  Broader Cloudflare platform (WAF, CDN, Zero Trust, Workers, R2, Pages) is out of scope
+  for this DNS-focused skill; noted in When not to use.
+
+Cross-refs added to vault skills: dns-network-ops, multi-vendor-network-ops, secrets-hygiene,
+utc-timestamps, systematic-debugging, bgp-analysis, route53-dns-ops, azure-dns-ops.
+
+Part of Chunk C DNS family PR4 (managed cloud): vault 110 -> 113 across route53-dns-ops +
+azure-dns-ops + cloudflare-dns-ops.

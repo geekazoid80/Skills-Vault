@@ -1,0 +1,4 @@
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/security/skills/dast (MIT, sole source) -> SKILL.md re-authored into dynamic-application-security-testing/SKILL.md + references/scanning-methodology.md + pipeline-and-triage.md (active vs passive, authenticated scanning + session handling, crawling, API + SPA scanning, DAST vs IAST; CI positioning, triage + re-test)
+
+--- Chunk C AppSec family PR 2 of 2, 2026-08-02 ---
+NEW DAST technique concepts skill. MIT. Routes strategy UP to application-security; network scanning -> nmap-scanning, perimeter discovery -> attack-surface-management, scoring -> vulnerability-management. Vendors Burp Suite/OWASP ZAP/StackHawk refer-only. Delegated subagent hit a transient API error during self-verification after writing all files; resumed and completed. Gated: dash-scan == 0, yaml.safe_load parses, cross-refs resolve, no persona/vendor links. British / Pacific English; references headerless.

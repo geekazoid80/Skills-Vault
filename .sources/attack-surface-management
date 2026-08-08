@@ -1,0 +1,42 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+attack-surface-management is the vendor-neutral external attack surface management (EASM / ASM) DESIGN
+umbrella: how internet-facing assets are discovered from the attacker's outside-in perspective, how to
+attribute a discovery to the organisation without drowning in false positives, the EASM-to-VM feedback
+loop, attack surface reduction, and which EASM platform earns the deployment. It is the sibling to
+vulnerability-management (the split decided with the user at plan time, 2026-06-18): this umbrella owns
+DISCOVERY + ATTRIBUTION + EXPOSURE-REDUCTION; vulnerability-management owns the scanning and remediation of
+the known assets EASM surfaces. Skill licensed MIT (the primary-source licence).
+
+Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion):
+  - Split umbrellas: vulnerability-management + attack-surface-management (this skill), shipped together in
+    PR 1 of the VulnMgmt + ASM family (the design layer).
+  - Microsoft Defender EASM re-authored as a vault vendor skill in PR 2; Xpanse, Falcon Surface, Censys,
+    Shodan named here as routing context only.
+  - This umbrella owns DESIGN / DISCOVERY-METHOD / ATTRIBUTION / PLATFORM-COMPARISON only; per-platform
+    operations are routed out via "When not to use".
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/vulnerability-management/asm/SKILL.md (ASM routing agent: what EASM is and
+    the problem it solves, how EASM tools work / discovery methods, asset types discovered, EASM vs
+    traditional VM, key workflows initial-discovery / continuous-monitoring / VM-integration / surface-
+    reduction, technology routing, EASM evaluation criteria)
+    -> SKILL.md (condensed core: discover outside-in; attribution is the hard part not discovery; EASM and
+       VM are complementary; continuous not scheduled; reduce the surface not just catalogue it; request
+       classification; reference router; discovery-vs-operations boundary)
+    -> references/discovery-and-attribution.md (discovery methods: domain/subdomain enumeration, certificate
+       transparency, IP range + BGP/ASN ownership, WHOIS/RDAP, passive DNS, internet-wide scan data, web
+       crawling, correlation; asset types discovered; attribution and false-positive reduction)
+    -> references/workflows-and-integration.md (initial discovery + asset acceptance, continuous monitoring
+       + drift detection, the EASM-to-VM feedback loop, attack surface reduction, exposure management / CTEM
+       positioning)
+    -> references/platform-selection.md (EASM platform profiles Defender EASM / Cortex Xpanse / Falcon
+       Surface / Censys / Shodan, evaluation criteria, decision method, routing)
+
+Skipped / refer-only:
+  - chrishuffman5 EASM vendor skills: defender-easm re-authored as a vault vendor skill in PR 2 (not
+    refer-only); xpanse + falcon-surface + censys named in platform-selection.md as routing context only,
+    deep per-vendor depth not folded.
+  - Internet-wide scan services (Shodan, Censys) appear both as platform options and as the discovery data
+    underpinning enumeration; described conceptually, no tool integration folded here.

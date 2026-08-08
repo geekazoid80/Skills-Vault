@@ -1,0 +1,2 @@
+https://github.com/chunkydotdev/email-skills/tree/main/skills (MIT; folded selectively from setup, deliverability, compliance, sending, operations sub-folders)
+https://github.com/vibeeval/vibecosystem/blob/main/skills/email-infrastructure/SKILL.md (MIT; folded; subdomain isolation pattern, provider-abstraction interface, progressive DMARC rollout)

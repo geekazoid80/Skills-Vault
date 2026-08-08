@@ -1,0 +1,45 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+kentik-network-monitoring is the Kentik network observability configuration and operations skill:
+large-scale flow analytics, flow enrichment, the flow data model, DDoS detection and automated mitigation,
+BGP route monitoring and hijack/leak/RPKI detection, Kentik NMS and Kentik Map, AI Insights, built-in
+synthetic monitoring, and the REST/topXdata/Terraform/Python-SDK automation surface. It is a vendor ops
+skill in the NMS family; the DESIGN/paradigm/platform-selection decision lives in
+network-monitoring-selection (PR 1), to which this skill routes the design question back.
+Skill licensed MIT (the primary-source licence).
+
+Part of NMS family PR 2 of 3 (PRTG + Kentik, MIT single-source). Scope = full ops per the DNS +
+Load-balancer precedent.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/network-monitoring/kentik/SKILL.md (Kentik technology expert: flow
+    analytics engine + enrichment + data model, DDoS detection + classification + automated mitigation,
+    BGP monitoring + detections + BGP/flow correlation, Kentik NMS + Kentik Map, AI Insights, synthetic
+    monitoring, REST API + query API + Terraform + Python SDK, common pitfalls)
+    -> SKILL.md (condensed core: flow-at-scale-enriched-and-queryable, custom-tags-and-BGP-feed-are-what-
+       make-it-useful, DDoS-is-ML-baselines-plus-automated-mitigation, BGP-monitoring-detects-routing-
+       security-events, AI-Insights-finds-the-dominant-dimension-first, anti-patterns; request
+       classification; reference router; design-vs-ops boundary + NDR + bgp-analysis boundaries)
+    -> references/architecture.md (flow engine ingestion/scale/query/retention; enrichment dimensions; flow
+       data model; Kentik NMS SNMP polling; Kentik Map topology)
+    -> references/traffic-and-bgp.md (DDoS baseline profiling + anomaly detection + attack classification +
+       automated mitigation RTBH/Flowspec/A10/Radware/webhook + workflow; BGP route collection + detections
+       hijack/leak/RPKI/subprefix + BGP/flow correlation; AI Insights "What Changed?" + NL queries + saved
+       queries)
+    -> references/api-and-automation.md (REST API endpoints + auth; topXdata query API worked example;
+       Terraform provider; Python SDK; synthetic monitoring; common pitfalls)
+
+Customisations:
+  - Agent-style upstream ("You are a specialist...", "How to Approach Tasks") re-authored into vault skill
+    shape with four-field frontmatter (license MIT) + skill marker; references carry no frontmatter / no
+    skill marker (line 1 is # Title).
+  - Upstream name networking-network-monitoring-kentik not carried over.
+  - Boundary clarified: Kentik straddles flow-for-capacity-and-DDoS (this skill) vs flow-for-security
+    threat detection (network-detection-response), and BGP route monitoring (this skill) vs BGP
+    routing-protocol troubleshooting (bgp-analysis); cross-refs both, no duplication.
+  - API examples keep token in headers, secret-store discipline noted (no live token).
+  - em-dash / en-dash purge (byte-scan == 0); British / Pacific English; ASCII -> arrows.
+
+Skipped / refer-only:
+  - netclaw + vahagn-netsec have no Kentik-specific content. MIT single-source.

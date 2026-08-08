@@ -1,0 +1,62 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for coredns-ops. All SKILL.md body and reference material
+derives from skills/networking/dns/coredns/. MIT licence governs the SKILL.md and all
+references.
+
+Files folded -> reference mapping:
+  skills/networking/dns/coredns/SKILL.md
+    -> SKILL.md (umbrella body: classify-first guidance, plugin chain and execution order,
+       kubernetes plugin, server blocks, ConfigMap hot-reload, cross-references, red flags,
+       bottom line)
+    -> references/architecture.md (Corefile structure, plugin chain and plugin.cfg order,
+       key plugins table, forward/rewrite/kubernetes plugin options, Kubernetes DNS record types,
+       search domains and ndots, autopath, server block patterns for conditional forwarding and
+       hybrid DNS, ConfigMap hot-reload, NodeLocal DNSCache architecture and Corefile, scaling/HA,
+       Prometheus metrics, health and readiness probes)
+    -> references/diagnostics.md (dig patterns against ClusterIP and NodeLocal DNSCache, kubectl
+       log investigation, plugin-level debug with log plugin, common failure modes: NXDOMAIN for
+       services, slow external resolution, loop detection crash, conntrack exhaustion, ConfigMap
+       YAML syntax errors, missing fallthrough, cache TTL issues; Prometheus-based triage table)
+  skills/networking/dns/coredns/references/architecture.md
+    -> merged into references/architecture.md (plugin chain diagram, server block examples,
+       Kubernetes DNS specification, NodeLocal DNSCache architecture diagram and configuration,
+       Corefile patterns, metrics table, health/readiness probe YAML)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist in CoreDNS", "How to Approach
+    Tasks" imperative lists) into vault vendor-skill shape: keyword-rich CSO description with
+    boundary callout; four-field frontmatter (name, description, license MIT, metadata.version);
+    skill marker in SKILL.md only; no frontmatter or skill marker in references.
+  - References carry no frontmatter and no skill marker; line 1 of each reference is the # Title.
+  - Created references/diagnostics.md as a distinct file (source material had diagnostics
+    scattered across SKILL.md "Common Pitfalls" and "How to Approach Tasks" sections); consolidated
+    and extended into a structured diagnostics reference with dig patterns, kubectl log workflows,
+    plugin debug, per-failure-mode investigation steps, and Prometheus triage table.
+  - Dropped "CoreDNS 1.13 Features" and "Custom Go Plugin Development" sections from source: the
+    version-specific feature list ages quickly and custom plugin development is out of scope for
+    an operator-facing skill; operator flags (DoH3, rate limiting improvements) are noted in
+    context where relevant.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences. ASCII "->" used for
+    resolution-flow and architecture arrows; commas, semicolons, and parentheses for pauses.
+  - British/Pacific English applied: behaviour, optimise, stabilise, licence (noun).
+  - Cross-references scoped to existing vault skills only: dns-network-ops, unbound-dns-ops,
+    multi-vendor-network-ops, secrets-hygiene, utc-timestamps, systematic-debugging. No
+    kubernetes vault skill exists yet; Kubernetes context is described inline.
+  - "When not to use" boundary callouts route architecture/DNSSEC design to dns-network-ops and
+    validating-recursive-resolver work to unbound-dns-ops.
+
+Boundary notes:
+  coredns-ops = CoreDNS IMPLEMENTATION including Kubernetes cluster DNS, plugin chain
+  configuration, NodeLocal DNSCache, Corefile authoring, and CoreDNS-specific diagnostics.
+  dns-network-ops owns DNS architecture, DNSSEC design, cross-platform comparison, and the
+  conceptual layer (resolution flow, record types, zone transfer, caching strategy).
+  unbound-dns-ops owns validating caching recursive resolver implementation.
+  Kubernetes DNS concepts (service discovery model, search domains, ndots) are covered inline
+  in coredns-ops because CoreDNS is the implementation vehicle; the broader Kubernetes platform
+  is out of scope for the DNS family.
+
+Cross-refs added to vault skills: dns-network-ops, unbound-dns-ops, multi-vendor-network-ops,
+secrets-hygiene, utc-timestamps, systematic-debugging.
+
+Part of Chunk C DNS family PR3 (recursive / cloud-native): vault 108 -> 110 across coredns-ops + unbound-dns-ops.

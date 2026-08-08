@@ -1,0 +1,31 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+defender-easm is the Microsoft Defender External Attack Surface Management vendor ops skill, re-authored
+from the chrishuffman5 Defender EASM expert agent into a vault skill with three references. Full-ops scope.
+It is the EASM vendor for the family, so it routes the DESIGN / discovery-strategy question back to the
+attack-surface-management umbrella (PR 1) and routes CVE scanning + remediation to vulnerability-management
+(the EASM-to-VM loop). Skill licensed MIT. VulnMgmt + ASM family PR 2 of 4.
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/security/vulnerability-management/asm/defender-easm/SKILL.md (Defender EASM expert
+    agent: product overview, deployment portal/CLI/Terraform, discovery seeds + groups, asset states +
+    labels, risk analysis dashboard + Insight Cards + CVE integration, Azure integration Defender-for-Cloud
+    + Sentinel + Logic Apps, API, pricing)
+    -> SKILL.md (condensed core: an Azure resource that scans the internet for you; discovery runs from
+       seeds; work assets through the state model; risk surfaces as Insight Cards + observations; the Azure
+       integrations are the reason to choose it; classification; router; config-vs-design boundary)
+    -> references/deployment-and-inventory.md (product overview, workspace creation portal/CLI/Terraform,
+       discovery seeds + groups, asset state model, labels)
+    -> references/risk-analysis.md (attack surface summary dashboard, Insight Cards, observation
+       categories, CVE integration + handoff to vulnerability-management)
+    -> references/azure-integration.md (Defender for Cloud, Sentinel connector + KQL, Logic Apps /
+       Power Automate, REST API + Python, pricing + cost control)
+
+Customisations: agent-style upstream re-authored into vault skill shape with four-field frontmatter
+(license MIT) + skill marker; references headerless (line 1 is # Title); upstream name
+security-vulnerability-management-asm-defender-easm not carried over; API examples keep placeholder token
+($ACCESS_TOKEN), managed-identity / secret-store discipline noted; em-dash / en-dash purge (byte-scan ==
+0); British / Pacific English; ASCII -> arrows. Cross-refs attack-surface-management (design, reciprocal)
++ vulnerability-management (EASM-to-VM loop) + nvd-cve + azure-cloud-ops + entra-id + siem-soar-
+investigation + secrets-hygiene.

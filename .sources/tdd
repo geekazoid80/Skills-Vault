@@ -1,0 +1,6 @@
+local CLAUDE.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md (see merged-skills-registry for fold notes and licence)
+DELETED UPSTREAM: skills/engineering/tdd/refactoring.md, removed in 80e9dcc 2026-06-30 ("drop the refactor stage, red to green, not red to green to refactor"). No successor path; upstream moved refactoring out of the TDD loop. The local REFACTOR section is retained deliberately (see merged-skills-registry for fold notes and licence).
+https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/tests.md (see merged-skills-registry for fold notes and licence)
+https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/mocking.md (see merged-skills-registry for fold notes and licence)
+https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md (see merged-skills-registry for fold notes and licence)

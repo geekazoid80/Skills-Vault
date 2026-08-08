@@ -1,0 +1,17 @@
+local CLAUDE.md (self-authored from public Graylog and RFC 5424 documentation; NorceTech graylog-cli upstream inspired CLI-friendly query patterns but is not the source, no upstream licence)
+
+Extension (Chunk C SIEM/SOAR family, single PR): ELK log-backend fold.
+Secondary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+Added references/elastic-stack-log-backend.md, condensed and genericised from chrishuffman5
+skills/monitoring/elk (SKILL.md + references/log-management.md + architecture.md). Scope limited to
+the log-search backend Graylog shares with the Elastic Stack: Elasticsearch/OpenSearch substrate,
+Graylog-on-Elasticsearch vs ELK-direct decision, Elastic Agent / Filebeat collection, data streams,
+ILM hot/warm/cold/frozen tiers, index templates, ECS normalisation, KQL / Lucene / ES|QL log search,
+shard/cluster discipline. ELK APM, metrics (TSDB/Logsdb), and distributed tracing deliberately
+EXCLUDED (owned by distributed-tracing, grafana-dashboards, prometheus-configuration, extended in
+PR7). Additive only: the always-on Graylog body is unchanged; a short "Elastic Stack as the search
+backend" pointer section and two cross-refs were added; frontmatter version 1.0.0 -> 1.1.0; licence
+stays Apache-2.0 (folding MIT content into an Apache-2.0 skill is licence-compatible; the MIT secondary
+is attributed here). Em-dash / en-dash byte-scan == 0; British/Pacific English. vault count unchanged
+(extension, not a new skill).

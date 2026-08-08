@@ -1,0 +1,80 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for azure-dns-ops. All SKILL.md body and reference material
+derives from skills/networking/dns/azure-dns/. MIT licence governs SKILL.md and both references.
+
+Files folded -> reference mapping:
+  skills/networking/dns/azure-dns/SKILL.md
+    -> SKILL.md (umbrella body: classify-first table, Alias records concept, Private Resolver
+       concept, private endpoint DNS concept, DNSSEC concept, cross-references, red flags,
+       bottom line; agent-style sections "How to Approach Tasks", "Public Zones", "Private Zones",
+       "Azure DNS Private Resolver", "Traffic Manager", "Azure Firewall DNS Proxy", "Common
+       Pitfalls" re-authored into operator prose and split across SKILL.md and references)
+    -> references/architecture.md (public zone infrastructure, anycast nameservers, record types,
+       zone delegation, CLI and Terraform for public zones; Alias records (targets, zone apex,
+       auto-updating, billing, CLI + Terraform); DNSSEC (enable, retrieve DS, algorithms, CLI);
+       private zone architecture (VNet links, autoregistration, private endpoint DNS, zone-name
+       table, CLI + Terraform); Azure DNS Private Resolver (component architecture diagram,
+       inbound endpoint, outbound endpoint, forwarding ruleset, hybrid patterns 1/2/3, CLI +
+       Terraform); Traffic Manager (routing methods table, health probes, nesting, CLI); Azure
+       Firewall DNS proxy (architecture, configuration, FQDN rules requirement, DNS logging);
+       RBAC for Azure DNS)
+  skills/networking/dns/azure-dns/references/architecture.md
+    -> references/architecture.md (public zone infrastructure detail, Alias record diagram,
+       DNSSEC architecture diagram, private zone VNet link diagram, Private Resolver component
+       architecture diagram, hybrid DNS pattern flows, Traffic Manager routing methods,
+       Traffic Manager nesting pattern, Azure Firewall DNS proxy architecture, Terraform
+       resource examples)
+    -> references/diagnostics.md (Common Pitfalls section from upstream SKILL.md re-authored
+       into a structured diagnostics reference: resolution failure classification table,
+       diagnostic tools (nslookup/dig/PowerShell), private endpoint failure patterns,
+       Private Resolver inbound/outbound failure diagnosis, DNSSEC failure diagnosis,
+       Traffic Manager probe failure diagnosis, Azure Firewall DNS proxy failure diagnosis,
+       record propagation checks, common errors and fixes table)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("You are a specialist in Azure DNS", numbered
+    task-approach steps, imperative sections) into vault operator prose: declarative
+    descriptions, classify-first framing, no second-person agent instructions.
+  - Four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0).
+  - Keyword-rich CSO description enumerating both references, trigger keyphrases covering
+    the full Azure DNS surface (public zones, private zones, Private Resolver, Alias records,
+    DNSSEC, Traffic Manager, Firewall DNS proxy, IaC, CLI), and boundary callouts to
+    dns-network-ops and azure-cloud-ops.
+  - Skill marker in SKILL.md only; references carry no frontmatter, no skill marker; line 1
+    is the # Title in each reference.
+  - Split the source material into two focused references: architecture.md (build, configure,
+    IaC) and diagnostics.md (troubleshoot, diagnose, fix). The upstream SKILL.md's "Common
+    Pitfalls" section was substantially expanded into a full diagnostics reference with
+    per-failure-type diagnostic flows and CLI commands.
+  - Added the "Pattern 3: Hub-spoke with centralised DNS" hybrid pattern (present in
+    architecture diagram in upstream references/architecture.md but not narrated in upstream
+    SKILL.md).
+  - Added the RBAC section (not present in upstream; standard Azure DNS operational need).
+  - Added a structured "classify first" table (zone type vs public/private resolvability).
+  - Upstream source used em dashes (--) as ASCII double-hyphen in text; zero em-dash (U+2014)
+    or en-dash (U+2013) glyphs across all output files. ASCII "->" used for flow arrows;
+    commas, semicolons, and parentheses for dash-style pauses.
+  - British/Pacific English applied: authorisation, centralised, behaviour, recognised.
+  - Private endpoint DNS zone-name table and the "wrong privatelink zone name" red flag added
+    (partially in upstream "Common Pitfalls" item 7, expanded with a full table in architecture.md
+    and a diagnostic check in diagnostics.md).
+  - DNS forwarding rule trailing-dot requirement called out in both SKILL.md red flags and
+    diagnostics.md common-errors table (a frequently missed operational detail).
+
+Boundary notes:
+  azure-dns-ops = AZURE PLATFORM DNS IMPLEMENTATION (public zones, private zones, Private
+  Resolver, Alias records, DNSSEC, Traffic Manager, Firewall DNS proxy, IaC, CLI).
+  dns-network-ops owns DNS architecture, DNSSEC design (KSK/ZSK strategy, NSEC vs NSEC3,
+  algorithm selection, cross-platform comparison, hybrid DNS patterns at the conceptual level).
+  azure-cloud-ops owns broader Azure platform operations (compute, IAM, cost management,
+  non-DNS networking) that accompany but are outside DNS.
+  network-source-of-truth owns IPAM and the DNS record-of-intent for zones this skill operates.
+  No content duplication with dns-network-ops: this skill covers Azure-specific implementation;
+  conceptual and cross-platform material routes to dns-network-ops.
+
+Cross-refs added to vault skills: dns-network-ops, azure-cloud-ops, multi-vendor-network-ops,
+secrets-hygiene, utc-timestamps, systematic-debugging, network-source-of-truth.
+
+Part of Chunk C DNS family PR4 (managed cloud): vault 110 -> 113 across route53-dns-ops +
+azure-dns-ops + cloudflare-dns-ops.

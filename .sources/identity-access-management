@@ -1,0 +1,66 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the identity-access-management umbrella. All umbrella body
+and reference material derives from skills/security/iam/. MIT licence governs the umbrella
+SKILL.md and all four references.
+
+Files folded -> reference mapping:
+  skills/security/iam/SKILL.md
+    -> SKILL.md (umbrella body: AuthN-vs-AuthZ first classification, platform-selection table
+       with vendor-skill column, reference router, vendor-skill routing table, cross-refs,
+       red flags / anti-patterns, bottom line)
+    -> references/platform-selection.md (full technology-comparison table, the four IAM
+       architecture patterns: cloud-first Entra ID, multi-cloud Okta, hybrid on-prem+cloud,
+       developer-first CIAM; the seven anti-patterns)
+  skills/security/iam/references/concepts.md
+    -> references/protocols.md (OIDC: code-with-PKCE flow, ID token structure + validation,
+       client credentials, discovery/JWKS; SAML 2.0: SP-initiated flow, assertion structure,
+       validation checklist, common attacks; protocol-selection table + federation topologies;
+       SCIM 2.0; Kerberos protocol + attacks; LDAP and directory concepts)
+    -> references/access-control-and-tokens.md (RBAC/ABAC/ReBAC/PBAC models + when to use each,
+       XACML PEP/PDP/PAP/PIP architecture, JIT/JEA privileged access, JWT signing + claims
+       best practice, token-revocation strategies, session lifecycle + security controls)
+    -> references/governance-and-zero-trust.md (MFA factor strategy + phishing resistance,
+       joiner-mover-leaver lifecycle, provisioning patterns SCIM/JIT/HR-driven/directory-sync,
+       IGA capabilities access-reviews/certifications/SOD/role-mining/PAM, zero trust identity
+       principles + access-decision signals)
+
+Customisations applied:
+  - Re-authored the agent-style upstream ("Identity & Access Management Subdomain Agent",
+    "You are the routing agent...") into vault umbrella shape: keyword-rich CSO description
+    enumerating the four references and the eleven vendor skills, with boundary callouts;
+    four-field vault frontmatter (name, description, license MIT, metadata.version 1.0.0);
+    skill marker in SKILL.md only.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Split the single 405-line upstream concepts.md (OIDC + SAML + SCIM + Kerberos + access
+    control + tokens + sessions + directory services + zero trust) into three focused
+    references (protocols, access-control-and-tokens, governance-and-zero-trust) for
+    progressive disclosure; the technology comparison + architecture patterns + anti-patterns
+    moved from the upstream SKILL.md into platform-selection.md.
+  - Upstream technology-routing pointed at sibling file paths (entra-id/SKILL.md, ad-ds/SKILL.md,
+    okta/SKILL.md, etc.). Re-pointed to the vault vendor-skill names (entra-id, okta, auth0,
+    keycloak, ping-identity, sailpoint, aws-iam, gcp-iam, ad-ds, ad-fs, ad-cs), which ship
+    across the IAM family PRs 1-4 per the Chunk C disposition.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files. ASCII "->"
+    used for flow arrows and lifecycle arrows; commas, semicolons, and parentheses used for
+    dash-style pauses.
+  - British/Pacific English applied: authorise, minimise, organisation, licence (noun),
+    enrol, prioritise, behaviour.
+
+Boundary notes:
+  identity-access-management = ARCHITECTURE + CROSS-PLATFORM + CONCEPTS (AuthN/AuthZ, federation,
+  provisioning + JML lifecycle, MFA strategy, access control models, governance, zero trust,
+  IdP/IGA selection). Platform-specific implementation lives in the eleven vendor skills.
+  No content duplication: the vendor skills cover Conditional Access / Okta Workflows / Keycloak
+  realms / AWS policy language / AD replication specifics; this umbrella covers the conceptual,
+  comparative, and selection layer and routes to them.
+  entra-app-lifecycle (existing vault skill) owns the Entra ID app-REGISTRATION lifecycle
+  (app type to OAuth flow, MSAL, service principals, API permission grants, federated identity
+  credentials); the entra-id vendor skill (IAM PR3) owns the Entra ID PLATFORM/ADMIN surface
+  (Conditional Access, PIM, Identity Protection, Entra Connect, B2B/B2C, governance). This
+  umbrella routes to both and duplicates neither.
+
+Cross-refs added to vault skills: entra-app-lifecycle, secrets-hygiene, utc-timestamps,
+aws-cloud-ops, aws-networking-audit, azure-cloud-ops, gcp-cloud-ops, oncall-runbooks.
+
+Vault count: 113 -> 114

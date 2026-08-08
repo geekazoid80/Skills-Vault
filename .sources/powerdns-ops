@@ -1,0 +1,74 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+This is the sole content source for the powerdns-ops skill. All SKILL.md body and both
+reference files derive from skills/networking/dns/powerdns/. MIT licence governs all files.
+
+Files folded -> reference mapping:
+  skills/networking/dns/powerdns/SKILL.md
+    -> SKILL.md (umbrella body: product overview, when-to-use/not-use, reference router,
+       core task snippets for Auth/Recursor/DNSdist, cross-references, red flags, bottom line)
+    -> references/architecture.md (suite overview, Auth internal architecture, all backend
+       details gmysql/gpgsql/gsqlite3/gldap/bind/pipe/remote, DNSSEC implementation with full
+       pdnsutil commands, REST API endpoint table, Lua hooks table, views, zone transfer and
+       supermaster/autoprimary, Recursor internal architecture, YAML config, DNSSEC validation
+       modes, RPZ triggers and actions, serve-stale, Recursor Lua, DNSdist load-balancing
+       policies, DoH/DoT/DoQ frontend, rules engine selectors and actions, health checks,
+       DNSdist Defender, deployment patterns, pdns.conf core settings reference)
+  skills/networking/dns/powerdns/references/architecture.md
+    -> references/architecture.md (merged with SKILL.md detail above; source architecture.md
+       contributed backend architecture diagrams, Recursor MTasker diagram, YAML configuration
+       sections, RPZ implementation details, DNSdist rules engine tables, deployment patterns,
+       and TSIG zone-transfer configuration)
+    -> references/diagnostics.md (created from the upstream "Common Pitfalls" section and
+       the pdnsutil/pdns_control/DNSdist operational detail scattered through both upstream
+       files; expanded with rec_control commands, DNSdist console commands, Prometheus metrics,
+       Carbon/Graphite export, common failure patterns with diagnosis/resolution steps, and log
+       reference tables; none of this was a standalone section in the upstream; the split
+       provides progressive disclosure between configuration depth and operational runbook)
+
+Customisations applied:
+  - Re-authored the agent-style upstream framing ("You are a specialist in...", "How to
+    Approach Tasks") into vault operator-facing prose: four-field frontmatter, skill marker
+    block, product-classification-first orientation, When-to-use / When-not-use, reference
+    router table, cross-references, red flags, bottom line.
+  - References carry no frontmatter and no skill marker (line 1 is the # Title in each).
+  - Split single upstream architecture.md (269 lines, architecture + ops mixed) into two
+    focused references: architecture.md (configuration depth and deployment patterns) and
+    diagnostics.md (commands, metrics, failure patterns, log reference); the split is
+    justified by the volume and the distinct audience: architecture is read when building or
+    configuring; diagnostics is read during incidents.
+  - Upstream used ASCII `--` in some diagram labels and em-dash-style comments in config
+    blocks. All converted to inline comments, parenthetical pauses, or ASCII `->` arrows.
+  - British/Pacific English applied throughout: authorised, licence (noun), behaviour,
+    analyse, organisation, synchronise, optimise, recognise.
+  - Upstream ASCII art diagrams converted from box-drawing characters (which may not render
+    in all terminals) to plain `+---+` style for portability; flow arrows use `->`.
+  - Cross-references added to vault skills: dns-network-ops (architecture/concepts boundary),
+    multi-vendor-network-ops (change-control contract), secrets-hygiene (API key and DNSSEC
+    private key material), postgres-best-practices (gpgsql), mysql-best-practices (gmysql),
+    utc-timestamps (SOA serials, DNSSEC key timing), systematic-debugging, oncall-runbooks.
+  - TSIG zone-transfer configuration and supermaster/autoprimary detail added to
+    architecture.md; these appeared only as a "pitfall" in the upstream and are expanded
+    to operational guidance.
+  - DNSdist Defender section expanded with specific attack-type names (PRSD, DNS tunneling)
+    to match the upstream SKILL.md detail that was not in architecture.md.
+  - Diagnostics reference is entirely new structure: no single upstream section maps to it;
+    content drawn from the upstream "Common Pitfalls" list and operational commands scattered
+    through both upstream files.
+  - Em-dash (U+2014) and en-dash (U+2013) glyphs: zero occurrences across all files.
+    ASCII "->" used for arrows; commas, semicolons, and parentheses for dash-style pauses.
+
+Boundary notes:
+  powerdns-ops = PowerDNS IMPLEMENTATION (Auth Server, Recursor, DNSdist configuration,
+  operations, backends, DNSSEC operations with pdnsutil, REST API, Lua scripting, metrics).
+  dns-network-ops owns DNS ARCHITECTURE + CROSS-PLATFORM (resolution concepts, DNSSEC
+  chain-of-trust design, zone-transfer protocol concepts, platform selection, cross-platform
+  comparison, hybrid design patterns). No content duplication: dns-network-ops covers the
+  conceptual and comparative layer; powerdns-ops covers the PowerDNS-specific implementation.
+
+Cross-refs to vault skills: dns-network-ops, multi-vendor-network-ops, secrets-hygiene,
+postgres-best-practices, mysql-best-practices, utc-timestamps, systematic-debugging,
+oncall-runbooks.
+
+Part of Chunk C DNS family PR2 (authoritative servers): vault 105 -> 108 across
+bind-dns-ops + powerdns-ops + windows-dns-ops.

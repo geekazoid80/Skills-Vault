@@ -1,0 +1,46 @@
+Primary source: chrishuffman5/domain-expert (MIT)
+URL: https://github.com/chrishuffman5/domain-expert
+
+haproxy-load-balancing is the HAProxy configuration / operations / tuning skill in the load-balancer
+family (PR 2 of 2). It owns the working haproxy.cfg, the runtime API, and operational discipline; the
+design and platform-selection decision lives in load-balancer-selection (PR 1). Skill licensed MIT (the
+primary-source licence).
+
+Files folded -> reference mapping:
+  chrishuffman5 skills/networking/load-balancing/haproxy/SKILL.md (HAProxy expert agent: process model,
+    config structure, frontend/backend/listen, ACL system, stick tables, health checks, SSL offload +
+    SNI routing, L4 vs L7 mode, runtime API, balance algorithms, Kubernetes Ingress, common pitfalls)
+  chrishuffman5 skills/networking/load-balancing/haproxy/references/architecture.md (single-process
+    multi-threaded model, event-driven I/O, memory, ACL internals + fetch methods, stick-table
+    internals + data/key types + peer sync + 3.0/3.2 perf, runtime-API mechanics + access levels,
+    multi-threading, zero-downtime reload, logging + termination flags)
+  chrishuffman5 skills/networking/load-balancing/haproxy/references/best-practices.md (production SSL +
+    certificate bundle order + SNI, health-check timing, rate-limiting patterns per-IP/login/graduated/
+    abuse, cookie persistence, connection reuse, timeouts, Kubernetes Ingress annotations + ConfigMap,
+    performance tuning, stats monitoring, API-gateway/database/WebSocket patterns, operational
+    checklist)
+    -> SKILL.md (condensed core: one-process-many-threads-no-IO-in-data-path; frontend-accepts-backend-
+       distributes; ACLs-first-match-top-down; stick-tables-are-the-stateful-core; runtime-API-changes-
+       are-not-persistent; anti-patterns; request classification; reference router)
+    -> references/architecture.md (process/thread model, memory, frontend/backend pipeline, ACL
+       internals + fetch methods, stick-table architecture + types + peer sync, runtime-API mechanics +
+       access levels, multi-threading, zero-downtime reload, logging + termination flags)
+    -> references/configuration.md (config structure, frontend/backend/listen stanzas, ACL routing,
+       stick-table rate limiting + session tracking, HTTP/TCP/external health checks, SSL offload + SNI
+       routing, L4 vs L7 mode, balance-algorithm table, runtime-API commands, Kubernetes Ingress)
+    -> references/operations-and-tuning.md (production SSL + bundle order, health-check timing strategy,
+       rate-limiting patterns, cookie persistence + connection reuse + timeouts, performance tuning,
+       stats monitoring, API-gateway/database/WebSocket patterns, Kubernetes ConfigMap globals,
+       operational checklist)
+
+Skipped / refer-only:
+  - chrishuffman5 skills/networking/load-balancing/haproxy/3.2/SKILL.md (HAProxy 3.2 LTS version
+    specifics): the version-specific deltas (stick-table sync thread, array data types, show events)
+    were folded inline into architecture.md / configuration.md rather than carried as a version
+    sub-skill, matching the DNS-family precedent of absorbing version subdirs into the main references.
+  - automateyournetwork/netclaw F5 ops skills: F5-specific, not HAProxy; not in scope.
+Customisations: agent-style upstream ("You are a specialist...", "How to Approach Tasks", "delegate to
+the appropriate version agent") re-authored into vault skill shape with four-field frontmatter (license
+MIT) + skill marker; references carry no frontmatter / no skill marker (line 1 is # Title); upstream
+name networking-load-balancing-haproxy not carried over; em-dash / en-dash purge (byte-scan == 0);
+British / Pacific English; ASCII -> arrows.
