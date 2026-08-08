@@ -1,6 +1,6 @@
 ---
 name: boundary-check
-description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
+description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
 ---
 
 # boundary-check
@@ -120,6 +120,39 @@ a new one via `author-skill`; a memory note is the fallback when no skill fits. 
 act on the always-on "promote repeated guidance to a skill" rule, while the finding is fresh, rather than
 leaving it to decay in the transcript.
 
+## Commit what you wrote (only if the store is version-controlled)
+
+Everything above says "write it to a durable home", and for an unversioned store the write IS the durable
+act. **Once the standing-instruction store is under version control, that stops being true.** An uncommitted
+file survives a crash, but it does not survive the failure version control was added for: another session
+overwriting it. So when the store is a repo, the gate is not passed until the writes are committed.
+
+Check once per boundary, from the store's root (`git rev-parse --show-toplevel`, or `git status` returning
+"not a git repository"):
+
+- **Not a repo** - the disk write was the durable act. Nothing to do; say so and move on.
+- **A repo** - commit, with the one constraint below.
+
+**Commit ONLY the paths this session wrote. Never `git add -A`, `git add .`, or `git commit -a`.** A
+standing-instruction store is usually shared by concurrent sessions, so a blanket add sweeps up whatever
+half-finished edits the peers have in flight and lands them in history under your message, attributed to
+your reasoning. Name the paths explicitly:
+
+```
+git -C <store> commit -- path/one.md path/two.md
+```
+
+`commit -- <paths>` takes those paths whatever the index holds, so it neither disturbs nor inherits a
+peer's staged state. Keep a running list of what you write as you write it; reconstructing it at the
+boundary from `git status` is exactly the mistake, because that output includes everyone's work, not yours.
+
+Two things NOT to do in a shared store: never `git checkout` / `restore` / `reset` a file you did not write
+just to get a clean status (that silently destroys a peer's uncommitted work), and do not push unless the
+store has a remote AND pushing is the established habit. A local commit is the whole requirement here.
+
+If a park is the boundary, the commit happens BEFORE the stop, since it is part of flushing state rather
+than new work.
+
 ## Park-only extra
 
 If the boundary is a park / standdown / quit (not a compact), also run the full
@@ -141,14 +174,17 @@ unwritten prose, no unrecorded chunk, no vague pending (feedback_no_dangling_bit
 
 After the checks actually ran from disk this turn, post one line:
 
-`Gate: date re-derived ✓ · CLAUDE+MEMORY fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓`
+`Gate: date re-derived ✓ · CLAUDE+MEMORY fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓ · memory committed ✓`
 
 Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
 2. fresh Read of `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index (+ linked files);
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
    and fixed what was found;
-4. externalised any one-off insight not yet on disk.
+4. externalised any one-off insight not yet on disk;
+5. committed the standing-instruction paths this session wrote, naming them explicitly. Tick it unchanged
+   when the store is not a repo (the write was the durable act) or when the session wrote nothing, but
+   say which of the three applies rather than ticking it silently.
 
 If a check did not run, do **not** tick it - run it first. **Proposing compact or accepting a park without
 the stamp is itself the lapse the user is entitled to call.** The stamp is the safety net; the underlying
