@@ -1,6 +1,6 @@
 ---
 name: boundary-check
-description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
+description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
 ---
 
 # boundary-check
@@ -33,7 +33,54 @@ session executes, or a peer session. A passive "worth a glance" with no owner fa
 By right it fires automatically at these moments in every session; the user may also trigger it manually.
 When it fires, it runs as a real Skill invocation so the usual skill-use chip shows.
 
+**A boundary is not the only moment the ground moves.** Publishing a durable, outward-facing artefact needs
+its own narrower re-read immediately beforehand, which is `reread-memory-before-planning`'s final-write rule,
+not this gate's job.
+
 ## The walk (fresh disk reads, never recall)
+
+### First, ask the store what moved
+
+The walk below is thorough and therefore expensive, and an expensive gate does not get skipped outright, it
+gets **downgraded into a confident assertion**: "unchanged since my session-start read". That sentence is a
+judgement about a file you did not look at.
+
+Where the standing-instruction store is under version control, you do not have to make that judgement. Ask
+the store:
+
+```
+git -C <store> log --since="<session start>" --format="%h %ad %s" --date=format:"%H:%M"
+git -C <store> status --short
+git -C <store> log -1 --format=%ad -- <standing files>
+```
+
+**The `status` call is not optional, and it is not redundant with the log.** It is the only one that surfaces
+a peer's edit that is written to disk but not yet committed, which no amount of re-reading committed state
+will ever show. Where a dirty path matters, `git diff -- <path>` to see whose change it is.
+
+Rules:
+
+- **Run the delta at every boundary, before ticking anything.** It costs one call.
+- **Never tick "unchanged" from recall, from an mtime alone, or from a session-start snapshot.** An mtime says
+  the file did not move; it does not put the contents in front of you, and it is silent on the uncommitted
+  case entirely.
+- **When the delta is non-empty, read those files and say what changed.** Naming the commits that landed is
+  the evidence; "I checked and it was fine" is not.
+
+What this buys you is a **delta instead of an all-or-nothing choice**: read what actually moved, and say so,
+rather than re-reading everything or nothing. What it does not buy you is a way out of the walk. **The delta
+tells you what moved, not what is relevant.** A file you have never opened is unread however quiet it has
+been, so a quiet delta narrows re-reading *across* boundaries within a session, it never substitutes for the
+first read or for the ledger below.
+
+If the store is not version controlled, say so and run the full walk.
+
+The reason this earns its own step: a session ticked the global rules file as unchanged without checking, and
+left the global memory index on a snapshot taken two hours earlier, while that store took **21 commits** in
+the interim, three of them touching standing files and one landing twelve minutes before the gate. Nothing in
+the artefacts contradicted the stamp. The operator caught it.
+
+### Then walk the sources
 
 Run these in order. Every read is a **live Read/Bash of the file on disk this turn**, not a memory of what
 it said earlier in the session.
@@ -223,9 +270,11 @@ will keep passing over the exact rule that would have caught the session's mista
 
 Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
-2. fresh Read of `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and the linked
-   files relevant to what this session touched**, each accounted for in the ledger. A file confirmed by
-   mtime, git state, or a session-start reminder snippet is **not** read, so do not tick on one;
+2. the store delta was run first (log + `status` + last-touch), and then a fresh Read of
+   `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and the linked files relevant to
+   what this session touched**, each accounted for in the ledger. A file confirmed by mtime, git state, or a
+   session-start reminder snippet is **not** read, so do not tick on one, and "unchanged since I last
+   checked" is not a delta, it is the assertion the delta exists to replace;
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
    and fixed what was found;
 4. externalised any one-off insight not yet on disk;

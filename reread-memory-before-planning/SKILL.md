@@ -1,6 +1,6 @@
 ---
 name: reread-memory-before-planning
-description: "Use before drafting OR resuming ANY plan, before invoking AskUserQuestion to scope a chunk or sub-step, before writing or editing a plan file in `~/.claude/plans/`, at chunk-open, at PR-open within a chunk, and at every plan-mode entry (manual or harness-triggered). Triggers include \"let me plan\", \"draft a plan\", \"next chunk\", \"set up a plan\", \"PR-N plan\", \"open the next chunk\", \"I'll plan first\", \"planning the implementation\", \"exit plan mode\", \"enter plan mode\", \"ExitPlanMode\", \"EnterPlanMode\", \"approve the plan\", \"ready to plan\", \"scope the chunk\". NOT for inline replies, trivial actions (one-line fixes, doc typos, single-bash status checks), or continuation of an already-approved plan whose four-class re-read was already done in the current session. Iron rule: every plan I author is anchored in CURRENT global memory + CURRENT project memory + CURRENT project AGENTS.md + an explicit skills/MCPs enumeration, never in assumed-still-true context. Re-read all four classes first; plan second. Add a standing-reminder section to the plan file naming this rule."
+description: "Use before drafting OR resuming ANY plan, before invoking AskUserQuestion to scope a chunk or sub-step, before writing or editing a plan file in `~/.claude/plans/`, at chunk-open, at PR-open within a chunk, and at every plan-mode entry (manual or harness-triggered). ALSO fires immediately before a task's FINAL WRITE, the moment that publishes a durable or outward-facing artefact: \"before I file the issue\", \"about to open the PR\", \"final write\", \"publish the doc\", \"post the update\", \"send it\", \"the brief says\", \"completing the hand-off\", \"hand-off brief\", \"the chip asked me to\". Other triggers include \"let me plan\", \"draft a plan\", \"next chunk\", \"set up a plan\", \"PR-N plan\", \"open the next chunk\", \"I'll plan first\", \"planning the implementation\", \"exit plan mode\", \"enter plan mode\", \"ExitPlanMode\", \"EnterPlanMode\", \"approve the plan\", \"ready to plan\", \"scope the chunk\". NOT for inline replies, trivial actions (one-line fixes, doc typos, single-bash status checks), or continuation of an already-approved plan whose four-class re-read was already done in the current session. Iron rule: every plan I author is anchored in CURRENT global memory + CURRENT project memory + CURRENT project AGENTS.md + an explicit skills/MCPs enumeration, never in assumed-still-true context. Re-read all four classes first; plan second. A brief is a snapshot of intent at dispatch, not a specification, so re-read before you publish and reconcile the artefact when a later decision has superseded it. Add a standing-reminder section to the plan file naming this rule."
 ---
 
 # reread-memory-before-planning
@@ -61,6 +61,48 @@ Invoke the `plan-time-tooling` skill at the same plan-mode entry. Its job is to 
 Record the enumerated skills + MCPs in the Reminders block alongside the memory entries. The point: a plan that doesn't enumerate its tooling shifts that work into execution where it disrupts flow.
 
 This class exists BECAUSE memory-only re-reads have repeatedly omitted the tooling pass; the user surfaced this gap on 2026-05-24 and asked for it to be made explicit in the procedure.
+
+## Re-read before the final write, not only at plan-open
+
+The four-class procedure anchors the **start** of a task. That is not enough for a task whose output is
+**durable and outward-facing**, because the ground it was scoped against can move while you work. So take a
+second, narrower anchor immediately before the write that publishes it.
+
+**What counts as a final write.** Filing an issue. Opening a PR, or writing its body. Publishing or merging a
+doc. Posting an update on a tracker. Writing a memory entry. Sending anything another person will read as a
+statement of where things currently stand. The test is not size, it is whether someone else will later treat
+the artefact as current.
+
+**What to re-read.** Not the whole four classes again. Just the project memory and the specific linked files
+the task was scoped against, asking one narrow question: has anything moved since this work was dispatched.
+Where the standing-instruction store is version controlled, `boundary-check` has the delta commands that
+answer that in one step rather than by re-reading everything.
+
+### A brief is a snapshot of intent, not a specification
+
+A hand-off brief, a chip, a task description, a ticket: each records what was wanted **at dispatch**. A
+decision taken afterwards supersedes it, and nothing about the brief will tell you that happened. The gap can
+be minutes wide.
+
+Worked instance. A brief asked for an issue to be filed presenting a four-way choice as still open. The issue
+was filed; **two minutes later** a peer session recorded the operator's decision, already made, into the very
+project memory the brief had been derived from. Completing the brief literally had produced a public artefact
+presenting a settled question as open. The same re-read also showed the peer had independently reached a
+correction the brief itself got wrong, which is a second reason not to execute a brief on rails.
+
+**So when the re-read contradicts the brief:**
+
+- **Reconcile the artefact, do not just note the discrepancy.** Edit what you have just produced so it records
+  the newer decision and reframes the ask around what that decision leaves open. If it is already published,
+  edit it in place. A stale public artefact is the defect; having noticed it and moved on is worse, not
+  better.
+- **Surface the deviation and get a decision on it.** This runs in both directions: departing from the brief
+  needs saying out loud, and so does keeping to it once you know something has changed. Never keep a
+  deviation silently, in either direction. In the instance above the brief also said to close a tracking
+  task; that was held open on coordination grounds, surfaced, and then closed on the operator's explicit
+  call, which is the shape to copy.
+- **Prefer editing to appending.** Reframing the artefact so it reads correctly beats bolting a correction on
+  the end, which leaves the reader to work out which half is current.
 
 ## Scope (this rule is GLOBAL)
 
@@ -146,6 +188,10 @@ The re-read is mandatory at FRESH planning. It does NOT need to fire again for:
 
 When in doubt, re-read. The cost is small and the failure mode (planning on stale assumptions) is the entire reason this rule exists.
 
+**The carve-out does not extend to the final write.** "The four-class re-read already happened this session"
+excuses repeating the full procedure; it does not excuse skipping the narrow pre-publication check above. The
+whole point of that check is that the session has been running, and that is exactly when the ground moves.
+
 ## Worked example
 
 User says: "let's open the next chunk." I'm about to enter plan mode for a chunk I haven't planned yet.
@@ -207,6 +253,10 @@ AskUserQuestion({
 - About to write a plan whose Reminders block lists only project memory and skips global memory / project conventions / skills + MCPs (the 2026-05-24 gap; the four-class re-read MUST be explicit in the Reminders section, not implicit "I read some stuff").
 - About to call `Write` on a `~/.claude/plans/*.md` file WITHOUT the standing-reminder block at the top.
 - About to call `ExitPlanMode` for a plan file that lacks either the standing-reminder block OR a Reminders section that enumerates all four classes.
+- About to file an issue, open a PR, publish a doc, or post an update, having re-read memory only at the
+  start of the task. The output is durable and outward-facing; take the second anchor first.
+- Executing a brief literally when the re-read shows a later decision has superseded it, or noticing that and
+  filing the artefact anyway with a note about it. Reconcile the artefact, then surface the deviation.
 - Drafting plan content based on "I remember the project rule is X" without verifying memory says so today.
 - Memory file claims a code shape (filename, line number, signature) the plan depends on; planning without verifying it's still true.
 - A fresh session inherits a plan file that has no standing-reminder block → the skill's enforcement broke at the previous plan-author point; reflag and add it.
@@ -217,4 +267,4 @@ AskUserQuestion({
 
 ## Bottom line
 
-Re-read memory before drafting any plan; add the standing-reminder block to every plan file. Cost is small (one parallel read batch); failure mode of skipping it is shipping a plan that violates a standing rule. Always pay the cheaper cost.
+Re-read memory before drafting any plan, and again before the write that publishes the work; add the standing-reminder block to every plan file. Cost is small (one parallel read batch, then one narrow check); failure mode of skipping it is shipping a plan that violates a standing rule, or publishing an artefact a decision has already overtaken. Always pay the cheaper cost.
