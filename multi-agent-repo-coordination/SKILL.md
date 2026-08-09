@@ -2,7 +2,7 @@
 name: multi-agent-repo-coordination
 description: Use before the first edit, commit, or push in any git repo that a concurrent agent or person may also be touching this session - peer Claude sessions, a shared estate or knowledge base, or a repo whose `.git` is shared by other worktrees. Trigger phrases and symptoms - "worktree", "concurrent session", "peer is editing", "shared checkout", "multi-agent", a branch ref that shuffled mid-commit, a commit that landed on the wrong branch, "cannot lock ref", "'<base>' is already used by worktree", a push that seemed to vanish, `git rev-parse origin/<branch>` failing after a push that landed, two local clones of one repo under different names, a stale clone serving old code, a parallel session that merged the same feature. Covers worktree-per-session, ff-only sync, branch-per-task, verify-the-pushed-ref via `ls-remote`, SHA recovery after a ref shuffle, append-not-rewrite for shared docs and memory, and clone-not-assume (one canonical local clone). NOT for solo repos with no concurrent actors; NOT for choosing where on disk a repo lives (that is repo-safe-locations). Composes with using-git-worktrees and pull-before-dev.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Multi-Agent Repo Coordination
@@ -39,7 +39,7 @@ git -C <repo> worktree add ../wt-<task> -b <area>/<task> origin/main
 git -C <repo> worktree remove ../wt-<task>
 ```
 
-All Edit / Write / Read use the worktree-prefixed absolute path, never the main-repo path.
+All Edit / Write / Read use the worktree-prefixed absolute path, never the main-repo path. Editing the main clone instead also strands an uncommitted copy that blocks its post-merge `pull --ff-only`; `using-git-worktrees` carries that rule, its symptoms, and the restore-then-pull recovery.
 
 ## Sync fast-forward-only, per repo
 

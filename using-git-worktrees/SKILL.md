@@ -1,8 +1,8 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, or when about to create a worktree manually. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR". Enforces detect-existing-isolation first, prefer-the-native-tool second, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
+description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination). Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Using Git Worktrees
@@ -49,6 +49,41 @@ If the harness has no worktree tool and you genuinely need a manual worktree, us
 
 If `git worktree add` fails with a permission error (sandbox denial), tell the user the sandbox blocked worktree creation and you are working in the current directory instead.
 
+## Edit in the worktree, not the main clone
+
+Once the shipping path is a worktree branch and a PR, **every edit belongs in the worktree**. Editing the main clone first leaves an uncommitted copy of content that is about to reach `main` by a different path, and once the PR merges, `pull --ff-only` in the main clone aborts:
+
+```
+error: Your local changes to the following files would be overwritten by merge:
+        docs/design/ot-assets.md
+Please commit your changes or stash them before you merge.
+Aborting
+```
+
+The two copies are identical in intent, but git cannot know that, so it refuses the fast-forward to protect the local edit. Nothing is lost, but the block has to be reasoned about from scratch every time, and "is it safe to discard this?" is exactly the question that goes wrong in a tree that also holds someone else's uncommitted work.
+
+**Decide the shipping path first.** If it is a PR, create the worktree, then edit inside it. Never make the change in the main clone intending to route it through the branch later.
+
+**Docs and bookkeeping are where this actually bites.** WORKLOG entries, design notes, READMEs. Code edits go to the worktree without thinking; doc edits feel incidental, so reflex puts them in the main tree.
+
+**During a worktree chunk the main clone has exactly one job: stay clean and current.** Fetch, `pull --ff-only`, read. A dirty main tree during worktree work is an anomaly to investigate, not a normal working state.
+
+### Recovery once the slip has happened
+
+```bash
+git -C <main-clone> status --short      # which paths are modified
+git -C <main-clone> diff -- <path>      # confirm the content is yours and already merged
+git -C <main-clone> restore <path>
+git -C <main-clone> pull --ff-only
+```
+
+`git restore` is safe here **only** because the content is your own and is already on `main`. Two hard limits:
+
+- **Never restore a file you did not write.** From the outside, a peer's uncommitted work looks exactly like your own stranded copy.
+- **Never `git reset` the tree to clear the block.** It discards every modified path, including a peer's.
+
+If the modified path is not yours, or you cannot confirm its content already landed, stop and surface it rather than discarding.
+
 ## Project setup
 
 Once you are in the right workspace (existing or freshly created), auto-detect and run the project's setup:
@@ -76,6 +111,9 @@ Before claiming the worktree is ready, run the project's test command (or build,
 | No native tool | Manual `git worktree add` to an out-of-tree path |
 | Permission error on create | Sandbox fallback; work in place; report |
 | Tests fail at baseline | Report failures; ask before proceeding |
+| Change ships via a worktree branch and PR | Edit in the worktree; main clone stays clean and current |
+| `pull --ff-only` aborts on a locally-modified file | Confirm the content is yours and merged, then `git restore <path>` and pull |
+| The modified path is not yours, or you cannot confirm it landed | Stop and surface; never `git reset` the shared tree |
 
 ## Red flags
 
@@ -85,7 +123,11 @@ Before claiming the worktree is ready, run the project's test command (or build,
 - Writing into `.claude/worktrees/<x>/` by hand (that path is the harness's, not the user's).
 - Skipping baseline test verification on a fresh worktree.
 - Removing a worktree the harness created (provenance check first; if path is under `.claude/worktrees/`, the harness owns cleanup).
+- Editing a doc, WORKLOG entry, or README in the main clone when the change is going to ship through a worktree branch.
+- A dirty main clone during a worktree chunk (its job is fetch, ff-only pull, read).
+- Reaching for `git reset`, `checkout -f`, or a forced pull to clear "Your local changes would be overwritten by merge".
+- Discarding a modified path in a shared clone without first confirming you wrote it and that the content already landed.
 
 ## Bottom line
 
-Detect first, prefer native, never fight the harness. The manual `git worktree add` path is a last-resort fallback, not the default.
+Detect first, prefer native, never fight the harness. The manual `git worktree add` path is a last-resort fallback, not the default. Once a worktree exists, edit in it: a change made in the main clone strands an uncommitted twin of content that lands by another path, and the post-merge `pull --ff-only` aborts on it. Recover with `git restore` only for content you wrote and that is already merged; otherwise surface it.
