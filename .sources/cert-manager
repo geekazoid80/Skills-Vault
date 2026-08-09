@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for cert-manager. All body and reference material
-derives from skills/security/secrets/pki/cert-manager/. MIT licence governs the SKILL.md
+derives from plugins/security/skills/cert-manager/. MIT licence governs the SKILL.md
 and both references.
 
 Files folded -> reference mapping:
-  skills/security/secrets/pki/cert-manager/SKILL.md (547 lines, single upstream file)
+  plugins/security/skills/cert-manager/SKILL.md (547 lines, single upstream file)
     -> SKILL.md (umbrella body: request classification matrix with Issuer vs ClusterIssuer scope
        and cloud vs on-prem identification, condensed CRD model table with issuance-flow
        sequences for ACME and non-ACME paths, reference router table, cross-refs, red flags,

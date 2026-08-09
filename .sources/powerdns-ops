@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the powerdns-ops skill. All SKILL.md body and both
-reference files derive from skills/networking/dns/powerdns/. MIT licence governs all files.
+reference files derive from plugins/networking/skills/powerdns/. MIT licence governs all files.
 
 Files folded -> reference mapping:
-  skills/networking/dns/powerdns/SKILL.md
+  plugins/networking/skills/powerdns/SKILL.md
     -> SKILL.md (umbrella body: product overview, when-to-use/not-use, reference router,
        core task snippets for Auth/Recursor/DNSdist, cross-references, red flags, bottom line)
     -> references/architecture.md (suite overview, Auth internal architecture, all backend
@@ -14,7 +14,7 @@ Files folded -> reference mapping:
        modes, RPZ triggers and actions, serve-stale, Recursor Lua, DNSdist load-balancing
        policies, DoH/DoT/DoQ frontend, rules engine selectors and actions, health checks,
        DNSdist Defender, deployment patterns, pdns.conf core settings reference)
-  skills/networking/dns/powerdns/references/architecture.md
+  plugins/networking/skills/powerdns/references/architecture.md
     -> references/architecture.md (merged with SKILL.md detail above; source architecture.md
        contributed backend architecture diagrams, Recursor MTasker diagram, YAML configuration
        sections, RPZ implementation details, DNSdist rules engine tables, deployment patterns,

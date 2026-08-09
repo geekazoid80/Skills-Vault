@@ -1,12 +1,12 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
-Bulk: the CI/CD umbrella router (skills/devops/cicd/SKILL.md + references/concepts.md)
+Bulk: the CI/CD umbrella router (plugins/devops/skills/cicd/SKILL.md + references/concepts.md)
 and five platform agent sub-trees, each with a SKILL.md and references/ subdir:
-  skills/devops/cicd/github-actions/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
-  skills/devops/cicd/gitlab-ci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md + version subdirs 18.7/18.8/18.9)
-  skills/devops/cicd/jenkins/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
-  skills/devops/cicd/azure-devops/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
-  skills/devops/cicd/circleci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  plugins/devops/skills/github-actions/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  plugins/devops/skills/gitlab-ci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md + version subdirs 18.7/18.8/18.9)
+  plugins/devops/skills/jenkins/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  plugins/devops/skills/azure-devops/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
+  plugins/devops/skills/circleci/ (SKILL.md + references/architecture.md + best-practices.md + diagnostics.md)
 License: MIT (primary)
 
 Secondary source: automateyournetwork/netclaw (Apache-2.0)

@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for unbound-dns-ops. All SKILL.md body and reference material
-derives from skills/networking/dns/unbound/. MIT licence governs the SKILL.md and both references.
+derives from plugins/networking/skills/unbound/. MIT licence governs the SKILL.md and both references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/unbound/SKILL.md
+  plugins/networking/skills/unbound/SKILL.md
     -> SKILL.md (umbrella body: deployment classification, unbound.conf structure overview,
        DNSSEC trust anchor summary, forward-zone vs stub-zone decision, local-zone types table,
        cross-references, red flags, bottom line)
@@ -13,7 +13,7 @@ Files folded -> reference mapping:
        cache settings (prefetch/serve-expired/TTL), DoT/DoH incoming and upstream, local-zone
        types with examples, privacy hardening, performance tuning table, deployment patterns,
        common pitfalls table)
-  skills/networking/dns/unbound/references/architecture.md
+  plugins/networking/skills/unbound/references/architecture.md
     -> references/architecture.md (threading model, iterator state machine, module pipeline
        detail with cachedb/python/respip, DNSSEC validation process, trust anchor bootstrap,
        negative trust anchors, encrypted DNS, deployment patterns, performance parameter table)

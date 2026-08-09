@@ -1,7 +1,7 @@
 https://github.com/wshobson/agents/blob/main/plugins/observability-monitoring/skills/prometheus-configuration/SKILL.md (see merged-skills-registry for fold notes and licence)
 
 --- Chunk C PR7 observability cross-fold (2026-06-01): references/ added ---
-https://github.com/chrishuffman5/domain-expert/tree/main/skills/monitoring/prometheus (MIT) -> references/promql-deep-dive.md + references/long-term-storage-and-ha.md
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/monitoring/skills/prometheus (MIT) -> references/promql-deep-dive.md + references/long-term-storage-and-ha.md
 https://github.com/automateyournetwork/netclaw/tree/main/workspace/skills/prometheus-monitoring (Apache-2.0) -> programmatic-query subsection in long-term-storage-and-ha.md
 Skill stays MIT-primary; the netclaw prometheus-monitoring content is Apache-2.0, attributed here. Frontmatter normalised: added license: MIT.
 Customisations: references carry no frontmatter and no skill marker; dropped netclaw "Record in GAIT" and markmap steps; genericised the $MCP_CALL harness pattern to "via the Prometheus MCP server"; dropped netclaw-internal integration rows; em-dash and en-dash purge (byte-scan == 0); British English. Deduped against the existing SKILL.md (setup, scrape config, recording and alert rules, validation already covered, not re-folded).

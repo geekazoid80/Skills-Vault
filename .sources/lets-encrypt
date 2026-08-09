@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for lets-encrypt. All body and reference material
-derives from skills/security/secrets/pki/lets-encrypt/. MIT licence governs the SKILL.md
+derives from plugins/security/skills/lets-encrypt/. MIT licence governs the SKILL.md
 and the single reference.
 
 Files folded -> reference mapping:
-  skills/security/secrets/pki/lets-encrypt/SKILL.md (344 lines, single upstream file)
+  plugins/security/skills/lets-encrypt/SKILL.md (344 lines, single upstream file)
     -> SKILL.md (umbrella body: request classification matrix, condensed core model (challenge
        type comparison table, certificate lifetime profile table), reference router pointing to
        the single reference file, cross-refs, red flags, bottom line)

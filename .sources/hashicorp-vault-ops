@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for hashicorp-vault-ops. All body and reference material
-derives from skills/security/secrets/vault/. MIT licence governs the SKILL.md and all three
+derives from plugins/security/skills/vault/. MIT licence governs the SKILL.md and all three
 references.
 
 Files folded -> reference mapping:
-  skills/security/secrets/vault/SKILL.md
+  plugins/security/skills/vault/SKILL.md
     -> SKILL.md (umbrella body: request classification, edition identification, condensed
        core model (barrier/seal/unseal/Raft), secret-engine and auth-method quick-reference
        tables, reference router, cross-refs, red flags, bottom line)
@@ -13,12 +13,12 @@ Files folded -> reference mapping:
        KV v2 / database / PKI / transit / cloud secret engines, auth methods (token, AppRole,
        Kubernetes, OIDC, AWS IAM), policy HCL, Vault Agent config and templates, Vault Secrets
        Operator manifests, audit devices, Enterprise feature map)
-  skills/security/secrets/vault/references/architecture.md
+  plugins/security/skills/vault/references/architecture.md
     -> references/architecture.md (barrier, Raft consensus and cluster sizing, storage-backend
        comparison, performance and DR replication, namespace architecture, plugin system, token
        architecture, request pipeline, leases, performance and capacity planning, telemetry,
        backup/restore, upgrade, lease cleanup, break-glass)
-  skills/security/secrets/vault/references/best-practices.md
+  plugins/security/skills/vault/references/best-practices.md
     -> references/best-practices.md (secret-engine selection, KV/database/transit patterns,
        auth-method selection, AppRole SecretID protection, policy design and least privilege,
        Sentinel, PKI production deployment, audit configuration, Vault Agent vs VSO, HA network

@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the aws-iam skill. All body and reference material derives
-from skills/security/iam/aws-iam/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/aws-iam/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/aws-iam/SKILL.md
+  plugins/security/skills/aws-iam/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering policy language/
        policy evaluation logic/roles and trust policies/IAM Identity Center/SCPs/ABAC with tags/
        credential management; reference router; cross-references; red flags; bottom line)

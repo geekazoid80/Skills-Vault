@@ -19,11 +19,11 @@ Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion)
     configuration is routed out via "When not to use" to the three vendor skills.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/load-balancing/SKILL.md (load-balancing routing agent: L4 vs L7,
+  chrishuffman5 plugins/networking/skills/load-balancing/SKILL.md (load-balancing routing agent: L4 vs L7,
     deployment patterns, algorithm tables + selection guide, health-check design, persistence methods,
     SSL offload, platform comparison + decision matrix, Kubernetes ingress vs service mesh, migration
     guidance)
-  chrishuffman5 skills/networking/load-balancing/references/concepts.md (full-proxy vs transparent vs
+  chrishuffman5 plugins/networking/skills/load-balancing/references/concepts.md (full-proxy vs transparent vs
     DSR, algorithm details, health-check types + endpoint design, persistence methods + statelessness,
     SSL offload + re-encryption, connection pooling/multiplexing/draining, HA patterns, rate limiting,
     caching, observability)

@@ -1,6 +1,6 @@
 https://github.com/wshobson/agents/blob/main/plugins/observability-monitoring/skills/distributed-tracing/SKILL.md (see merged-skills-registry for fold notes and licence)
 
 --- Chunk C PR7 observability cross-fold (2026-06-01): references/ added ---
-https://github.com/chrishuffman5/domain-expert/tree/main/skills/monitoring/opentelemetry (MIT) -> references/otel-collector-pipelines.md + references/instrumentation-auto-vs-manual.md
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/monitoring/skills/opentelemetry (MIT) -> references/otel-collector-pipelines.md + references/instrumentation-auto-vs-manual.md
 Skill stays MIT. Frontmatter normalised: added license: MIT.
 Customisations: references carry no frontmatter and no skill marker; em-dash and en-dash purge (byte-scan == 0); British English. Deduped against the existing SKILL.md (SDK instrumentation, context propagation, backend setup, sampling already covered, not re-folded; backend-specific exporters and metrics instrumentation out of scope).

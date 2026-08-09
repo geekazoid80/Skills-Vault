@@ -1,25 +1,25 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for windows-dns-ops. All SKILL.md body and reference material
-derives from skills/networking/dns/windows-dns/. MIT licence governs the SKILL.md and both
+derives from plugins/networking/skills/windows-dns/. MIT licence governs the SKILL.md and both
 references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/windows-dns/SKILL.md
+  plugins/networking/skills/windows-dns/SKILL.md
     -> SKILL.md (umbrella body: quick classification, key PowerShell cmdlet summary, event IDs,
        when to use, when not to use, cross-references, red flags, bottom line)
-  skills/networking/dns/windows-dns/references/architecture.md
+  plugins/networking/skills/windows-dns/references/architecture.md
     -> references/architecture.md (AD-integrated zones, replication scopes, zone types, forwarders,
        DNS policies and zone scopes, DNSSEC on Windows, aging/scavenging mechanics)
-  skills/networking/dns/windows-dns/references/best-practices.md
+  plugins/networking/skills/windows-dns/references/best-practices.md
     -> references/best-practices.md (forwarder design, secure dynamic updates, scavenging config,
        DNSSEC operational guidance, split-brain via policies, monitoring, security hardening,
        upgrade and migration guidance)
-  skills/networking/dns/windows-dns/2022/SKILL.md
+  plugins/networking/skills/windows-dns/references/versions/2022.md
     -> references/architecture.md "Version notes" section: Server 2022 (client-side DoH, DNSSEC
        key storage, Azure Arc integration) absorbed; version-subfolder approach from upstream
        replaced with a single "Version notes (Server 2022 / 2025)" section.
-  skills/networking/dns/windows-dns/2025/SKILL.md
+  plugins/networking/skills/windows-dns/references/versions/2025.md
     -> references/architecture.md "Version notes" section: Server 2025 (server-side DoH public
        preview via KB5075899, DoH limitations, firewall consideration) absorbed into the same
        section.

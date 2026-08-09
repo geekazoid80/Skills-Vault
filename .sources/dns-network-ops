@@ -1,16 +1,16 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the dns-network-ops umbrella. All umbrella body and
-reference material derives from skills/networking/dns/. MIT licence governs the umbrella
+reference material derives from plugins/networking/skills/dns/. MIT licence governs the umbrella
 SKILL.md and all four references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/SKILL.md
+  plugins/networking/skills/dns/SKILL.md
     -> SKILL.md (umbrella body: authoritative vs recursive classification, platform selection,
        reference router, vendor-skill routing table, cross-refs, red flags, bottom line)
     -> references/platform-architecture.md (cross-platform feature matrix, platform comparison,
        architecture patterns, DNS security layers by platform, platform routing summary)
-  skills/networking/dns/references/concepts.md
+  plugins/networking/skills/dns/references/concepts.md
     -> references/concepts.md (resolution flow, record types, zone transfers AXFR/IXFR/NOTIFY/TSIG,
        caching and TTL strategy, negative caching, split-horizon implementation)
     -> references/dnssec.md (chain of trust, KSK/ZSK/CSK key types, DS records, validation process,

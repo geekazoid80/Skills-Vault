@@ -1,6 +1,6 @@
 Primary source: chrishuffman5/domain-expert
 URL: https://github.com/chrishuffman5/domain-expert
-Path: skills/cloud-platforms/gcp/
+Path: plugins/cloud-platforms/skills/gcp/
 License: MIT
 Files folded: SKILL.md, references/compute.md, references/storage.md, references/database.md,
   references/networking.md, references/security.md, references/ai-data.md, references/cost.md

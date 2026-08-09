@@ -13,48 +13,48 @@ is the dominant source). The Apache-2.0 attribution for the Meraki content is no
 in the file-level mapping below.
 
 Files folded -> reference mapping:
-  skills/networking/wireless/SKILL.md
+  plugins/networking/skills/wireless/SKILL.md
     -> SKILL.md (umbrella body: platform selection, reference router table, ops loop, cross-refs,
        red flags, bottom line) + rf-design.md (site survey methodology, platform comparison prose,
        common pitfalls, channel planning quick reference)
-  skills/networking/wireless/references/concepts.md
+  plugins/networking/skills/wireless/references/concepts.md
     -> rf-design.md (802.11 standards: Wi-Fi 6/6E/7, OFDMA, MU-MIMO, BSS Coloring, TWT, MLO,
        preamble puncturing, 4096-QAM; channel planning per band; roaming protocols 802.11k/v/r/OKC;
        WPA3/SAE/OWE/PMF; site survey methodology phases 1-5; AP placement; band strategy)
-  skills/networking/wireless/cisco-wireless/SKILL.md
+  plugins/networking/skills/cisco-wireless/SKILL.md
     -> cisco-wireless.md (hardware models, tag/profile model, deployment modes, AP families,
        ISE integration, Catalyst Center, DNA Spaces, common pitfalls, RRM table)
-  skills/networking/wireless/cisco-wireless/references/architecture.md
+  plugins/networking/skills/cisco-wireless/references/architecture.md
     -> cisco-wireless.md (IOS-XE foundation, CAPWAP internals, HA/SSO, deployment mode internals,
        AP model details, DNA Spaces architecture)
-  skills/networking/wireless/cisco-wireless/references/diagnostics.md
+  plugins/networking/skills/cisco-wireless/references/diagnostics.md
     -> cisco-wireless.md (radioactive tracing CLI and GUI, RA Trace log prefixes, show commands,
        AP join troubleshooting table, client troubleshooting workflow, packet capture, performance metrics)
-  skills/networking/wireless/cisco-wireless/references/best-practices.md
+  plugins/networking/skills/cisco-wireless/references/best-practices.md
     -> cisco-wireless.md (RF design, WLAN config, SSID design, FlexConnect selection, security
        best practices, RRM tuning, upgrade procedures)
-  skills/networking/wireless/cisco-wireless/17.15/SKILL.md
+  plugins/networking/skills/cisco-wireless/references/versions/17.15.md
     -> cisco-wireless.md Wi-Fi 7 on IOS-XE 17.15 section (802.11be profile, MLO, 320 MHz,
        4096-QAM, 6 GHz AFC enhancements, migration guidance, common pitfalls)
-  skills/networking/wireless/aruba-wireless/SKILL.md
+  plugins/networking/skills/aruba-wireless/SKILL.md
     -> aruba-wireless.md (AOS 10 architecture, AirMatch vs ARM, ClearPass integration,
        dynamic segmentation, AP families, AOS 10 vs AOS 8 table, deployment options, Central APIs,
        common pitfalls)
-  skills/networking/wireless/aruba-wireless/references/architecture.md
+  plugins/networking/skills/aruba-wireless/references/architecture.md
     -> aruba-wireless.md (Central architecture, AOS 10 AP architecture, Gateway architecture,
        AP-Gateway tunnel, ClearPass component model, auth flow, profiling, AirMatch deep dive,
        dynamic segmentation architecture, Tunneled Node, Central API namespaces)
-  skills/networking/wireless/aruba-wireless/references/best-practices.md
+  plugins/networking/skills/aruba-wireless/references/best-practices.md
     -> aruba-wireless.md (SSID design, segmentation strategy, role design, Central management,
        firmware management, ClearPass integration best practices, RF design, upgrade procedures,
        AOS 8 to AOS 10 migration checklist)
-  skills/networking/wireless/aruba-wireless/10.7/SKILL.md
+  plugins/networking/skills/aruba-wireless/references/versions/10.7.md
     -> aruba-wireless.md (AOS 10.7 Wi-Fi 7 AP 730 features, enhanced AirMatch 6 GHz, Central
        Wi-Fi 7 monitoring, gateway enhancements, dynamic segmentation updates, migration notes)
-  skills/networking/wireless/juniper-mist/SKILL.md
+  plugins/networking/skills/juniper-mist/SKILL.md
     -> juniper-mist.md (Mist AI cloud architecture, Marvis AI assistant, Marvis Minis, SLE framework,
        Mist Edge, AP families, Wired Assurance, WAN Assurance, BLE/vBLE, Mist REST API, common pitfalls)
-  skills/networking/wireless/juniper-mist/references/architecture.md
+  plugins/networking/skills/juniper-mist/references/architecture.md
     -> juniper-mist.md (cloud platform architecture, Marvis AI engine and ML models, Marvis Actions
        categories, agentic workflows, Marvis Minis architecture, SLE architecture with classifiers,
        Mist Edge deployment model, Wired Assurance EX integration, WAN Assurance SSR, BLE/vBLE

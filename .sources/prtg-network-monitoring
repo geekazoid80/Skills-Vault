@@ -13,7 +13,7 @@ Part of NMS family PR 2 of 3 (PRTG + Kentik, MIT single-source). Scope = full op
 Load-balancer precedent.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/network-monitoring/prtg/SKILL.md (PRTG technology expert: sensor-based
+  chrishuffman5 plugins/networking/skills/prtg/SKILL.md (PRTG technology expert: sensor-based
     model + licensing, auto-discovery + device templates, sensor types, architecture on-prem + Hosted
     Monitor + remote probes, maps/dashboards/reports, notifications + escalation + maintenance windows,
     HTTP API, common pitfalls)

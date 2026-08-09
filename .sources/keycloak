@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the keycloak skill. All body and reference material
-derives from skills/security/iam/keycloak/. MIT licence governs SKILL.md and all
+derives from plugins/security/skills/keycloak/. MIT licence governs SKILL.md and all
 references.
 
 Files folded -> reference mapping:
-  skills/security/iam/keycloak/SKILL.md
+  plugins/security/skills/keycloak/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering realm
        topology/client types/client scopes/authentication flows/identity brokering/
        user federation/fine-grained authorization/Organizations/Quarkus deployment;

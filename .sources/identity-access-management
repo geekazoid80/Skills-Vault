@@ -1,18 +1,18 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the identity-access-management umbrella. All umbrella body
-and reference material derives from skills/security/iam/. MIT licence governs the umbrella
+and reference material derives from plugins/security/skills/iam/. MIT licence governs the umbrella
 SKILL.md and all four references.
 
 Files folded -> reference mapping:
-  skills/security/iam/SKILL.md
+  plugins/security/skills/iam/SKILL.md
     -> SKILL.md (umbrella body: AuthN-vs-AuthZ first classification, platform-selection table
        with vendor-skill column, reference router, vendor-skill routing table, cross-refs,
        red flags / anti-patterns, bottom line)
     -> references/platform-selection.md (full technology-comparison table, the four IAM
        architecture patterns: cloud-first Entra ID, multi-cloud Okta, hybrid on-prem+cloud,
        developer-first CIAM; the seven anti-patterns)
-  skills/security/iam/references/concepts.md
+  plugins/security/skills/iam/references/concepts.md
     -> references/protocols.md (OIDC: code-with-PKCE flow, ID token structure + validation,
        client credentials, discovery/JWKS; SAML 2.0: SP-initiated flow, assertion structure,
        validation checklist, common attacks; protocol-selection table + federation topologies;

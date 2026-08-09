@@ -7,14 +7,14 @@ design and platform-selection decision lives in load-balancer-selection (PR 1). 
 primary-source licence).
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/load-balancing/haproxy/SKILL.md (HAProxy expert agent: process model,
+  chrishuffman5 plugins/networking/skills/haproxy/SKILL.md (HAProxy expert agent: process model,
     config structure, frontend/backend/listen, ACL system, stick tables, health checks, SSL offload +
     SNI routing, L4 vs L7 mode, runtime API, balance algorithms, Kubernetes Ingress, common pitfalls)
-  chrishuffman5 skills/networking/load-balancing/haproxy/references/architecture.md (single-process
+  chrishuffman5 plugins/networking/skills/haproxy/references/architecture.md (single-process
     multi-threaded model, event-driven I/O, memory, ACL internals + fetch methods, stick-table
     internals + data/key types + peer sync + 3.0/3.2 perf, runtime-API mechanics + access levels,
     multi-threading, zero-downtime reload, logging + termination flags)
-  chrishuffman5 skills/networking/load-balancing/haproxy/references/best-practices.md (production SSL +
+  chrishuffman5 plugins/networking/skills/haproxy/references/best-practices.md (production SSL +
     certificate bundle order + SNI, health-check timing, rate-limiting patterns per-IP/login/graduated/
     abuse, cookie persistence, connection reuse, timeouts, Kubernetes Ingress annotations + ConfigMap,
     performance tuning, stats monitoring, API-gateway/database/WebSocket patterns, operational
@@ -34,7 +34,7 @@ Files folded -> reference mapping:
        operational checklist)
 
 Skipped / refer-only:
-  - chrishuffman5 skills/networking/load-balancing/haproxy/3.2/SKILL.md (HAProxy 3.2 LTS version
+  - chrishuffman5 plugins/networking/skills/haproxy/references/versions/3.2.md (HAProxy 3.2 LTS version
     specifics): the version-specific deltas (stick-table sync thread, array data types, show events)
     were folded inline into architecture.md / configuration.md rather than carried as a version
     sub-skill, matching the DNS-family precedent of absorbing version subdirs into the main references.

@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the ad-cs skill. All body and reference material derives
-from skills/security/iam/ad-cs/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/ad-cs/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/ad-cs/SKILL.md
+  plugins/security/skills/ad-cs/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering CA hierarchy/
        certificate templates/enrolment methods/certificate revocation/key event IDs/
        hardening checklist; reference router; cross-references; red flags; bottom line)
@@ -12,7 +12,7 @@ Files folded -> reference mapping:
        method detail, revocation mechanics, CA configuration flags, certificate mapping/
        KB5014754, common troubleshooting)
     -> references/vulnerabilities.md (ESC1-ESC16 attack path documentation)
-  skills/security/iam/ad-cs/references/vulnerabilities.md
+  plugins/security/skills/ad-cs/references/vulnerabilities.md
     -> references/vulnerabilities.md (ESC1-ESC16: full conditions, exploitation examples,
        detection via event IDs and tooling, step-by-step remediation per ESC, proactive
        scanning commands, event-based detection table, continuous monitoring guidance)

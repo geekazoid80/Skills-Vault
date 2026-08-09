@@ -1,40 +1,40 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the ad-ds skill. All body and reference material derives
-from skills/security/iam/ad-ds/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/ad-ds/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/ad-ds/SKILL.md
+  plugins/security/skills/ad-ds/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering directory
        structure/FSMO roles/replication model/Group Policy/Kerberos/tiered administration;
        reference router; cross-references; red flags; bottom line)
     -> references/architecture.md (AD DS architecture deep-dive)
     -> references/best-practices.md (hardening and operational guidance)
     -> references/diagnostics.md (diagnostic playbooks and event IDs)
-  skills/security/iam/ad-ds/references/architecture.md
+  plugins/security/skills/ad-ds/references/architecture.md
     -> references/architecture.md (NTDS.dit database, replication internals, sites and
        subnets, Global Catalog, schema, trust authentication flow, RODC, DFS-R SYSVOL)
-  skills/security/iam/ad-ds/references/best-practices.md
+  plugins/security/skills/ad-ds/references/best-practices.md
     -> references/best-practices.md (tiered administration, PAWs, LAPS, gMSA, GPO security
        baselines, Protected Users, fine-grained password policies, monitoring, DC placement,
        backup and recovery, NTLM reduction)
-  skills/security/iam/ad-ds/references/diagnostics.md
+  plugins/security/skills/ad-ds/references/diagnostics.md
     -> references/diagnostics.md (dcdiag, repadmin, nltest, replication error codes,
        replication failure workflow, critical event IDs, DNS troubleshooting, authentication
        failure troubleshooting, performance diagnostics, backup and recovery scenarios)
-  skills/security/iam/ad-ds/2016/SKILL.md
+  plugins/security/skills/ad-ds/references/versions/2016.md
     -> references/architecture.md "Version differences" section: Server 2016 subsection
        (PAM, temporal groups, functional level 2016, PKInit Freshness, AD FS 4.0, upgrade
        prerequisites and support timeline)
-  skills/security/iam/ad-ds/2019/SKILL.md
+  plugins/security/skills/ad-ds/references/versions/2019.md
     -> references/architecture.md "Version differences" section: Server 2019 subsection
        (no new FL, hybrid identity (Azure AD Connect V2, Azure AD Password Protection,
        Seamless SSO), Defender for Endpoint, LEDBAT, AD FS 5.0, support timeline)
-  skills/security/iam/ad-ds/2022/SKILL.md
+  plugins/security/skills/ad-ds/references/versions/2022.md
     -> references/architecture.md "Version differences" section: Server 2022 subsection
        (TLS 1.3 for LDAPS, Kerberos AES-256 and FAST, Credential Guard default, Cloud
        Kerberos trust, SMB over QUIC, TLS 1.0/1.1 disabled by default, support timeline)
-  skills/security/iam/ad-ds/2025/SKILL.md
+  plugins/security/skills/ad-ds/references/versions/2025.md
     -> references/architecture.md "Version differences" section: Server 2025 subsection
        (functional level 10, 32K database pages optional feature, NTLM deprecation and NTLMv1
        removal, Kerberos with certificate trust (PKINIT SHA-256/384), Credential Guard enforced,

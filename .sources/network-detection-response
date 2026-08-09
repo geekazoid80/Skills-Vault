@@ -6,11 +6,11 @@ umbrella. All material is sourced from chrishuffman5 (MIT); single-source, no se
 needed. Skill licensed MIT.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/network-security/SKILL.md (routing agent: IDS/IPS, NAC, and micro-
+  chrishuffman5 plugins/security/skills/network-security/SKILL.md (routing agent: IDS/IPS, NAC, and micro-
     segmentation categories and comparison tables, detection methodology, network visibility
     architecture, encrypted-traffic challenge, network forensics, technology routing table,
     anti-patterns)
-  chrishuffman5 skills/security/network-security/references/concepts.md (network security
+  chrishuffman5 plugins/security/skills/network-security/references/concepts.md (network security
     fundamentals: IDS vs IPS vs NSM, detection taxonomy by method and direction, visibility
     architecture, traffic-access methods, east-west vs north-south, network forensics methodology,
     protocol analysis, NAC concepts, micro-segmentation concepts)

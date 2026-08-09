@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the ping-identity skill. All body and reference material
-derives from skills/security/iam/ping-identity/. MIT licence governs SKILL.md and all
+derives from plugins/security/skills/ping-identity/. MIT licence governs SKILL.md and all
 references.
 
 Files folded -> reference mapping:
-  skills/security/iam/ping-identity/SKILL.md
+  plugins/security/skills/ping-identity/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering deployment
        models/PingOne/PingFederate/PingAccess/PingDirectory/DaVinci/PingOne
        Protect/PingOne Neo; reference router; cross-references; red flags; bottom line)

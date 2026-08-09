@@ -5,10 +5,10 @@ endpoint-detection-response is the vendor-neutral EDR/XDR concepts umbrella. All
 from chrishuffman5 (MIT); single-source, no secondary attribution needed. Skill licensed MIT.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/edr/SKILL.md (routing agent: platform routing table, EDR platform
+  chrishuffman5 plugins/security/skills/edr/SKILL.md (routing agent: platform routing table, EDR platform
     comparison matrix, deployment decision guide, cross-platform concepts, telemetry vs detection,
     EDR vs XDR, response action taxonomy)
-  chrishuffman5 skills/security/edr/references/concepts.md (EDR fundamentals: behavioural vs
+  chrishuffman5 plugins/security/skills/edr/references/concepts.md (EDR fundamentals: behavioural vs
     signature detection, IOA vs IOC, MITRE ATT&CK methodology, telemetry architecture, detection-
     engineering lifecycle, EDR vs XDR architecture, metrics and performance)
     -> SKILL.md (condensed core: telemetry-not-detection, the layered detection methodology, ATT&CK
