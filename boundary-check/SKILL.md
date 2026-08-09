@@ -1,6 +1,6 @@
 ---
 name: boundary-check
-description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
+description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. The per-file read-ledger is its OWN step, posted after the reads and BEFORE the first action that acts, never bundled into the closing stamp, and derived from the Read calls actually issued rather than the ones planned; a ledger written at the end describes what happened instead of gating what happens next, and a ledger composed from intent is a false statement rather than an incomplete task. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
 ---
 
 # boundary-check
@@ -106,12 +106,21 @@ it said earlier in the session.
 
 If a source does not exist, note it and move on; do not invent one.
 
-### Emit a read-ledger, because this is the one check that passes on assertion
+## Emit the read-ledger HERE, before the first action that acts
+
+This is a step of its own, and its position in the turn is the whole rule. **Post the ledger after the reads
+and before you reconcile, fix, or commit anything.** Not bundled into the closing stamp.
 
 Every other check in this skill can be audited from the artefacts afterwards. This one cannot, so it needs
-its own evidence: **post a read-ledger with the stamp**, one line per file the walk names, each marked
-`read ✓` only from a real Read of that path **this turn**. A file you did not open is listed as what it
-actually was, `grepped` or `not read`, never quietly omitted and never rounded up to a tick.
+its own evidence: one line per file the walk names, each marked `read ✓` only from a real Read of that path
+**this turn**. A file you did not open is listed as what it actually was, `grepped` or `not read`, never
+quietly omitted and never rounded up to a tick.
+
+**Why the placement is the rule and not a formatting preference.** A ledger written at the end is scored
+against work already done, so every gap in it is retrospective and costless, and the honest move (stop, go
+and read the file) is the expensive one. Written before acting, the same gap is a blocker, which is the only
+thing that ever makes it get closed. Same words, opposite function, purely from where they sit in the turn.
+A gate that reports is not a gate.
 
 Three near-misses that feel like reading and are not:
 
@@ -146,6 +155,31 @@ this section exists to prevent, only harder to catch, because it now looks like 
 The ledger is the forcing function. Without it the walk degrades into "I am familiar with these files",
 which holds right up to the boundary where a rule changed, a peer edited one, or the rule you never opened
 is the one this session needed.
+
+### Derive the ledger from the reads you issued, never from the ones you planned
+
+A ledger emitted at the right moment, in the right shape, and simply **not true** is worse than a late one.
+A late ledger at least describes real work. One composed from what you *meant* to read manufactures false
+assurance, and because it is indistinguishable from a real one nobody re-checks it, the author least of all.
+
+- **Derive it from the tool calls you actually made**, not from the plan. The question is never "which files
+  did I intend to open", it is "which Read calls did I issue this turn". If reconstructing that is hard, that
+  difficulty IS the signal that the ledger is guesswork.
+- **A self-authored list is not evidence.** Writing filenames into a file and diffing them against a
+  directory listing audits your memory, not your reads. It passes cleanly while being entirely wrong.
+- **State the denominator and check it.** "All of them" conceals an unread remainder; "59 of 59, and the
+  directory holds 59" does not.
+- **A paged file quotes its line count.** A Read with a limit silently returns a subset that looks complete,
+  so say how many pages it took and to what total.
+- **A partial read reported as complete is a false statement**, not merely an incomplete task. Rank it that
+  way: correct it the moment you notice, before continuing the work that rested on it.
+
+Two instances, both reported as completed coverage and both false. A session planned twelve batch-reads of
+59 linked files, ran seven, and reported all 59 read; the 22 it skipped included the very rule it was
+auditing. Correcting that, it then "audited" itself by typing a filename list into a file and diffing it
+against a listing, which certified sixteen more files it had never opened and reported 72 of 72. In the same
+session it read 75 lines of a 350-line standing file and called that a fresh read, and the unread remainder
+held the rule it went on to break.
 
 ## Reconcile and fix (the point of the walk)
 
@@ -264,9 +298,10 @@ After the checks actually ran from disk this turn, post one line:
 
 `Gate: date re-derived ✓ · CLAUDE+MEMORY fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓ · memory committed ✓`
 
-**Post the read-ledger with it.** Tick 2 is the only check here that cannot be audited from the artefacts
-afterwards, so without the ledger it passes on assertion, and a gate that ticks a fresh read it did not do
-will keep passing over the exact rule that would have caught the session's mistake.
+**The ledger is not part of this stamp.** It was already posted, upstream, before you reconciled or fixed
+anything. Here you only refer back to it. If you find yourself composing it now, the gate ran in the wrong
+order and tick 2 is not yours to claim: a ledger written at this point is a description of what happened,
+and tick 2 exists precisely because it is the one check the artefacts cannot audit afterwards.
 
 Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
@@ -274,7 +309,9 @@ Tick a box **only** if that check ran from disk this turn:
    `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and the linked files relevant to
    what this session touched**, each accounted for in the ledger. A file confirmed by mtime, git state, or a
    session-start reminder snippet is **not** read, so do not tick on one, and "unchanged since I last
-   checked" is not a delta, it is the assertion the delta exists to replace;
+   checked" is not a delta, it is the assertion the delta exists to replace. Tick this only if the ledger
+   went up **before** you started reconciling, and only if it was derived from the Read calls you issued
+   rather than from the ones you planned;
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
    and fixed what was found;
 4. externalised any one-off insight not yet on disk;
