@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for coredns-ops. All SKILL.md body and reference material
-derives from skills/networking/dns/coredns/. MIT licence governs the SKILL.md and all
+derives from plugins/networking/skills/coredns/. MIT licence governs the SKILL.md and all
 references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/coredns/SKILL.md
+  plugins/networking/skills/coredns/SKILL.md
     -> SKILL.md (umbrella body: classify-first guidance, plugin chain and execution order,
        kubernetes plugin, server blocks, ConfigMap hot-reload, cross-references, red flags,
        bottom line)
@@ -18,7 +18,7 @@ Files folded -> reference mapping:
        log investigation, plugin-level debug with log plugin, common failure modes: NXDOMAIN for
        services, slow external resolution, loop detection crash, conntrack exhaustion, ConfigMap
        YAML syntax errors, missing fallthrough, cache TTL issues; Prometheus-based triage table)
-  skills/networking/dns/coredns/references/architecture.md
+  plugins/networking/skills/coredns/references/architecture.md
     -> merged into references/architecture.md (plugin chain diagram, server block examples,
        Kubernetes DNS specification, NodeLocal DNSCache architecture diagram and configuration,
        Corefile patterns, metrics table, health/readiness probe YAML)

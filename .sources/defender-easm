@@ -8,7 +8,7 @@ attack-surface-management umbrella (PR 1) and routes CVE scanning + remediation 
 (the EASM-to-VM loop). Skill licensed MIT. VulnMgmt + ASM family PR 2 of 4.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/vulnerability-management/asm/defender-easm/SKILL.md (Defender EASM expert
+  chrishuffman5 plugins/security/skills/defender-easm/SKILL.md (Defender EASM expert
     agent: product overview, deployment portal/CLI/Terraform, discovery seeds + groups, asset states +
     labels, risk analysis dashboard + Insight Cards + CVE integration, Azure integration Defender-for-Cloud
     + Sentinel + Logic Apps, API, pricing)

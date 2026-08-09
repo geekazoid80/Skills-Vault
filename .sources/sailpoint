@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the sailpoint skill. All body and reference material
-derives from skills/security/iam/sailpoint/. MIT licence governs SKILL.md and all
+derives from plugins/security/skills/sailpoint/. MIT licence governs SKILL.md and all
 references.
 
 Files folded -> reference mapping:
-  skills/security/iam/sailpoint/SKILL.md
+  plugins/security/skills/sailpoint/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering
        IdentityNow architecture/identity cube/JML lifecycle; reference router;
        cross-references; red flags; bottom line)

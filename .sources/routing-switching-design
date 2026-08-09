@@ -20,10 +20,10 @@ they are owned by bgp-analysis / igp-routing-analysis / evpn-vxlan-fabric. Only 
 material was carried over, re-authored vendor-neutral.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/routing-switching/SKILL.md (routing agent: platform comparison
+  chrishuffman5 plugins/networking/skills/routing-switching/SKILL.md (routing agent: platform comparison
     tables, campus + DC architecture-selection tables, redundancy-technology comparison, common
     pitfalls)
-  chrishuffman5 skills/networking/routing-switching/references/concepts.md (the design-relevant
+  chrishuffman5 plugins/networking/skills/routing-switching/references/concepts.md (the design-relevant
     portions only: STP variants + features + root placement, VLAN design, ECMP, VRF; the BGP / OSPF /
     EVPN protocol-fundamentals sections were intentionally excluded as owned elsewhere)
     -> SKILL.md (condensed core: bound L2 / route everything; STP as safety net; redundancy per layer;
@@ -38,7 +38,7 @@ Files folded -> reference mapping:
     -> references/datacenter-architecture.md (east-west rationale; fabric selection spine-leaf /
        super-spine / multi-site / ACI; underlay protocol choice eBGP / OSPF / IS-IS; ECMP design;
        VXLAN MTU; VRF + segmentation design)
-  chrishuffman5 skills/networking/routing-switching/{cisco-ios-xe,cisco-nxos,arista-eos,aruba-aoscx,
+  chrishuffman5 plugins/networking/skills/routing-switching/{cisco-ios-xe,cisco-nxos,arista-eos,aruba-aoscx,
     juniper-junos,meraki}/SKILL.md (six per-vendor expert agents; positioning + feature parity +
     management / API / telemetry model extracted)
     -> references/platform-selection.md (platform positioning, feature parity affecting selection,

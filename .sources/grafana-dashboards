@@ -1,8 +1,8 @@
 https://github.com/wshobson/agents/blob/main/plugins/observability-monitoring/skills/grafana-dashboards/SKILL.md (MIT; customised at adoption)
 
 --- Chunk C PR7 observability cross-fold (2026-06-01): references/ added ---
-https://github.com/chrishuffman5/domain-expert/tree/main/skills/monitoring/grafana (MIT) -> references/loki-tempo-correlation.md + references/unified-alerting-and-git-sync.md
-https://github.com/chrishuffman5/domain-expert/tree/main/skills/analytics/grafana (MIT) -> folded into the same two references
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/monitoring/skills/grafana (MIT) -> references/loki-tempo-correlation.md + references/unified-alerting-and-git-sync.md
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/analytics/skills/grafana (MIT) -> folded into the same two references
 https://github.com/automateyournetwork/netclaw/tree/main/workspace/skills/grafana-observability (Apache-2.0) -> references/mcp-observability-queries.md
 Skill stays MIT-primary; the netclaw grafana-observability content is Apache-2.0, attributed here.
 Customisations: references carry no frontmatter and no skill marker; dropped netclaw "Record in GAIT" and markmap steps; genericised the $MCP_CALL harness pattern to "via the Grafana MCP server"; dropped netclaw-internal integration rows; em-dash and en-dash purge (byte-scan == 0); British English. Deduped against the existing SKILL.md (dashboard design and provisioning already covered, not re-folded).

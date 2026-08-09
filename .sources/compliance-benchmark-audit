@@ -20,9 +20,9 @@ Creating it resolves both pointers with no back-edit, the same pattern as EDR/ND
 references in PR #131.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/grc/SKILL.md (routing agent: platform routing table for Vanta, Drata,
+  chrishuffman5 plugins/security/skills/grc/SKILL.md (routing agent: platform routing table for Vanta, Drata,
     OneTrust, ServiceNow GRC, Archer; classify-the-request flow)
-  chrishuffman5 skills/security/grc/references/concepts.md (risk methodology + FAIR, control frameworks
+  chrishuffman5 plugins/security/skills/grc/references/concepts.md (risk methodology + FAIR, control frameworks
     SOC 2 / ISO 27001:2022 / PCI DSS v4.0, compliance automation architecture, audit lifecycle +
     evidence quality, TPRM, policy management, GRC maturity model)
     -> SKILL.md (condensed core: three pillars; framework-vs-benchmark; map-once-comply-many; risk

@@ -1,17 +1,17 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the entra-id skill. All body and reference material derives
-from skills/security/iam/entra-id/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/entra-id/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/entra-id/SKILL.md
+  plugins/security/skills/entra-id/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering tenant
        architecture/Conditional Access signals and controls/PIM eligible vs active/Identity
        Protection detections/hybrid identity options/external identities B2B and B2C/
        Entra ID Governance access reviews, entitlement management, lifecycle workflows/
        passwordless authentication methods; reference router; cross-references; red flags;
        bottom line)
-  skills/security/iam/entra-id/references/architecture.md
+  plugins/security/skills/entra-id/references/architecture.md
     -> references/architecture.md (tenant model: isolation, object types, AUs;
        authentication flows: cloud-only, PHS, PTA, Seamless SSO;
        token types and lifetimes: ID/access/refresh/PRT;
@@ -20,7 +20,7 @@ Files folded -> reference mapping:
        source anchor, Cloud Sync vs Entra Connect comparison;
        Graph API IAM endpoints and permissions model;
        licensing tier feature matrix)
-  skills/security/iam/entra-id/references/best-practices.md
+  plugins/security/skills/entra-id/references/best-practices.md
     -> references/best-practices.md (CA policy framework: baseline and targeted policies table;
        CA design principles; break-glass account configuration and KQL monitoring query;
        PIM role settings table and access review configuration;

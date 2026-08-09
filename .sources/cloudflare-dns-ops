@@ -15,7 +15,7 @@ primary licence governs the overall skill because chrishuffman5 is the dominant 
 (cloud-ops-triad / wireless-ops precedent).
 
 Files folded -> reference mapping:
-  skills/networking/dns/cloudflare-dns/SKILL.md (chrishuffman5, MIT)
+  plugins/networking/skills/cloudflare-dns/SKILL.md (chrishuffman5, MIT)
     -> SKILL.md (umbrella body: proxied vs DNS-only classification section, zone setup table,
        when-to-use / when-not-to-use lists, reference router table, cross-refs, red flags,
        bottom line)
@@ -25,7 +25,7 @@ Files folded -> reference mapping:
        table, 1.1.1.1 resolver + encrypted transport table, DNS Firewall, Load Balancing and
        health checks, page rules/redirect interaction, API v4 REST reference, Terraform
        provider examples, troubleshooting commands and failure-mode table)
-  skills/networking/dns/cloudflare-dns/references/architecture.md (chrishuffman5, MIT)
+  plugins/networking/skills/cloudflare-dns/references/architecture.md (chrishuffman5, MIT)
     -> references/architecture.md (anycast deep-dive: 4+ Tbps capacity, 300+ PoPs;
        secondary DNS propagation SLAs: <5 s edge, ~800 ms P99 transfer; secondary DNS
        override for proxied records; Foundation DNS two-week software soak; troubleshooting

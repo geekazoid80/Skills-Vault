@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for azure-dns-ops. All SKILL.md body and reference material
-derives from skills/networking/dns/azure-dns/. MIT licence governs SKILL.md and both references.
+derives from plugins/networking/skills/azure-dns/. MIT licence governs SKILL.md and both references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/azure-dns/SKILL.md
+  plugins/networking/skills/azure-dns/SKILL.md
     -> SKILL.md (umbrella body: classify-first table, Alias records concept, Private Resolver
        concept, private endpoint DNS concept, DNSSEC concept, cross-references, red flags,
        bottom line; agent-style sections "How to Approach Tasks", "Public Zones", "Private Zones",
@@ -19,7 +19,7 @@ Files folded -> reference mapping:
        Terraform); Traffic Manager (routing methods table, health probes, nesting, CLI); Azure
        Firewall DNS proxy (architecture, configuration, FQDN rules requirement, DNS logging);
        RBAC for Azure DNS)
-  skills/networking/dns/azure-dns/references/architecture.md
+  plugins/networking/skills/azure-dns/references/architecture.md
     -> references/architecture.md (public zone infrastructure detail, Alias record diagram,
        DNSSEC architecture diagram, private zone VNet link diagram, Private Resolver component
        architecture diagram, hybrid DNS pattern flows, Traffic Manager routing methods,

@@ -1,11 +1,11 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the route53-dns-ops skill. All SKILL.md body and
-architecture reference material derive from skills/networking/dns/route53/. MIT licence
+architecture reference material derive from plugins/networking/skills/route53/. MIT licence
 governs the SKILL.md and architecture reference.
 
 Files folded -> reference mapping:
-  skills/networking/dns/route53/SKILL.md
+  plugins/networking/skills/route53/SKILL.md
     -> SKILL.md (umbrella body: classify hosted zone type, Alias vs CNAME, routing policy
        quick guide, health check private-endpoint pattern, cross-references, red flags,
        bottom line; source "How to Approach Tasks" and "Core Concepts" re-authored into
@@ -18,7 +18,7 @@ Files folded -> reference mapping:
        components and multi-account management, Traffic Flow, ARC readiness checks and routing
        controls and safety rules, pricing notes, Terraform resource reference and AWS CLI
        reference)
-  skills/networking/dns/route53/references/architecture.md
+  plugins/networking/skills/route53/references/architecture.md
     -> references/architecture.md (all source content folded in and expanded; source was
        ~81 lines; expanded to full operator prose with tables, Terraform examples, CLI
        reference, ARC detail, and pricing notes)

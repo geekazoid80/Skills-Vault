@@ -18,7 +18,7 @@ Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion)
     operations are routed out via "When not to use".
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/vulnerability-management/asm/SKILL.md (ASM routing agent: what EASM is and
+  chrishuffman5 plugins/security/skills/asm/SKILL.md (ASM routing agent: what EASM is and
     the problem it solves, how EASM tools work / discovery methods, asset types discovered, EASM vs
     traditional VM, key workflows initial-discovery / continuous-monitoring / VM-integration / surface-
     reduction, technology routing, EASM evaluation criteria)

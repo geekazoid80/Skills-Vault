@@ -1,7 +1,7 @@
-https://github.com/chrishuffman5/domain-expert/blob/main/skills/monitoring/zabbix/SKILL.md (MIT; design half customised at adoption)
+https://github.com/chrishuffman5/domain-expert/blob/main/plugins/monitoring/skills/zabbix/SKILL.md (MIT; design half customised at adoption)
 https://github.com/dz07/goku-skills/blob/main/skills/zabbix-super-agent/SKILL.md (folded into triage half; emojis and openclaw-harness script paths stripped)
 
 --- Chunk C PR7 observability cross-fold (2026-06-01): references/ added ---
-https://github.com/chrishuffman5/domain-expert/tree/main/skills/monitoring/zabbix (MIT) -> references/advanced-features.md
+https://github.com/chrishuffman5/domain-expert/tree/main/plugins/monitoring/skills/zabbix (MIT) -> references/advanced-features.md
 The design half was already customised from this source at adoption; this PR extracts the remaining unabsorbed advanced depth (HA cluster, TLS / PSK / RBAC hardening, preprocessing pipelines, full trigger function set, escalation timing, zabbix_sender push monitoring, TimescaleDB initialisation SQL, PostgreSQL / MySQL tuning, LLD custom JSON, dashboard widgets, SLA objects) into one reference. Topics already in the SKILL.md were not re-folded.
 Customisations: reference carries no frontmatter and no skill marker; em-dash and en-dash purge (byte-scan == 0); British English.

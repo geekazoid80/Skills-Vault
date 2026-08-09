@@ -16,11 +16,11 @@ Boundary with adjacent AWS skills (no duplication):
   back-edit.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/load-balancing/aws-lb/SKILL.md (AWS ELB expert agent: ALB L7 routing
+  chrishuffman5 plugins/networking/skills/aws-lb/SKILL.md (AWS ELB expert agent: ALB L7 routing
     rules + weighted target groups + target types + WAF/Cognito/ACM integrations + 2025 features; NLB
     L4 capabilities + static IP + TLS modes + PrivateLink + QUIC + ALB-as-target; GWLB L3 appliance
     insertion + GENEVE; target groups; health checks; cross-zone; pitfalls; Terraform)
-  chrishuffman5 skills/networking/load-balancing/aws-lb/references/architecture.md (ALB request
+  chrishuffman5 plugins/networking/skills/aws-lb/references/architecture.md (ALB request
     processing + listener rules + sticky + connection handling + WAF + Cognito + 2025; NLB packet
     processing + static/Elastic IP + TLS + PrivateLink + weighted + QUIC; GWLB packet flow + GENEVE
     protocol + symmetric hashing + endpoints + appliance requirements; target-group deep dive + types +

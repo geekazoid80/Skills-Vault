@@ -11,10 +11,10 @@ verbatim copy. Skill licensed MIT; the Apache-2.0 secondary is attributed here p
 precedent (DNS PR4, MIT-primary + netclaw Apache genericised).
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/security/siem/SKILL.md (routing agent: SIEM fundamentals, detection-engineering
+  chrishuffman5 plugins/security/skills/siem/SKILL.md (routing agent: SIEM fundamentals, detection-engineering
     lifecycle, SIGMA, normalisation standards, onboarding, alert-triage tiers, SOC metrics, cost,
     anti-patterns, platform comparison)
-  chrishuffman5 skills/security/siem/references/concepts.md (log-management lifecycle, correlation
+  chrishuffman5 plugins/security/skills/siem/references/concepts.md (log-management lifecycle, correlation
     rule types, SIGMA rule language deep-dive, detection methodology, detection quality tiers,
     detection-as-code, SOC maturity, SOAR fundamentals)
     -> SKILL.md (condensed core: pipeline, detection engineering, SIGMA at a glance, normalisation
@@ -25,13 +25,13 @@ Files folded -> reference mapping:
     -> references/normalisation-and-onboarding.md (collection methods, parsing, the five normalisation
        standards in depth, enrichment, indexing/storage trade-offs, retention by compliance, onboarding
        priority P1-P4, ingestion-cost tactics)
-  chrishuffman5 skills/security/siem/soar/SKILL.md (SOAR routing agent: when-to-use, what-to-automate,
+  chrishuffman5 plugins/security/skills/soar/SKILL.md (SOAR routing agent: when-to-use, what-to-automate,
     playbook patterns, automation maturity, ROI, integration architecture, platform comparison)
     -> references/soar-automation.md (when to use SOAR, what to automate first, playbook patterns
        enrichment/triage/containment/notification/full-lifecycle, automation maturity model, ROI
        metrics, integration architecture)
     -> references/platform-selection.md (SOAR platform comparison + selection guide)
-  chrishuffman5 skills/security/siem/SKILL.md (SIEM platform comparison + decision tree)
+  chrishuffman5 plugins/security/skills/siem/SKILL.md (SIEM platform comparison + decision tree)
     -> references/platform-selection.md (SIEM platform comparison + decision tree, genericised; the
        skipped vault vendors named only as routing context)
   vahagn skills/siem-log-analysis/ (SKILL.md + references/query-reference.md + cli-reference.md):

@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the gcp-iam skill. All body and reference material derives
-from skills/security/iam/gcp-iam/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/gcp-iam/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/gcp-iam/SKILL.md
+  plugins/security/skills/gcp-iam/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering resource
        hierarchy and inheritance/IAM policy bindings/role types/service accounts/Workload
        Identity Federation/organisation policies/IAM Conditions; reference router;

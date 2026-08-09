@@ -7,15 +7,15 @@ web-server hosting. The design and platform-selection decision lives in load-bal
 Skill licensed MIT (the primary-source licence).
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/load-balancing/nginx/SKILL.md (NGINX expert agent: master/worker
+  chrishuffman5 plugins/networking/skills/nginx/SKILL.md (NGINX expert agent: master/worker
     model, hot reload, upstream + reverse-proxy config, balancing algorithms, server params, passive
     health, SSL termination, rate/connection limiting, proxy caching, Plus features active-health/
     sticky/live-API/key-value/JWT, NGINX Ingress Controller + VirtualServer CRD, stream L4, pitfalls)
-  chrishuffman5 skills/networking/load-balancing/nginx/references/architecture.md (master/worker model,
+  chrishuffman5 plugins/networking/skills/nginx/references/architecture.md (master/worker model,
     event loop, connection capacity, shared memory zones, Plus runtime API + active-health + persistence
     + key-value architecture, Ingress Controller design + resource types + 5.x, performance
     characteristics)
-  chrishuffman5 skills/networking/load-balancing/nginx/references/best-practices.md (upstream keepalive,
+  chrishuffman5 plugins/networking/skills/nginx/references/best-practices.md (upstream keepalive,
     timeouts, header forwarding, buffering, production SSL + SNI + redirect, rate-limiting patterns,
     caching design + cache keys, Kubernetes canary/blue-green/multi-team patterns + community-to-F5
     migration, performance tuning, monitoring stub_status + Plus API)
@@ -34,7 +34,7 @@ Files folded -> reference mapping:
        migration, Plus API monitoring)
 
 Skipped / refer-only:
-  - chrishuffman5 skills/networking/load-balancing/nginx/plus-r35/SKILL.md (NGINX Plus R35 version
+  - chrishuffman5 plugins/networking/skills/nginx/references/versions/plus-r35.md (NGINX Plus R35 version
     specifics): version deltas folded inline into the references rather than carried as a version
     sub-skill (DNS-family precedent of absorbing version subdirs).
   - General NGINX web-server hosting (static sites, PHP-FPM/FastCGI app serving): out of scope; this

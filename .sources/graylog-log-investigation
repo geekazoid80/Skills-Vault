@@ -4,7 +4,7 @@ Extension (Chunk C SIEM/SOAR family, single PR): ELK log-backend fold.
 Secondary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 Added references/elastic-stack-log-backend.md, condensed and genericised from chrishuffman5
-skills/monitoring/elk (SKILL.md + references/log-management.md + architecture.md). Scope limited to
+plugins/monitoring/skills/elk (SKILL.md + references/log-management.md + architecture.md). Scope limited to
 the log-search backend Graylog shares with the Elastic Stack: Elasticsearch/OpenSearch substrate,
 Graylog-on-Elasticsearch vs ELK-direct decision, Elastic Agent / Filebeat collection, data streams,
 ILM hot/warm/cold/frozen tiers, index templates, ECS normalisation, KQL / Lucene / ES|QL log search,

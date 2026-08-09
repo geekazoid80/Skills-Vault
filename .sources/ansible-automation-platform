@@ -18,36 +18,36 @@ Apache-2.0 content is acknowledged in this provenance file.
 Files folded and where content landed:
 
 chrishuffman5 sources:
-  skills/devops/config-mgmt/ansible/SKILL.md
+  plugins/devops/skills/ansible/SKILL.md
     -> umbrella SKILL.md (description, core model, when-to-use, check-mode-first loop, cross-refs,
        red flags, bottom line; agent framing replaced with CSO operator-facing tone)
-  skills/devops/config-mgmt/ansible/references/architecture.md
+  plugins/devops/skills/ansible/references/architecture.md
     -> references/architecture.md (control/managed node model, execution internals, connection
        plugins, playbook/play/task structure, collection architecture, roles, variable precedence,
        Jinja2 templating, handlers, facts, idempotency model)
-  skills/devops/config-mgmt/ansible/references/best-practices.md
+  plugins/devops/skills/ansible/references/best-practices.md
     -> references/best-practices.md (repo structure, role design, naming, idempotency discipline,
        variable hygiene, vault discipline, tags, rollout strategy, testing with Molecule,
        ansible-lint, collection version pinning, performance, CI integration, common mistakes)
-  skills/devops/config-mgmt/ansible/references/aap-platform.md
+  plugins/devops/skills/ansible/references/aap-platform.md
     -> references/aap-platform.md (AAP architecture, Automation Mesh / Receptor, Execution
        Environments, RBAC, organisations, projects, inventories, credentials, job templates,
        workflow templates, schedules, Private Automation Hub, EDA, REST API, awx CLI,
        performance tuning, backup/restore, logging and auditing, job failure table)
-  skills/devops/config-mgmt/ansible/references/diagnostics.md
+  plugins/devops/skills/ansible/references/diagnostics.md
     -> references/diagnostics.md (SSH / WinRM / become failures, module errors, variable
        resolution issues, Jinja2 errors, idempotency drift, fact-gathering issues, vault decrypt
        errors, performance debugging, check/step mode, debugging commands, callback plugins,
        ansible-lint diagnostics, Controller job diagnostics)
-  skills/devops/config-mgmt/ansible/2.18/SKILL.md
+  plugins/devops/skills/ansible/references/versions/2.18.md
     -> references/architecture.md section "ansible-core version deltas: 2.18"
        (Python 3.11+ control node, collection dep resolution, module defaults groups,
        removed hash_behaviour merge, non-FQCN warnings, include: deprecation)
-  skills/devops/config-mgmt/ansible/2.19/SKILL.md
+  plugins/devops/skills/ansible/references/versions/2.19.md
     -> references/architecture.md section "ansible-core version deltas: 2.19"
        (Jinja2 3.2+ required, native types default, stricter argspec validation, async
        improvements, constructed/aws_ec2/azure_rm inventory improvements)
-  skills/devops/config-mgmt/ansible/2.20/SKILL.md
+  plugins/devops/skills/ansible/references/versions/2.20.md
     -> references/architecture.md section "ansible-core version deltas: 2.20"
        (non-FQCN now errors, include: removed, with_* removed, Python 3.9+ managed nodes,
        role dependency version constraints, assert quiet: param, EE signing)

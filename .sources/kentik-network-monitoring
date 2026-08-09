@@ -13,7 +13,7 @@ Part of NMS family PR 2 of 3 (PRTG + Kentik, MIT single-source). Scope = full op
 Load-balancer precedent.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/network-monitoring/kentik/SKILL.md (Kentik technology expert: flow
+  chrishuffman5 plugins/networking/skills/kentik/SKILL.md (Kentik technology expert: flow
     analytics engine + enrichment + data model, DDoS detection + classification + automated mitigation,
     BGP monitoring + detections + BGP/flow correlation, Kentik NMS + Kentik Map, AI Insights, synthetic
     monitoring, REST API + query API + Terraform + Python SDK, common pitfalls)

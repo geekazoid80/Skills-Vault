@@ -21,10 +21,10 @@ Scope + cadence (decided with the user at plan time, 2026-06-18 AskUserQuestion)
     routed out via "When not to use" to the three vendor skills.
 
 Files folded -> reference mapping:
-  chrishuffman5 skills/networking/network-monitoring/SKILL.md (network-monitoring routing agent: monitoring
+  chrishuffman5 plugins/networking/skills/network-monitoring/SKILL.md (network-monitoring routing agent: monitoring
     paradigms, golden signals, alerting design, platform comparison, monitoring architecture, data
     collection, technology routing)
-  chrishuffman5 skills/networking/network-monitoring/references/concepts.md (SNMP internals, flow protocol
+  chrishuffman5 plugins/networking/skills/network-monitoring/references/concepts.md (SNMP internals, flow protocol
     details, synthetic testing, alerting theory, traps and syslog, topology discovery, monitoring at scale,
     integration patterns)
     -> SKILL.md (condensed core: pick-the-paradigm-from-the-question; golden signals frame what to measure;

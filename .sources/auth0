@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the auth0 skill. All body and reference material derives
-from skills/security/iam/auth0/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/auth0/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/auth0/SKILL.md
+  plugins/security/skills/auth0/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering tenant
        architecture/Universal Login/Connections/Actions/Organizations/RBAC/Attack
        Protection; reference router; cross-references; red flags; bottom line)

@@ -1,10 +1,10 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for the okta skill. All body and reference material derives
-from skills/security/iam/okta/. MIT licence governs SKILL.md and all references.
+from plugins/security/skills/okta/. MIT licence governs SKILL.md and all references.
 
 Files folded -> reference mapping:
-  skills/security/iam/okta/SKILL.md
+  plugins/security/skills/okta/SKILL.md
     -> SKILL.md (skill body: When to use, When not to use, core model covering Universal
        Directory/profile mastering/authentication policies/adaptive MFA/Lifecycle Management/
        Workflows/API Access Management/ThreatInsight/Identity Threat Protection/OIG;
@@ -14,7 +14,7 @@ Files folded -> reference mapping:
        Workflows patterns; API Access Management setup; System Log monitoring and critical
        events; System Log API queries; log streaming; ThreatInsight and Identity Threat
        Protection configuration; OIG campaign configuration)
-  skills/security/iam/okta/references/architecture.md
+  plugins/security/skills/okta/references/architecture.md
     -> references/architecture.md (platform architecture: cell model, org URL, data residency,
        certifications; agent architecture table with five agent types; Universal Directory data
        model: user profile standard attributes, profile mastering, group types; OIN integration

@@ -1,24 +1,24 @@
 Primary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
 This is the sole content source for bind-dns-ops. All skill body and reference material derives
-from skills/networking/dns/bind/. MIT licence governs SKILL.md and both references.
+from plugins/networking/skills/bind/. MIT licence governs SKILL.md and both references.
 
 Files folded -> reference mapping:
-  skills/networking/dns/bind/SKILL.md
+  plugins/networking/skills/bind/SKILL.md
     -> SKILL.md (umbrella body: role classification, when-to-use/when-not-to-use, reference
        router, core concepts overview, cross-references, red flags, bottom line)
-  skills/networking/dns/bind/references/architecture.md
+  plugins/networking/skills/bind/references/architecture.md
     -> references/architecture.md (named.conf statements, options block, ACLs, views,
        zone file format, primary/secondary setup, KASP/DNSSEC, RPZ, TSIG, catalog zones,
        forwarders/recursion controls, RRL, zone templates, version notes)
-  skills/networking/dns/bind/references/diagnostics.md
+  plugins/networking/skills/bind/references/diagnostics.md
     -> references/diagnostics.md (rndc command reference, named-checkconf, named-checkzone,
        query logging, statistics channels, Prometheus integration, dig patterns, common
        failure modes and fixes, performance troubleshooting)
-  skills/networking/dns/bind/9.18/SKILL.md
+  plugins/networking/skills/bind/references/versions/9.18.md
     -> ABSORBED into references/architecture.md "Version notes (9.18 / 9.20)" section
        (ESV feature set, features removed from 9.18, migration planning from 9.18 to 9.20)
-  skills/networking/dns/bind/9.20/SKILL.md
+  plugins/networking/skills/bind/references/versions/9.20.md
     -> ABSORBED into references/architecture.md "Version notes (9.18 / 9.20)" section
        (QP-trie, zone templates, manual-mode KASP, inline-signing default, DSYNC,
        named-checkconf -e/-k, RPZ servfail-until-ready, removed features, deprecation warnings,

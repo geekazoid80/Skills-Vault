@@ -11,31 +11,31 @@ skill as a whole, following cloud-ops precedent for the same mixed-source patter
 
 Files folded -> reference mapping:
 
-  skills/devops/iac/terraform/SKILL.md
+  plugins/devops/skills/terraform/SKILL.md
     -> terraform-iac-ops/SKILL.md (umbrella shape: four-field frontmatter, skill marker, reference
        router, thin body, cross-references, red flags, bottom line)
 
-  skills/devops/iac/terraform/references/architecture.md
+  plugins/devops/skills/terraform/references/architecture.md
     -> terraform-iac-ops/references/architecture.md (provider plugin protocol, state file internals,
        dependency graph, plan/apply mechanics, backend comparison, lifecycle meta-arguments, module
        composition, data sources, for/dynamic expressions)
 
-  skills/devops/iac/terraform/1.14/SKILL.md
+  plugins/devops/skills/terraform/references/versions/1.14.md
     -> folded into terraform-iac-ops/references/architecture.md (version-gated features table,
        ephemeral resources stabilisation, provider-defined functions, for_each on import blocks,
        multiple validation blocks per variable)
 
-  skills/devops/iac/terraform/1.15/SKILL.md
+  plugins/devops/skills/terraform/references/versions/1.15.md
     -> folded into terraform-iac-ops/references/architecture.md (Terraform Stacks, enhanced testing
        framework, write-only attributes, HCL and CLI improvements, version-gated features table)
        and terraform-iac-ops/references/terraform-cloud.md (Stacks architecture section)
 
-  skills/devops/iac/terraform/references/best-practices.md
+  plugins/devops/skills/terraform/references/best-practices.md
     -> terraform-iac-ops/references/best-practices.md (module design conventions, repository
        structure, remote state organisation, environment separation, DRY patterns, variable
        validation, naming, secret handling, policy-as-code, tagging, version pinning, CI/CD)
 
-  skills/devops/iac/terraform/references/terraform-cloud.md
+  plugins/devops/skills/terraform/references/terraform-cloud.md
     -> terraform-iac-ops/references/terraform-cloud.md (HCP Terraform / Terraform Cloud:
        workspace types, runs lifecycle, remote state sharing, variable sets, run triggers,
        dynamic credentials, private module registry, agents, drift detection, continuous
@@ -57,7 +57,7 @@ Files folded -> reference mapping:
        fmt, plan, apply, destroy, output, state list, import; genericised from netclaw tool
        invocation pattern; ServiceNow CR gate genericised to "per change-control policy")
 
-  skills/devops/iac/terraform/references/diagnostics.md
+  plugins/devops/skills/terraform/references/diagnostics.md
     -> terraform-iac-ops/references/diagnostics.md (common errors, state lock, provider auth,
        dependency cycles, drift, resource-already-exists, provider version conflict, debugging
        with TF_LOG, state recovery, state surgery, import workflows, moved blocks,

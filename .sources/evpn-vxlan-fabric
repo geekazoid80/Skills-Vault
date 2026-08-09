@@ -3,7 +3,7 @@ https://github.com/automateyournetwork/netclaw/tree/main/workspace/skills/evpn-v
 Extension (Chunk C DC-fabric disposition, single PR): EVPN-overlay design fold.
 Secondary source: chrishuffman5/domain-expert (MIT)
 URL: https://github.com/chrishuffman5/domain-expert
-Upstream path: skills/networking/dc-fabric (SKILL.md + references/concepts.md); pulled 2026-07-17,
+Upstream path: plugins/networking/skills/dc-fabric (SKILL.md + references/concepts.md); pulled 2026-07-17,
 upstream commit 3e208b2 dated 2026-04-14.
 Added references/overlay-design-and-platform-selection.md, re-authored and genericised from the
 chrishuffman5 dc-fabric umbrella. Scope limited to the EVPN-OVERLAY design residual that neither this
