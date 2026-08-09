@@ -59,6 +59,32 @@ it said earlier in the session.
 
 If a source does not exist, note it and move on; do not invent one.
 
+### Emit a read-ledger, because this is the one check that passes on assertion
+
+Every other check in this skill can be audited from the artefacts afterwards. This one cannot, so it needs
+its own evidence: **post a read-ledger with the stamp**, one line per file the walk names, each marked
+`read ✓` only from a real Read of that path **this turn**. A file you did not open is listed as what it
+actually was, `grepped` or `not read`, never quietly omitted and never rounded up to a tick.
+
+Three near-misses that feel like reading and are not:
+
+- **Verifying instead of reading.** An mtime, a clean `git diff`, or "unchanged since I last checked" proves
+  the file did not move. It does not put the contents in front of you, and a rule you have not read cannot
+  be applied however current it is.
+- **The injected copy.** A session-start reminder that pastes a standing file is a snapshot taken before the
+  session did any work, and for anything it merely indexes it is a pointer layer. It is not a read.
+- **Grepping for what you expect.** A grep answers the question you already had. The rule you are about to
+  break is in the part you did not think to search for.
+
+**The linked files are where the substance lives.** An index one-liner cannot carry an identifier, an access
+path, a naming convention or a notes standard, so reading an index and skipping its links is the same defect
+as reading nothing. Reading *some* of the links is also that defect, because the one you skipped is where
+the rule you are about to break lives. A linked file you judge irrelevant is still opened, then noted why.
+
+The ledger is the forcing function. Without it the walk degrades into "I am familiar with these files",
+which holds right up to the boundary where a rule changed, a peer edited one, or the rule you never opened
+is the one this session needed.
+
 ## Reconcile and fix (the point of the walk)
 
 For each rule surfaced by the walk, check the **current session's actual artefacts** against it and **fix
@@ -176,9 +202,15 @@ After the checks actually ran from disk this turn, post one line:
 
 `Gate: date re-derived ✓ · CLAUDE+MEMORY fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓ · memory committed ✓`
 
+**Post the read-ledger with it.** Tick 2 is the only check here that cannot be audited from the artefacts
+afterwards, so without the ledger it passes on assertion, and a gate that ticks a fresh read it did not do
+will keep passing over the exact rule that would have caught the session's mistake.
+
 Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
-2. fresh Read of `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index (+ linked files);
+2. fresh Read of `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and the linked
+   files relevant to what this session touched**, each accounted for in the ledger. A file confirmed by
+   mtime, git state, or a session-start reminder snippet is **not** read, so do not tick on one;
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
    and fixed what was found;
 4. externalised any one-off insight not yet on disk;
