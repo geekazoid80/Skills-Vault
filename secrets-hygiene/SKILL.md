@@ -3,7 +3,7 @@ name: secrets-hygiene
 description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
 license: MIT
 metadata:
-  version: 1.3.0
+  version: 1.3.1
 ---
 
 # Secrets Hygiene
@@ -289,7 +289,7 @@ For a thorough audit (existing repo with many workflows; pre-merge review of a w
 
 ## Azure Entra ID and RBAC narrow checklist
 
-Folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. The full upstream skills depend on `azure__*` MCP tools (documentation, bicepschema, extension_cli_generate); the checklists below are the vendor-agnostic discipline that applies regardless of whether those tools are connected.
+Folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. The full upstream skills depend on `azure__*` MCP tools (documentation, bicepschema, extension_cli_generate); the checklists below are the vendor-agnostic discipline that applies regardless of whether those tools are connected. Upstream retired `azure-rbac` on 2026-07-17 with no successor skill, so that link now 404s; the checklist below is retained deliberately, which is the point of having genericised it away from the MCP tooling in the first place.
 
 ### App registration credential choice
 
