@@ -81,6 +81,21 @@ path, a naming convention or a notes standard, so reading an index and skipping 
 as reading nothing. Reading *some* of the links is also that defect, because the one you skipped is where
 the rule you are about to break lives. A linked file you judge irrelevant is still opened, then noted why.
 
+**Ledger per index, not per session.** The walk names more than one index: a global standing index, a
+project index, sometimes a repo one. A ledger that covers one of them exhaustively while leaving another at
+index-only reads as complete precisely *because* it is long, and the asymmetry is invisible to the person
+who wrote it. Give each index its own ledger section and close each off explicitly.
+
+Which one gets skipped is predictable. The index nearest the task feels relevant and the broader one feels
+like background, when the relationship is the other way round: the near index holds what the work **is**,
+the broad one holds the rules the work must **obey**. So the skipped index is reliably the one carrying the
+rule about to be broken.
+
+Where an index is genuinely too large to open in full, name which of its links you opened and which you did
+not, choosing by the surfaces this session actually touched rather than by what reads as interesting. A
+declared partial walk is honest and usable. A partial walk presented as a complete one is the same failure
+this section exists to prevent, only harder to catch, because it now looks like diligence.
+
 The ledger is the forcing function. Without it the walk degrades into "I am familiar with these files",
 which holds right up to the boundary where a rule changed, a peer edited one, or the rule you never opened
 is the one this session needed.
