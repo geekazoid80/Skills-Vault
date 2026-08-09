@@ -1,6 +1,6 @@
 ---
 name: zabbix-templates-and-triage
-description: "Use for any Zabbix design, configuration review, performance tuning, or incident triage on Zabbix 7.x (some 6.x notes inline). Triggers include 'zabbix', 'zabbix server won't start', 'zabbix no data from agent', 'zabbix LLD', 'low-level discovery', 'zabbix template design', 'trigger expression', 'zabbix proxy', 'zabbix agent2', 'zabbix_get', 'zabbix_sender', 'zabbix HTTP agent', 'dependent items', 'zabbix preprocessing', 'JSONPath in zabbix', 'TimescaleDB zabbix', 'zabbix housekeeper', 'zabbix proxy group', 'zabbix performance tuning', 'StartPollers', 'CacheSize', 'history sync queue', 'zabbix alert not firing', 'zabbix alerts flooding', 'zabbix dashboard', 'zabbix API', 'zabbix YAML import', 'zabbix Slack / Teams / PagerDuty media type'. Combines design discipline (template-first, dependent items, LLD with filters, hysteresis, tag taxonomy, proxy by network zone, TimescaleDB compression, monitor-zabbix-itself) with a four-step incident triage protocol (observe with concrete commands, deduce against a 7-row symptom table, test the hypothesis with a verification command, fix with a documented procedure). Customised from chrishuffman5/domain-expert/plugins/monitoring/skills/zabbix (MIT) and dz07/goku-skills/skills/zabbix-super-agent (folded; emojis and openclaw-harness script paths stripped). Pairs with linux-host-ops (host-side service / journalctl / systemd diagnostics), oncall-runbooks (runbook structure for the triage outputs), systematic-debugging (Phase 1 boundary evidence; Zabbix is often the first signal), slo-implementation (SLO compliance often shows in Zabbix dashboards before it shows in Prometheus), grafana-dashboards (when Grafana is the visualisation layer in front of Zabbix data), secrets-hygiene (DBPassword, agent PSK, API tokens, Slack webhook URLs). Advanced reference (load on demand): advanced-features (HA cluster, TLS / PSK / RBAC hardening, preprocessing pipelines, full trigger function set, escalation timing, zabbix_sender push monitoring, TimescaleDB initialisation SQL, PostgreSQL / MySQL tuning, LLD custom JSON, dashboard widgets and SLA objects). Additional triggers: 'zabbix HA', 'HANodeName', 'zabbix TLS', 'zabbix PSK', 'zabbix RBAC', 'zabbix preprocessing pipeline', 'zabbix escalation', 'zabbix SLA', 'create_hypertable', 'zabbix media type webhook'."
+description: "Use for any Zabbix design, configuration review, performance tuning, or incident triage on Zabbix 7.x (some 6.x notes inline). Triggers include 'zabbix', 'zabbix server won't start', 'zabbix no data from agent', 'zabbix LLD', 'low-level discovery', 'zabbix template design', 'trigger expression', 'zabbix proxy', 'zabbix agent2', 'zabbix_get', 'zabbix_sender', 'zabbix HTTP agent', 'dependent items', 'zabbix preprocessing', 'JSONPath in zabbix', 'TimescaleDB zabbix', 'zabbix housekeeper', 'zabbix proxy group', 'zabbix performance tuning', 'StartPollers', 'CacheSize', 'history sync queue', 'zabbix alert not firing', 'zabbix alerts flooding', 'zabbix dashboard', 'zabbix API', 'zabbix YAML import', 'zabbix Slack / Teams / PagerDuty media type'. Combines design discipline (template-first, dependent items, LLD with filters, hysteresis, tag taxonomy, proxy by network zone, TimescaleDB compression, monitor-zabbix-itself) with a four-step incident triage protocol (observe with concrete commands, deduce against a 7-row symptom table, test the hypothesis with a verification command, fix with a documented procedure). Customised from chrishuffman5/domain-expert/plugins/monitoring/skills/zabbix (MIT) and dz07/goku-skills/skills/zabbix-super-agent (folded; emojis and openclaw-harness script paths stripped). Pairs with linux-host-ops (host-side service / journalctl / systemd diagnostics), oncall-runbooks (runbook structure for the triage outputs), systematic-debugging (Phase 1 boundary evidence; Zabbix is often the first signal), slo-implementation (SLO compliance often shows in Zabbix dashboards before it shows in Prometheus), grafana-dashboards (when Grafana is the visualisation layer in front of Zabbix data), secrets-hygiene (DBPassword, agent PSK, API tokens, Slack webhook URLs). Advanced reference (load on demand): advanced-features (HA cluster, TLS / PSK / RBAC hardening, preprocessing pipelines, full trigger function set, escalation timing, zabbix_sender push monitoring, TimescaleDB initialisation SQL, PostgreSQL / MySQL tuning, LLD custom JSON, dashboard widgets and SLA objects). Additional triggers: 'zabbix HA', 'HANodeName', 'zabbix TLS', 'zabbix PSK', 'zabbix RBAC', 'zabbix preprocessing pipeline', 'zabbix escalation', 'zabbix SLA', 'create_hypertable', 'zabbix media type webhook', 'uptime check stayed green', 'web check green while the service was down', 'HTTP agent item returns 200 but the API is dead', 'single-page app behind a reverse proxy', 'monitor the API path not the site root', 'assert on response body'."
 license: MIT
 metadata:
   version: "1.1.0"
@@ -105,6 +105,41 @@ Severity ladder: Not classified, Information, Warning, Average, High, Disaster.
 Hysteresis: separate problem and recovery expressions stop trigger flap. Alert at CPU > 90%, recover at CPU < 80%.
 
 Trigger dependencies: when a network switch fails, every host behind it would alert. Mark the switch trigger as a dependency on every downstream host trigger to suppress the storm.
+
+### HTTP checks: hit a path only the service serves, and assert on the body
+
+A web check that requests the site root and asserts on the response code is the most common way a monitored
+service goes down unnoticed. It is not a Zabbix defect; it is a wrong question, and the answer comes back
+green.
+
+**Why the root URL lies.** A single-page application and its API are usually served from one hostname behind
+one reverse proxy, with a rule like "send `/api/*` to the backend, everything else to the front end". The
+front-end container serves static files and needs no database, no cache and no backend at all. So when the
+backend is completely dead, the root URL still returns **200** with a perfectly valid HTML shell. The check
+stays green through a total outage, and the first person to notice is a user.
+
+**The second trap is worse, because it looks like diligence.** Paths that read like API endpoints,
+`/docs`, `/openapi.json`, `/swagger`, are usually *not* under the proxy's API prefix, so they also fall
+through to the front end and also return 200, serving HTML where the operator expects JSON. Pointing the
+check at `/docs` feels more rigorous than the root and is exactly as blind.
+
+**Design the item to fail when users are affected:**
+
+- **Choose a path only the API can answer**, under the prefix the proxy actually routes to the backend.
+  A health endpoint that opens a database connection is ideal, because it fails when the thing users care
+  about fails rather than when the web server stops.
+- **Assert on the response BODY, not just the code.** An HTTP Agent item with a `Check for error in
+  response` step, or a `Matches regular expression` preprocessing step against the expected payload, so a
+  200 carrying the wrong content still fails. On this class of deployment the status code alone is
+  satisfied by a dead backend.
+- **Keep a separate item for the front end** if you want to know it is up. One item cannot represent two
+  independently failing components, and collapsing them is what produces a green check on a broken service.
+- Preprocessing worth adding: `Check for not supported value` to catch transport failures distinctly from
+  content failures, so the trigger text can tell an operator which half broke.
+
+**Verify by breaking it, not by reading it.** Stop the backend and confirm the item goes red. A check
+written this way and never falsified is indistinguishable from one pointed at the wrong path, and the
+distinction only becomes visible during an incident, which is the worst moment to discover it.
 
 ### Low-level discovery (LLD)
 
