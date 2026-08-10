@@ -1,6 +1,6 @@
 ---
 name: documented-limits-are-starting-points
-description: "Use when about to declare \"can't\" / \"not supported\" / \"opaque from CLI\" / \"requires X permission\" based on a documented limitation (AGENTS.md, runbook, tooling-quirks list, MCP tool description, API doc, error message, harness restriction). Triggers include \"opaque from CLI\", \"requires X permission I don't have\", \"not exposed by the API\", \"the docs say not to\", \"the harness blocks this\", \"no direct query\", \"is not supported\", \"not possible without Y\". NOT for hard security boundaries that exist BY DESIGN (no personal-data egress, no SaaS aggregator dependency, no unauthenticated public surface, secrets in code, bypassing the port layer); those documented limits ARE terminal. Iron rule: every other documented limitation is a starting point for the adjacent capability path, not a wall. Before declaring blocked, scan for alternative API endpoint, different permission scope the tool already has, alternative tool exposing the same signal, fallback strategy (digest, scrape, compute-from-related-state)."
+description: "Use when about to declare \"can't\" / \"not supported\" / \"opaque from CLI\" / \"requires X permission\" based on a documented limitation (AGENTS.md, runbook, tooling-quirks list, MCP tool description, API doc, error message, harness restriction). Triggers include \"opaque from CLI\", \"requires X permission I don't have\", \"not exposed by the API\", \"the docs say not to\", \"the harness blocks this\", \"no direct query\", \"is not supported\", \"not possible without Y\". NOT for hard security boundaries that exist BY DESIGN (no personal-data egress, no SaaS aggregator dependency, no unauthenticated public surface, secrets in code, bypassing the port layer); those documented limits ARE terminal. Iron rule: every other documented limitation is a starting point for the adjacent capability path, not a wall. Before declaring blocked, scan for alternative API endpoint, different permission scope the tool already has, alternative tool exposing the same signal, fallback strategy (digest, scrape, compute-from-related-state). ALSO fires when a fetch or HTTP failure is about to be read as a fact about the host: \"403\", \"401\", \"blocked\", \"unreachable\", \"egress\", \"blocked by egress policy\", \"the site is blocking us\", \"source is down\", \"empty response\", \"empty body\", \"returns a JavaScript shell\", \"degraded run\", \"could not reach\". Retry the same URL through a different path (curl with a browser user-agent vs the built-in fetch tool) before declaring any source unreachable, name which paths were tried, and report three outcomes rather than two: nothing found, could not look, could not look WITH THIS TOOL."
 ---
 
 # documented-limits-are-starting-points
@@ -32,6 +32,40 @@ When the doc says "X is not possible / opaque / requires Y you don't have":
 4. **Fallback that computes from related state.** Sometimes the direct query is blocked but the answer is derivable from logs, audit trails, related entities, or a separately-stored materialised view.
 
 Update the doc the moment you find a workaround. Future-you (or future-session) should not re-derive.
+
+### Path 3 in detail: a failure from ONE tool path is not a fact about the host
+
+The commonest version of this scan is the one most often skipped, because the "documented limit" is not
+in a doc at all, it is an error you just received. A 403, a 401 without auth, an empty body, or a
+JavaScript shell where the content should be tells you what happened to **that request, through that
+tool**. It tells you nothing about whether the host will serve you.
+
+Retry the same URL through a different path before concluding anything:
+
+```sh
+curl -s -m 30 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" "<url>"
+```
+
+Two fetch paths do not share a user-agent, an egress route, or a reputation profile, so a bot-mitigation
+front end can answer them differently, minutes apart, for the same URL. If `curl` returns content where
+the built-in fetch returned 403, the block is that tool's egress path or its user-agent, not the host.
+Say which it was, and use the path that works. Only call a source unreachable once **both** paths have
+failed, and name the ones you tried.
+
+**Report three outcomes, not two.** "Nothing found", "could not look", and "could not look with THIS
+tool" are different facts, and collapsing the third into the second is what makes the error persist.
+"Source unreachable" reads as a covered outcome, so nobody re-checks it; a recurring job then repeats the
+same wrong conclusion every run, and consecutive runs agreeing starts to look like corroboration rather
+than the same bug three times. It misdirects the fix too, sending someone to the firewall while the cause
+sits in the tool.
+
+**Record per-source quirks somewhere durable**, in the job's own prompt, its runbook, or a repo doc:
+which sources need the alternative path, which are JavaScript-rendered and need a different endpoint
+entirely, and which are genuinely blocked to everything. A source that fails every path is a real gap, so
+name it and say what it costs. A noisy false gap is very good at hiding a quiet true one.
+
+Full rationale and the origin incident live in
+[the fetch-403 memory entry](../../memory/feedback_fetch_tool_403_retry_other_path.md).
 
 ## Red-flag carve-out: when the wall IS terminal
 
@@ -82,6 +116,8 @@ If the documented limitation is in one of these categories, STOP. The doc is the
 - About to say "can't be done" / "not exposed" / "opaque from CLI" / "blocked by docs" without first running the four-path scan.
 - Treating a tool's missing subcommand as the same as the capability being missing.
 - Accepting an error message at face value without checking whether it's scope-related (try a different endpoint or permission first).
+- About to report a source as unreachable / blocked / behind egress policy on the strength of ONE fetch path's error. Retry through a second path first, then say which paths you tried.
+- Writing "could not look" when what happened was "could not look with this tool". The second is fixable in one call; the first sends someone to the firewall.
 - Re-deriving a workaround you've used before because the workaround isn't documented; the fix is to UPDATE the doc, not to keep re-deriving each session.
 - Running the scan on a hard rule (security / compliance / architectural invariant). The scan is for scope-incidental limits, not designed-in boundaries. If the carve-out applies, STOP.
 - Telling the user "the docs say X is impossible" as if that closes the discussion; the right framing is "the docs flag this path as blocked; here's what I tried next".
