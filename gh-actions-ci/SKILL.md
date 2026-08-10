@@ -1,6 +1,6 @@
 ---
 name: gh-actions-ci
-description: Use for any GitHub Actions workflow authoring, CI pipeline debugging, release-pipeline design, or post-merge red-build triage. Triggers include "GitHub Actions failing", "workflow YAML", "actionlint", "yamllint", "pin action version", "generate-changelog from release tag", "diff against previous release tag", "changelog says none detected", "fail-fast vs continue-on-error", "drop continue-on-error", "mkdocs strict failing in CI", "stage content into docs/", "pandoc highlight-style", "marp per-module build", "PPTX missing from release", "preprocess filename in build script", "wire script into pipeline", "octal trap in bash printf", "printf invalid octal number", "BSD vs GNU grep in CI", "grep -P macOS", "gh run list instead of pr checks", "CI debug from fine-grained PAT". Covers workflow YAML hygiene (actionlint, yamllint, version pinning), changelog-from-tag-to-tag patterns (release-tag diff range, basename-vs-full-path resolution, tag-existence guards for shallow clones), the fail-fast vs continue-on-error maturity curve (defensive default while a step is unproven, drop once empirically stable so regressions block the release), build-time content staging for strict-mode builds (mkdocs --strict, pandoc, marp), and the gh run list / gh run view --log-failed workflow as the Checks-API substitute when running with a fine-grained PAT. Cross-refs bash-defensive (octal trap, printf %d with zero-padded inputs), platform-quirks-escape (BSD vs GNU grep -P portability), setup-pre-commit (catch issues before they hit CI), secrets-hygiene (CI secrets handling). Self-authored from CI lessons across the author's own projects; no upstream fold per ecosystem survey 2026-05-24.
+description: Use for any GitHub Actions workflow authoring, CI pipeline debugging, release-pipeline design, or post-merge red-build triage. Triggers include "GitHub Actions failing", "workflow YAML", "actionlint", "yamllint", "pin action version", "generate-changelog from release tag", "diff against previous release tag", "changelog says none detected", "fail-fast vs continue-on-error", "drop continue-on-error", "mkdocs strict failing in CI", "stage content into docs/", "pandoc highlight-style", "marp per-module build", "PPTX missing from release", "preprocess filename in build script", "wire script into pipeline", "octal trap in bash printf", "printf invalid octal number", "BSD vs GNU grep in CI", "grep -P macOS", "gh run list instead of pr checks", "CI debug from fine-grained PAT". Covers workflow YAML hygiene (actionlint, yamllint, version pinning), changelog-from-tag-to-tag patterns (release-tag diff range, basename-vs-full-path resolution, tag-existence guards for shallow clones), the fail-fast vs continue-on-error maturity curve (defensive default while a step is unproven, drop once empirically stable so regressions block the release), build-time content staging for strict-mode builds (mkdocs --strict, pandoc, marp), and the gh run list / gh run view --log-failed workflow as the Checks-API substitute when running with a fine-grained PAT. Cross-refs bash-defensive (octal trap, printf %d with zero-padded inputs), platform-quirks-escape (BSD vs GNU grep -P portability), setup-pre-commit (catch issues before they hit CI), secrets-hygiene (CI secrets handling). Also fires on CI-poll correctness symptoms such as "CI poll exited early", "the poll reported green while jobs were still running", "false green", "completed+in_progress", "joined status string", "case completed* matched mid-run", "gh run list --jq join", where a loop summarising several runs into one joined status string is matched with a prefix glob and so breaks while jobs are still live; match the full terminal string plus explicit failure, cancelled and timed_out arms. Self-authored from CI lessons across the author's own projects; no upstream fold per ecosystem survey 2026-05-24.
 metadata:
   version: 1.0.0
 ---
@@ -91,6 +91,58 @@ gh run view <run-id> --log-failed
 
 Pipe `gh run view --log-failed` through `less` for long jobs. Use `gh run watch <run-id>` to follow a running job to completion (handy when iterating on a workflow change).
 
+### Polling several runs at once: the joined-status glob trap
+
+`gh run list` returns one row per run, so a loop that polls "the CI for this branch" almost always ends up
+summarising several runs into a single string with a `--jq` join:
+
+```bash
+gh run list --branch "$BRANCH" --limit 10 --json status,conclusion,headSha \
+  --jq '[.[] | select(.headSha == "'"$SHA"'")]
+        | (map(.status) | unique | join("+")) + "/" + (map(.conclusion) | unique | join("+"))'
+```
+
+While one workflow has finished and another is still going, that emits exactly what it was asked for:
+
+```
+completed+in_progress/+success
+```
+
+The trap is on the matching side:
+
+```bash
+case "$row" in
+  completed*) echo "CI green"; break ;;   # WRONG
+esac
+```
+
+`completed+in_progress/+success` starts with `completed`, so the glob matches, the loop breaks, and the
+poll reports green while jobs are still running. Nothing errors and nothing looks wrong. The empty
+conclusion segment before the `+` is the only tell, and it reads as cosmetic.
+
+Match the whole terminal string, and give the failure states their own arms:
+
+```bash
+case "$row" in
+  "completed/success")               echo "CI green";     break  ;;
+  *failure*|*cancelled*|*timed_out*) echo "CI red: $row"; exit 1 ;;
+  *)                                 sleep 20            ;;  # still running
+esac
+```
+
+Two rules generalise past this one loop:
+
+- **A prefix glob against a joined summary is a bug waiting for a second workflow to exist.** It behaves
+  correctly right up until the branch has more than one run, which is precisely when a poll is worth
+  writing.
+- **Give the failure states explicit arms rather than letting them fall through to "not green yet".** A
+  catch-all `*)` that means "keep waiting" will patiently wait out a run that has already failed, until
+  the loop's own timeout, and then report a timeout instead of the failure.
+
+This costs more than an ordinary polling bug because of where it sits. A poll loop exists to gate a merge
+decision, so its answer is consumed immediately, by someone who asked precisely because they did not want
+to check by hand.
+
 ## Cross-references
 
 - `bash-defensive`, every shell step inside a workflow is a bash script. Strict-mode (`set -Eeuo pipefail`) catches CI failures that would otherwise be silent partial successes. The **octal trap** specifically: `printf %d` with a zero-padded string input (`printf "v%03d" "039"` → `printf: 039: invalid octal number`) is a recurring bash gotcha that surfaces as a CI failure but is a bash issue. Cast first: `$((10#$X))`.
@@ -112,6 +164,8 @@ Pipe `gh run view --log-failed` through `less` for long jobs. Use `gh run watch 
 - `grep -P` in a script intended to run on both CI (GNU) and macOS local (BSD). Use BRE (`'^| [A-Z]'`) or escape to Python.
 - mkdocs `--strict` failing because repo-root content was not staged into `docs/`. Stage in CI; do not relax strict mode.
 - Treating `2>/dev/null` as harmless suppression. It hid the `grep -P` portability error for several releases (PR #12).
+- Matching a CI poll's joined status with a prefix glob (`completed*`). It matches `completed+in_progress` and breaks the loop while jobs are live.
+- A poll loop whose only exit conditions are "green" and "timed out". A run that failed ten minutes ago gets reported as a timeout.
 
 ## Red flags
 
@@ -124,6 +178,8 @@ Pipe `gh run view --log-failed` through `less` for long jobs. Use `gh run watch 
 - About to relax `mkdocs --strict` to make a build pass.
 - About to suppress a script error with `2>/dev/null` without first reading what the error said.
 - About to debug CI failures via `gh pr checks` while running under a fine-grained PAT (use `gh run list` / `gh run view --log-failed` instead).
+- About to break a CI poll loop on a prefix glob rather than the full terminal status string, on a branch that can have more than one workflow run.
+- About to act on a poll that reported green, when the status string it matched contained a `+` or an empty conclusion segment.
 
 ## Bottom line
 
