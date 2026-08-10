@@ -14,6 +14,16 @@ supersede a note while you work), so re-read from disk at every boundary, never 
 snapshot. This skill forces the fresh read, the reconcile, and a **visible stamp** so a skip is auditable
 rather than silent.
 
+## If your environment has a dedicated gate agent, dispatch it rather than walking inline
+
+Some setups pair this skill with a **dedicated read-only agent whose whole job is to run this walk**,
+report the drift, and return the stamp. Where one exists, invoking this skill is the cue to **dispatch that
+agent**, not to execute the steps yourself in the working session. Two reasons: the context that just did
+the chunk's work should not also be the one that scores it, since a self-audit waves through the very thing
+it should catch; and a separate read-only pass is harder to run on momentum. Keep the decisions and any
+fixes in the working session, the agent only walks and reports. Where no such agent exists, run the walk
+here as written.
+
 ## When it fires
 
 Fire it, before doing the boundary action, at any of:
