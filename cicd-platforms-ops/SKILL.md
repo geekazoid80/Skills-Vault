@@ -3,7 +3,7 @@ name: cicd-platforms-ops
 description: "Use for CI/CD PIPELINE-PLATFORM operations across GitHub Actions, GitLab CI, Jenkins, Azure DevOps Pipelines, and CircleCI: authoring pipelines, runners/agents, caching, artifacts, secrets, OIDC, matrix builds, reusable/templated pipelines, deployment gates, platform selection and migration. References: concepts.md, github-actions.md, gitlab-ci.md, jenkins.md, azure-devops.md, circleci.md, diagnostics.md. Triggers include \"ci/cd\", \"cicd\", \"pipeline\", \"github actions\", \"workflow yaml\", \"gitlab ci\", \".gitlab-ci.yml\", \"jenkins\", \"jenkinsfile\", \"declarative pipeline\", \"azure devops\", \"azure pipelines\", \"circleci\", \"config.yml orbs\", \"runner\", \"self-hosted runner\", \"gitlab runner\", \"jenkins agent\", \"build matrix\", \"reusable workflow\", \"pipeline caching\", \"build artifacts\", \"pipeline secrets\", \"OIDC ci\", \"deployment environment\", \"approval gate\", \"pipeline migration\", \"ci platform selection\", \"shared library\", \"composite action\", \"pipeline stages\", \"build pipeline\", \"release pipeline\", \"CI/CD strategy\", \"CI/CD comparison\". For GitOps continuous delivery (ArgoCD, Flux) see the gitops skill; for Terraform IaC in pipelines see terraform-iac-ops; for Ansible in pipelines see ansible-automation-platform; for CI secrets and OIDC hardening see secrets-hygiene; for GitHub Actions security specifics see secrets-hygiene."
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # CI/CD platforms operations

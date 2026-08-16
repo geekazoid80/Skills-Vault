@@ -269,17 +269,20 @@ if: ${{ cancelled() }}
 
 ## Security best practices
 
-**Pin actions to SHA, not tag**:
+**Pin third-party actions to SHA, not tag** (a tag is mutable and can be moved to malicious code, as `tj-actions/changed-files` was in March 2025, CVE-2025-30066):
 
 ```yaml
-# Risk: tag can be silently moved to point to malicious code
-- uses: actions/checkout@v4
+# Risk: a third-party action on a tag can be silently repointed to malicious code
+- uses: tj-actions/changed-files@v46
 
-# Safe: SHA is immutable
-- uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+# Safe: a full SHA is immutable
+- uses: tj-actions/changed-files@<40-char-sha>  # v46
+
+# First-party actions/* and github/* may keep a version tag (GitHub controls the namespace)
+- uses: actions/checkout@v4
 ```
 
-Use Dependabot or Renovate to keep SHA pins updated automatically (`.github/dependabot.yml` with `package-ecosystem: github-actions`).
+Use Dependabot or Renovate to keep SHA pins updated automatically (`.github/dependabot.yml` with `package-ecosystem: github-actions`). See the vault skill `secrets-hygiene` for the full third-party-vs-first-party rule.
 
 **Fork safety**:
 
