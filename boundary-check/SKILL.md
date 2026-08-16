@@ -164,6 +164,23 @@ read the larger set. The reason is the one this whole section rests on, that the
 rule you are about to break lives, and you cannot know which file that is *before* reading it. Judging
 relevance from a one-line index entry is exactly the judgement the index is too thin to support.
 
+**Which boundaries trigger the full read.** Reading every link at *every* boundary is a real cost: a routine
+chunk-close can spend a whole full-breadth read re-walking a corpus that the self-contained work could not
+have violated. So the full read is scoped to **high-stakes boundaries**:
+
+- starting or executing a build, standing up a new repo, running a migration;
+- editing a schema, a contract, a credential, or an access path;
+- a cross-repo change;
+- a **park / standdown / quit**, where ephemeral state must survive the gap;
+- acting on a convention that lives in a linked file (an identifier, a naming rule, an access posture).
+
+**Routine boundaries get a fixed CORE read instead:** the global rules file, the global memory index, the
+project memory index, the repo AGENTS.md, and the active plan file, all fresh from disk. This is NOT the
+withdrawn relevance filter returning: the routine read is a fixed set, never a judged subset of links, and
+this scopes only WHICH boundaries fire the full read, not how much is read when one does, still every link.
+**When unsure whether a boundary is high-stakes, treat it as high-stakes and read all**: the doubt is the
+signal.
+
 This supersedes an earlier allowance here for a "declared partial walk" chosen by the surfaces a session
 touched. It was wrong twice over. It contradicted the paragraph directly above it, which already said an
 irrelevant-looking link is still opened. And it had already been rejected in practice: a session that read
