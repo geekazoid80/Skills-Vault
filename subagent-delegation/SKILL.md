@@ -2,7 +2,7 @@
 name: subagent-delegation
 description: "Use when about to delegate non-trivial work to a sub-agent (Explore, general-purpose, or any specialist) OR write any hand-off that briefs another session/agent (spawn_task chip, throwaway-session prompt, TaskCreate brief, scheduled/cron agent, PR body handing off work). Covers Pattern A \"thin master, heavy sub-agents\": when to stay inline vs. delegate, the standing-instructions + memory precondition every hand-off brief must open with (the receiving session reads CLAUDE.md + global memory + project memory + repo AGENTS.md from disk for itself; the prose is never the control; multi-PAT keychain token / pull --ff-only / secrets hygiene are the canonical misses), the canonical-path-pinning preamble for every brief that does file I/O, the adjacent-pattern scan instruction for cross-cutting briefs, the master-side blast-radius grep before pushing a contract change, the AskUserQuestion gate when adjacent findings come back (bundle / follow-up PR / accept the gap), the AskUserQuestion gate for generalisable patterns (extract now / follow-up PR / defer with TODO / accept duplication), and the leaf rule (sub-agents do not spawn sub-sub-agents). Also covers the plan-execution loop for subagent-driven development (fresh subagent per task, two-stage review, implementer status model, model selection per task complexity, and the BOUNDED FIX LOOP: five rounds per task, resume the original implementer for rounds 1-3 then a fresh one a model tier up for 4-5, scoped re-review verdicting each finding ADDRESSED or NOT ADDRESSED, and the breaker that adjudicates open findings on the record at the cap instead of looping forever); folded from obra/superpowers/skills/subagent-driven-development. Fires on \"the review keeps finding things\", \"how many times do I re-dispatch\", \"this task is stuck in review\", \"fix loop\", \"re-review\", \"the implementer cannot fix it\", \"when do I stop retrying a subagent\". Parallel-Dispatch (independent problems) pattern for fanning out 2+ unrelated investigations or fixes concurrently; folded from obra/superpowers/skills/dispatching-parallel-agents. Parallel-Design Sub-Agents pattern (\"Design It Twice\") for exploring alternative interfaces. Specialist review dispatches catalogue (GHA security review with five-element finding contract; folded from getsentry/skills/gha-security-review)."
 metadata:
-  version: 1.7.0
+  version: 1.8.0
 ---
 
 # Sub-agent Delegation
@@ -177,6 +177,14 @@ Do NOT pause to check in between tasks. Execute all tasks from the plan without 
 - All tasks complete.
 
 "Should I continue?" prompts and progress summaries between tasks waste time. The user briefed the plan; execute it. The cadence rule "default to plan mode between chunks" applies between *chunks*, not between *tasks within a chunk*.
+
+### Pre-flight conflict scan (before Task 1)
+
+Before dispatching Task 1, scan the plan once for conflicts, rather than discovering them task by task once dispatches are already sunk: tasks that contradict each other or the plan's global constraints, and anything the plan mandates that the review rubric would immediately treat as a defect (a test that asserts nothing, verbatim duplication of a logic block).
+
+The scan's output is a table, not a verdict. One row for every pair of tasks that share a file or an interface: the two tasks, what one produces against what the other consumes, and what you found. One row for every task: whether its own text agrees with itself, the tests it specifies against the code it specifies. "The scan is clean" without those rows is not a scan you ran; the table is the evidence it happened.
+
+Write the table to the ledger, then resolve each conflict before execution begins: fix the plan where the fix is mechanical (reorder two tasks, correct a stale reference), or surface it to the user where it is a design choice, per the ask-the-human default this vault keeps. Record the resolution beside its row, tagging any decision `Ruling:` so the finish roll-up catches it. Only then dispatch Task 1. The per-task review loop stays the net for conflicts that surface only once code is written.
 
 ### Batch small same-shape work
 
