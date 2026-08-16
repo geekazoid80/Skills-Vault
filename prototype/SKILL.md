@@ -2,7 +2,7 @@
 name: prototype
 description: When the user wants to build a throwaway prototype to flesh out a design before committing to it. Also use when the user mentions "prototype this," "let me play with it," "sanity-check this data model / state machine," "try a few designs," "mock this up," "explore design options," "throwaway code for X," "spike on Y," or "build something disposable to test the idea." Use this whenever someone wants to answer a design question by building something disposable rather than reasoning on paper. For diagnosing a bug with a deterministic loop, see systematic-debugging. For converting validated prototype findings into work items, see to-issues.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Prototype
@@ -35,7 +35,7 @@ The two branches produce very different artifacts; getting this wrong wastes the
 3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is *checking*, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE, wipe me" name.
 4. **Skip the polish.** No tests, no error handling beyond what makes the prototype *runnable*, no abstractions. The point is to learn something fast and then delete it.
 5. **Surface the state.** After every action (logic branch) or on every variant switch (UI branch), print or render the full relevant state so the user can see what changed.
-6. **Delete or absorb when done.** When the prototype has answered its question, either delete it or fold the validated decision into the real code; don't leave it rotting in the repo.
+6. **Capture it when done, don't just delete it.** Fold the validated decision into the real code. Then capture the prototype itself as a primary source rather than discarding the evidence: commit it to a throwaway branch off main (never merged), leave a pointer to that branch wherever the work is tracked, and record the verdict, the question it settled, and the answer, in the same place. The main branch keeps only the validated decision, not the prototype.
 
 ---
 
@@ -67,7 +67,7 @@ Three to five radically different variants is a useful range. Fewer and the desi
 
 ## When done
 
-The *answer* is the only thing worth keeping from a prototype. Capture it somewhere durable (commit message, ADR, issue, or a `NOTES.md` next to the prototype) along with the question it was answering. If the user is around, that capture is a quick conversation; if not, leave the placeholder so they (or you, on the next pass) can fill in the verdict before deleting the prototype.
+The *answer* is the most important thing to keep from a prototype, and per rule 6 the prototype itself is kept too, as a primary source on a throwaway branch rather than deleted outright. Capture the answer somewhere durable (commit message, ADR, issue, or a `NOTES.md` next to the prototype) along with the question it was answering. If the user is around, that capture is a quick conversation; if not, leave the placeholder so they (or you, on the next pass) can fill in the verdict, then move the prototype to its throwaway branch and off main per rule 6.
 
 If the validated decision is precise enough to encode (a state machine, a reducer, a schema, a type shape), inline that snippet in the capture; downstream skills (`to-prd`, `to-issues`) can lift the snippet into the PRD's Implementation Decisions or the slice body's "What to build" section.
 
