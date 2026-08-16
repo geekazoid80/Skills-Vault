@@ -1,8 +1,8 @@
 ---
 name: multi-agent-repo-coordination
-description: Use before the first edit, commit, or push in any git repo that a concurrent agent or person may also be touching this session - peer Claude sessions, a shared estate or knowledge base, or a repo whose `.git` is shared by other worktrees. Trigger phrases and symptoms - "worktree", "concurrent session", "peer is editing", "shared checkout", "multi-agent", a branch ref that shuffled mid-commit, a commit that landed on the wrong branch, "cannot lock ref", "'<base>' is already used by worktree", a push that seemed to vanish, `git rev-parse origin/<branch>` failing after a push that landed, two local clones of one repo under different names, a stale clone serving old code, a parallel session that merged the same feature. Covers worktree-per-session, ff-only sync, branch-per-task, verify-the-pushed-ref via `ls-remote`, SHA recovery after a ref shuffle, append-not-rewrite for shared docs and memory, and clone-not-assume (one canonical local clone). NOT for solo repos with no concurrent actors; NOT for choosing where on disk a repo lives (that is repo-safe-locations). Composes with using-git-worktrees and pull-before-dev.
+description: "Use before the first edit, commit, or push in any git repo that a concurrent agent or person may also be touching this session - peer Claude sessions, a shared estate or knowledge base, or a repo whose `.git` is shared by other worktrees. Trigger phrases and symptoms - \"worktree\", \"concurrent session\", \"peer is editing\", \"shared checkout\", \"multi-agent\", a branch ref that shuffled mid-commit, a commit that landed on the wrong branch, \"cannot lock ref\", \"'<base>' is already used by worktree\", a push that seemed to vanish, `git rev-parse origin/<branch>` failing after a push that landed, two local clones of one repo under different names, \"rename the repo directory\", \"mv the clone\", a folder-name cleanup or space-to-hyphen rename batch, a session whose cwd vanished mid-run, \"no such file or directory\" right after a directory was moved, a stale clone serving old code, a parallel session that merged the same feature. Covers worktree-per-session, ff-only sync, branch-per-task, verify-the-pushed-ref via `ls-remote`, SHA recovery after a ref shuffle, append-not-rewrite for shared docs and memory, clone-not-assume (one canonical local clone), and treating a repo-directory rename as a multi-session operation (check every session cwd before each move, record the old-to-new mapping durably). NOT for solo repos with no concurrent actors; NOT for choosing where on disk a repo lives (that is repo-safe-locations). Composes with using-git-worktrees and pull-before-dev."
 metadata:
-  version: 1.0.1
+  version: 1.1.0
 ---
 
 # Multi-Agent Repo Coordination
@@ -21,6 +21,7 @@ A git repo worked by more than one agent or person at once is a shared, moving s
 - On any symptom of a shared-`.git` race: edits reverting mid-session, a branch ref that shuffled, a commit on the wrong branch, `cannot lock ref`, a push that seems to have vanished.
 - Before opening a PR, when a parallel session may have shipped the same change.
 - When you find, or an all-org clone script produces, more than one local clone of the same repo.
+- Before renaming or moving any repo directory in a working root other sessions may be using.
 
 ## When this does NOT fire
 
@@ -86,6 +87,22 @@ Determine canonical by three signals, **not by the name**: (1) `git rev-parse --
 
 Resolve the duplicate so the next session cannot pick wrong: verify the stale clone has no uncommitted changes and no unpushed commits (every worktree HEAD reachable from an `origin` branch, or a squash-merge leftover whose subject matches a commit on `origin/main`), then **move it to Trash** (`mv "<stale>" ~/.Trash/...`, reversible), not `rm -rf`. Record the canonical-clone fact in project memory so a future all-org clone that recreates the twin knows which to keep.
 
+## Renaming or moving a repo directory is a multi-session operation
+
+Renaming a repo directory is not a local act when several sessions run at once. Any process whose working directory is at or under the moved path is left holding a directory that no longer exists under that name, and nothing announces it: the session does not fail at the moment of the `mv`, it fails at its next filesystem call, later and with an error that points nowhere near the rename.
+
+Git itself survives the move, and a GitHub-side repo rename leaves a redirect so remotes keep working. What does not survive is the process-level cwd, linked-worktree metadata, and every absolute path already written into a plan file, a memory note, or a PR body.
+
+Before moving any repo directory, for EACH directory in scope:
+
+1. **Confirm no session is working in it.** Session working directories and running state are discoverable (`mcp__ccd_session_mgmt__list_sessions` returns `cwd` and `isRunning` per session); a match AT or UNDER the path counts as occupied. Re-verify immediately before each `mv`, not once for the whole batch: a session idle when you started the sweep can wake mid-batch.
+2. **Confirm the tree is clean and no linked worktree points into it** (`git -C <dir> status --porcelain`, `git -C <dir> worktree list`). A linked worktree records absolute paths at both ends (`.git/worktrees/<name>/gitdir` and the main repo's list), so moving either end breaks the link. Use `git worktree move` to relocate one, and `git worktree repair` to fix a link already broken by a hand-move.
+3. **For an occupied directory, message the owning session** to pause and re-enter the new path afterwards, or defer that directory to a later pass. Do not move it and hope.
+
+`isRunning: false` means idle, not finished. A recently-active session still counts as occupied; it resumes into the path it remembers.
+
+Afterwards, record the old-name-to-new-name mapping somewhere durable (project memory, the tracking task, the estate's coordination board), not only in the moving session's transcript. A later session reading a stale absolute path needs a way to find where it went; without the mapping it concludes the repo is missing and re-clones it, which is exactly how the duplicate twin above appears in the first place.
+
 ## Concurrent duplicate PR: check main, close yours, do not clobber
 
 When a change you just built hits a "not mergeable" conflict, a parallel session may have already merged the same feature. Before assuming an unrelated conflict, `git log --oneline origin/main` for a commit whose **subject** matches your feature. If found, close YOUR PR as a duplicate (comment plus delete branch) and pivot to the shared outcome (deploy or live-test the merged version); never force-merge over the landed work. Detection is not always possible upfront (a true race), so gate on the artifact.
@@ -105,7 +122,11 @@ When a change you just built hits a "not mergeable" conflict, a parallel session
 - Force-merging your PR over a "not mergeable" conflict without checking whether a peer already merged the same subject.
 - Treating a worktree `gh pr merge --delete-branch` error as a failed merge (it merged; only local cleanup failed).
 - `rm -rf` on a "stale" clone before verifying it has no unique or uncommitted work (move to Trash instead).
+- Renaming or moving a repo directory without first checking whether any session's cwd is at or under it.
+- Reading `isRunning: false` as "finished" rather than "idle, and will resume into the old path".
+- Hand-moving a directory a linked worktree points into, without `git worktree move` or a follow-up `repair`.
+- Completing a batch rename without recording the old-name-to-new-name mapping anywhere durable.
 
 ## Bottom Line
 
-Assume a peer is changing the shared repo right now. Isolate in your own worktree and branch, sync ff-only, and verify every push against `ls-remote` server truth, not the push exit code. On a ref shuffle, push the SHA explicitly and re-anchor. Append, do not rewrite, shared docs and memory, and re-read them fresh at each boundary. Keep exactly one canonical local clone; dedup-scan by origin, determine canonical by state not name, and Trash (never `rm -rf`) the stale twin. Before force-merging a conflict, check whether a peer already shipped it. Composes with `using-git-worktrees` (creation) and `pull-before-dev` (sync).
+Assume a peer is changing the shared repo right now. Isolate in your own worktree and branch, sync ff-only, and verify every push against `ls-remote` server truth, not the push exit code. On a ref shuffle, push the SHA explicitly and re-anchor. Append, do not rewrite, shared docs and memory, and re-read them fresh at each boundary. Keep exactly one canonical local clone; dedup-scan by origin, determine canonical by state not name, and Trash (never `rm -rf`) the stale twin. Before force-merging a conflict, check whether a peer already shipped it. Treat renaming or moving a repo directory as a multi-session operation: check every session's cwd immediately before each move, and record the mapping durably afterwards. Composes with `using-git-worktrees` (creation) and `pull-before-dev` (sync).
