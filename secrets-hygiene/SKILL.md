@@ -3,7 +3,7 @@ name: secrets-hygiene
 description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
 license: MIT
 metadata:
-  version: 1.3.1
+  version: 1.4.0
 ---
 
 # Secrets Hygiene
@@ -279,9 +279,9 @@ Safe contexts (NOT injectable):
 
 ### Pin third-party actions to full SHA
 
-Tag references (`actions/checkout@v4`) are mutable; the action's owner can replace the tag with malicious code. Pin to the full commit SHA (`actions/checkout@<40-char-sha>`) so the action's content cannot change without your review.
+A tag is mutable: the action's owner, or an attacker who compromises them, can move it to point at malicious code. This is not hypothetical. In March 2025 the third-party action `tj-actions/changed-files` had its tags v1 through v45.0.7 repointed to a malicious commit that exfiltrated CI secrets into the build logs (CVE-2025-30066); every workflow pinned to a tag ran the attacker's code, every workflow pinned to a full SHA was untouched. Pin third-party actions as `owner/action@<40-char-sha>  # vX.Y.Z` so the content cannot change without your review, and use Dependabot (or equivalent) to surface the SHA bumps as a PR you diff before merging.
 
-Use Dependabot (or equivalent) to surface SHA bumps as a PR; review the diff before merging.
+**First-party actions are the exception.** GitHub controls the `actions/*` and `github/*` namespaces, so a major-version tag (`actions/checkout@v4`) is acceptable there and keeps the churn down; SHA-pinning them too is defensible defence-in-depth but not required. The mandatory rule is third-party actions.
 
 ### Specialist GHA security review pass
 
