@@ -22,21 +22,9 @@ git clone git@github.com:geekazoid80/Skills-Vault.git ~/Documents/Skills-Vault
 cd ~/Documents/Skills-Vault && ./bootstrap.sh
 ```
 
-**Prerequisites.** Bash and coreutils. No runtime, no packages, no credentials: this vault is markdown and
-shell only, and the builder just makes symlinks.
-
-**What working looks like.** `bootstrap.sh` prints the count it linked, and `ls ~/.claude/skills/` shows one
-symlink per skill, each resolving into this clone. `find -L ~/.claude/skills -maxdepth 1 -type l` should
-print nothing; anything it prints is a broken link. Claude Code watches the directory, so no restart is
-needed.
-
-**Paths matter.** `build-farm-base.sh` resolves the vault as the directory holding the script, and the farm
-as `${SKILLS_FARM:-$HOME/.claude/skills}`. Both are overridable by environment variable
-(`SKILLS_VAULT_BASE`, `SKILLS_FARM`), so a clone elsewhere is fine as long as you set them.
-
-**If you also keep an overlay vault.** This base builder is deliberately standalone and overlay-agnostic.
-Run this one first, then your overlay vault's own builder on top; the overlay owns the composition and the
-verification of its own skills. Nothing in this repo needs to know that an overlay exists.
+`bootstrap.sh` links every skill into `~/.claude/skills/` and prints the count. The full bootstrap
+(prerequisites, credentials, exit codes, path overrides, the overlay model, the related-repo graph) and the
+operating conventions live in [`AGENTS.md`](AGENTS.md), the operating SSOT.
 
 ## Layout
 
@@ -55,16 +43,10 @@ verification of its own skills. Nothing in this repo needs to know that an overl
 
 ## Bootstrap on a new machine
 
-    git clone git@github.com:geekazoid80/Skills-Vault.git ~/Documents/Skills-Vault
-    bash ~/Documents/Skills-Vault/bootstrap.sh
-
-If you prefer a different location:
-
-    VAULT=~/code/Skills-Vault bash ~/code/Skills-Vault/bootstrap.sh
-
-Verify with `ls -la ~/.claude/skills` (should show one symlink per
-skill) and, in a Claude Code session, `/skills` or "what skills are
-available".
+See [`AGENTS.md`](AGENTS.md) § First pull for the full bootstrap, including running from a
+different location (`SKILLS_VAULT_BASE` / `SKILLS_FARM`), the builder exit codes, and the
+overlay model. Verify with `ls -la ~/.claude/skills` (one symlink per skill) and, in a Claude
+Code session, `/skills` or "what skills are available".
 
 ## Browse a repo's skills
 
