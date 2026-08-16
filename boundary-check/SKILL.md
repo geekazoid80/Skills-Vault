@@ -100,12 +100,13 @@ it said earlier in the session.
 
 1. **Global standing instructions** - fresh Read of:
    - `~/.claude/CLAUDE.md` (all always-on rules + the skills table).
-   - `~/.claude/memory/MEMORY.md` (the global index), then Read every linked file whose one-liner is
-     relevant to what this session touched.
+   - `~/.claude/memory/MEMORY.md` (the global index), then Read **every file it links**. Not a relevant
+     subset, not the ones whose one-liner looks related: every one. A file you judge irrelevant is still
+     opened, then noted why.
 
 2. **Project standing instructions** - compute the encoded project dir (the absolute project path with every
    `/` replaced by `-`), then fresh Read:
-   - `~/.claude/projects/<encoded>/memory/MEMORY.md` and every linked file relevant to this session.
+   - `~/.claude/projects/<encoded>/memory/MEMORY.md` and **every file it links**, on the same terms.
    - Any project coverage-audit note it points to (e.g. a `compact_coverage_audit` entry).
 
 3. **Repo standing instructions** - fresh Read of the repo's root `AGENTS.md` / `CLAUDE.md` and any module
@@ -157,10 +158,23 @@ like background, when the relationship is the other way round: the near index ho
 the broad one holds the rules the work must **obey**. So the skipped index is reliably the one carrying the
 rule about to be broken.
 
-Where an index is genuinely too large to open in full, name which of its links you opened and which you did
-not, choosing by the surfaces this session actually touched rather than by what reads as interesting. A
-declared partial walk is honest and usable. A partial walk presented as a complete one is the same failure
-this section exists to prevent, only harder to catch, because it now looks like diligence.
+**There is no relevance test, and a large index does not earn one.** Read every link, however many there
+are. Seventeen or a hundred, the answer is the same, and growth is not an exemption: when the count rises,
+read the larger set. The reason is the one this whole section rests on, that the file you skip is where the
+rule you are about to break lives, and you cannot know which file that is *before* reading it. Judging
+relevance from a one-line index entry is exactly the judgement the index is too thin to support.
+
+This supersedes an earlier allowance here for a "declared partial walk" chosen by the surfaces a session
+touched. It was wrong twice over. It contradicted the paragraph directly above it, which already said an
+irrelevant-looking link is still opened. And it had already been rejected in practice: a session that read
+the index, opened one link and declared the rest a declared partial had its plan sent back with "from file".
+Declaring a partial walk makes the gap visible, which is better than hiding it, but visible is not the same
+as permitted.
+
+What survives is the honesty requirement, not the shortcut. **State the denominator every time** ("59 of 59,
+and the index holds 59"), because a count is the only thing that distinguishes a complete walk from one that
+merely reads as complete. A partial walk presented as a complete one remains the worst outcome, harder to
+catch than an admitted gap because it now looks like diligence.
 
 The ledger is the forcing function. Without it the walk degrades into "I am familiar with these files",
 which holds right up to the boundary where a rule changed, a peer edited one, or the rule you never opened
@@ -316,8 +330,8 @@ and tick 2 exists precisely because it is the one check the artefacts cannot aud
 Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
 2. the store delta was run first (log + `status` + last-touch), and then a fresh Read of
-   `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and the linked files relevant to
-   what this session touched**, each accounted for in the ledger. A file confirmed by mtime, git state, or a
+   `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and every file those indexes
+   link**, each accounted for in the ledger against a stated denominator. A file confirmed by mtime, git state, or a
    session-start reminder snippet is **not** read, so do not tick on one, and "unchanged since I last
    checked" is not a delta, it is the assertion the delta exists to replace. Tick this only if the ledger
    went up **before** you started reconciling, and only if it was derived from the Read calls you issued
