@@ -2,7 +2,7 @@
 name: grill-me
 description: "Use to interview the user via a relentless, one-question-at-a-time conversation that walks down every branch of the decision tree. Two interview shapes. (A) STRESS-TEST an existing plan or design (\"grill me\", \"stress-test this\", \"interview me on this design\", \"challenge this plan\", \"poke holes in this\", \"be critical\"). (B) CREATIVE IDEATION when starting from a fuzzy idea (\"let's brainstorm X\", \"help me think through Y\", \"I want to design Z but I'm not sure where to start\", \"explore this idea with me\"). Two firing modes. (1) ON-DEMAND: user uses one of the trigger phrases above. (2) HYBRID auto-propose: at plan-mode entry, the agent assesses whether the chunk is high-stakes (multi-module, contract change, security-sensitive, irreversible, large blast radius, new tech choice, or first-of-kind) and ASKS the user \"Want me to grill this plan before we ship it?\" with a one-sentence stakes summary; user says yes or no. Per-question, the agent provides its recommended answer alongside the question. If a question can be answered by exploring the codebase, the agent explores instead of asking. Localised hybrid of mattpocock/skills/productivity/grill-me (stress-test mode) and obra/superpowers/skills/brainstorming (creative-ideation mode); strips upstream brainstorming's hard gates and writing-plans dep."
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Grill Me
@@ -109,6 +109,10 @@ If the user's request describes multiple independent subsystems ("build a platfo
 
 Help the user split into sub-projects: what are the independent pieces, how do they relate, what order should they land. Then run the interview on the first sub-project per the question categories above. Each sub-project gets its own interview cycle.
 
+### The interview ratchets one way
+
+When in doubt between a lighter and a heavier read on the idea, take the heavier one. The ratchet is one-way: hidden complexity surfaced mid-interview upgrades the depth, stop, say so, and step up (more questions, a decomposition, or a proposal to grill the plan once it firms up). Nothing narrows the scope quietly mid-interview. If the fuzzy idea turns out to be multiple subsystems, or the stakes turn out higher than the trigger implied, that is an upgrade signal, not something to skate past to reach a summary faster.
+
 ## When to stop
 
 The interview ends when:
@@ -120,6 +124,19 @@ The interview ends when:
 Output at the end: a short summary of the decisions reached, the deferrals (with the rationale for deferring), and any open questions that could not be resolved without more information.
 
 For creative ideation, the summary is the seed of the next chunk's plan: purpose, chosen approach, key constraints, success criteria. The user picks up from there per the normal cadence (re-enter plan mode, write the plan file, run `plan-time-tooling`). The agent does NOT auto-write a spec file or hand off to a separate "writing-plans" skill; that workflow is too rigid for the vault's lighter cadence.
+
+## Red Flags
+
+| Thought | Reality |
+|---|---|
+| "I'll ask these three things together to save turns" | One question at a time. Bundling forces the user to answer cold and buries the dependency order. |
+| "I'll ask the user which module owns this" | If the code answers it, explore, do not ask. Only spend a question on what the code cannot say. |
+| "Here are options A, B, C, your call" | Surface the trade-off, then recommend. The user wants a strong read, not a menu. |
+| "Let me ask one more to be thorough" | Stop when the tree is resolved. Padding with questions for the sake of asking wastes the user's time. |
+| "This chunk looks risky, I'll just start grilling" | Hybrid auto-propose asks first. No grill without an explicit yes (or a "Partial <area>"). |
+| "Low-stakes, but I'll propose grilling anyway" | Do not over-fire. If neither high- nor low-stakes signals fire confidently, proceed without proposing. |
+| "The idea grew, but I'm nearly at a summary, keep going" | The interview ratchets one way. Hidden complexity upgrades the depth; stop and say so. |
+| "It's several subsystems, but I'll refine the first detail I see" | Decompose first. Do not spend questions detailing a project that needs splitting. |
 
 ## Cross-references
 

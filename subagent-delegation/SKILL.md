@@ -2,7 +2,7 @@
 name: subagent-delegation
 description: "Use when about to delegate non-trivial work to a sub-agent (Explore, general-purpose, or any specialist) OR write any hand-off that briefs another session/agent (spawn_task chip, throwaway-session prompt, TaskCreate brief, scheduled/cron agent, PR body handing off work). Covers Pattern A \"thin master, heavy sub-agents\": when to stay inline vs. delegate, the standing-instructions + memory precondition every hand-off brief must open with (the receiving session reads CLAUDE.md + global memory + project memory + repo AGENTS.md from disk for itself; the prose is never the control; multi-PAT keychain token / pull --ff-only / secrets hygiene are the canonical misses), the canonical-path-pinning preamble for every brief that does file I/O, the adjacent-pattern scan instruction for cross-cutting briefs, the master-side blast-radius grep before pushing a contract change, the AskUserQuestion gate when adjacent findings come back (bundle / follow-up PR / accept the gap), the AskUserQuestion gate for generalisable patterns (extract now / follow-up PR / defer with TODO / accept duplication), and the leaf rule (sub-agents do not spawn sub-sub-agents). Also covers the plan-execution loop for subagent-driven development (fresh subagent per task, two-stage review, implementer status model, model selection per task complexity, and the BOUNDED FIX LOOP: five rounds per task, resume the original implementer for rounds 1-3 then a fresh one a model tier up for 4-5, scoped re-review verdicting each finding ADDRESSED or NOT ADDRESSED, and the breaker that adjudicates open findings on the record at the cap instead of looping forever); folded from obra/superpowers/skills/subagent-driven-development. Fires on \"the review keeps finding things\", \"how many times do I re-dispatch\", \"this task is stuck in review\", \"fix loop\", \"re-review\", \"the implementer cannot fix it\", \"when do I stop retrying a subagent\". Parallel-Dispatch (independent problems) pattern for fanning out 2+ unrelated investigations or fixes concurrently; folded from obra/superpowers/skills/dispatching-parallel-agents. Parallel-Design Sub-Agents pattern (\"Design It Twice\") for exploring alternative interfaces. Specialist review dispatches catalogue (GHA security review with five-element finding contract; folded from getsentry/skills/gha-security-review)."
 metadata:
-  version: 1.6.0
+  version: 1.7.0
 ---
 
 # Sub-agent Delegation
@@ -178,11 +178,17 @@ Do NOT pause to check in between tasks. Execute all tasks from the plan without 
 
 "Should I continue?" prompts and progress summaries between tasks waste time. The user briefed the plan; execute it. The cadence rule "default to plan mode between chunks" applies between *chunks*, not between *tasks within a chunk*.
 
+### Batch small same-shape work
+
+When the plan lists several tasks that are each a small, independent edit of the same kind, the same one-line fix, constant change, or field addition repeated across files, do not dispatch one subagent per task. Compose ONE brief listing every file and its change, send the whole batch to a single subagent, and review the diff as one unit. Reserve one-dispatch-per-task for work that needs its own judgement, its own tests, or its own review surface.
+
+The reviewer checks a batched diff file by file: against the brief's file list, every listed file must have its corresponding hunk. A listed file the diff never touches is a Missing finding, however clean the rest of the batch looks. Say so in the reviewer brief so a batched dispatch is checked line-item, not skimmed as a whole.
+
 ### Per-task workflow
 
 For each task in the plan, run this loop:
 
-1. **Dispatch implementer subagent** with the task's full text and surrounding context. Brief includes the standing-instructions + memory precondition (per the section above), the canonical-path-pinning preamble, the file paths, the acceptance criteria, the verification commands, and the adjacent-pattern scan instruction if cross-cutting.
+1. **Dispatch implementer subagent** with the task's full text and surrounding context. Brief includes the standing-instructions + memory precondition (per the section above), the canonical-path-pinning preamble, the file paths, the acceptance criteria, the verification commands, the adjacent-pattern scan instruction if cross-cutting, and the no-subagents contract stated in the brief itself (per "Sub-agents Are Leaves": the implementer never dispatches subagents, not a helper and never a reviewer; review arrives from master after the report). A worker-spawned reviewer only duplicates the task review master runs anyway, a full extra seat per task, so it is a defect to flag, not free assurance.
 2. **Implementer asks clarifying questions?** Answer clearly, re-dispatch.
 3. **Implementer implements, tests, self-reviews, commits.** Returns one of four statuses (see "Implementer status model" below).
 4. **Spec-compliance review:** dispatch a spec reviewer subagent. Brief: "does the implementation match the task spec? Flag any over-build (extra features) or under-build (missing requirements)." If issues: enter the fix loop below.
@@ -259,7 +265,7 @@ Two routes leave before the loop starts:
 
 | Open finding at the cap | Ruling |
 |---|---|
-| Reviewer is wrong, or the point is contestable | Park it: `Task <N>: parked, <finding>, ruling: <why the code stands>`. The final review sees both sides. |
+| Reviewer is wrong, or the point is contestable | Park it: `Task <N>: parked, <finding>, Ruling: <why the code stands>`. The final review sees both sides. |
 | Real, but nothing downstream builds on it | Park it the same way, with a ruling saying it is real and deferred. |
 | Real and load-bearing (a later task builds on it, or it exposes a plan defect) | **STOP.** Append `Task <N>: BLOCKED, <reason>` and escalate via AskUserQuestion with the finding, the plan text it collides with, and the fix history. |
 
@@ -281,6 +287,10 @@ Related: if a final review returns findings, dispatch ONE fix subagent with the 
 
 Then run **exactly one** scoped re-review over the fix range, and adjudicate any residual findings with the breaker rules from the fix-loop section: park with a written ruling, or stop on the load-bearing ones. **There is no second fix wave.** Residual load-bearing findings surface to the user when `completion-gate` Layer 4 presents the finish options. Point the final reviewer at the ledger's deferred-minor and parked lines so it can triage which of those must be fixed before merge.
 
+### Bounded waiting on dispatched children
+
+Do not poll a wait interface with short timeouts, and do not sit in one silent, open-ended wait either. While master has local work, ledger updates, packaging the next review, reading reports, keep working; child results arrive on their own. When master is genuinely idle, wait in bounded stretches (five to ten minutes where the platform allows), and between stretches post one line of status and reconcile the live children: list them, and chase any that finished without reporting. A bounded stretch keeps nearly all of a long wait's efficiency while guaranteeing a stuck or lost child is noticed within minutes, not at session end.
+
 ### Keep a durable progress ledger
 
 Conversation memory does not survive compaction. Controllers that lost their place have re-dispatched entire completed task sequences, which upstream names the most expensive failure it observed.
@@ -293,9 +303,19 @@ Track progress in something durable, not only in the in-session task list. In th
 - Record every deferred minor, every parked ruling, and any BLOCKED adjudication as its own line. These are what the final review triages against.
 - After a compaction, trust the ledger and `git log` over your own recollection. The commits exist in git even when your context no longer remembers creating them.
 
+### Roll up the rulings at finish
+
+At finish, before the workspace or plan file is cleared, collect every ledger line tagged `Ruling:` (breaker adjudications at the cap, parked findings, deferred minors, and any decision the user already made this run) into one "Rulings made" list, in the order they were made, each with what it costs if it was wrong. Surface that list to the user when `completion-gate` Layer 4 presents the finish options. A ruling that dies with the workspace is a decision taken in secret.
+
+This is a record of what was decided or asked, not a licence to decide instead of asking. This vault keeps ask-the-human as the default at every live decision point; the only rulings that land in-loop are the cap-only breaker adjudications and the parked / deferred-minor entries the loop already permits. Tag those ledger lines `Ruling:` with a capital R so the finish roll-up can grep them.
+
 ### The "cannot verify from the diff" verdict
 
 Either reviewer, spec-compliance or code-quality, can report items it could not verify, because the requirement lives in code the diff does not touch, or spans several tasks. These do not block the rest of that stage's review, but master MUST resolve each one before marking the task complete, since master holds the plan and the cross-task context neither reviewer has. If master confirms the item is a real gap, treat it as a failed spec review: back to the implementer, then re-run the affected stage.
+
+### Illegible evidence is a gap, not a pass and not a fail
+
+Evidence a reviewer cannot see is not evidence that does not exist. If a report or its test output looks truncated, or the reviewer cannot locate the results it claims, the reviewer re-reads the file at its stated path first. If it is genuinely missing or garbled, that is reported as a gap for master to resolve, not a silent pass and not a manufactured fail. Re-running the suite to regenerate what the reviewer failed to read is not verification, and illegibility of the evidence is not invalidation of it. Master treats a confirmed illegible-evidence gap like any real gap: back to the implementer to re-produce the evidence, then re-run the affected stage.
 
 ### Cross-references for the plan-execution loop
 

@@ -2,7 +2,7 @@
 name: completion-gate
 description: Use before any claim of "done", "fixed", "passing", "ready to merge", or any expression of satisfaction with code state, AND before pushing any sub-agent diff that exceeds trivial scope, AND when finishing a development branch (verify, push, PR, cleanup). Combines the iron law of verification (no claim without fresh evidence; the gate function; red flags; rationalisation prevention) with the mandatory code-review trigger (run engineering:code-review on diffs over 50 LOC, public-contract changes, or new module additions; skip only for typo, single-line, or bookkeeping diffs) and the incremental write-then-verify-fast loop (typechecker, schema validators, lint preemptively after writes, without pausing to ask permission). Layer 2 includes the BASE_SHA / HEAD_SHA dispatch pattern, the four-severity response model (Critical / Important / Minor / push-back) for code-review subagent dispatch, the deep security-review pass (5-phase attack-surface + checklist sweep folded from getsentry/skills/find-bugs), and the reception discipline for incoming review feedback (no performative agreement, verify against codebase before implementing, ask if unclear, push back with technical reasoning); the dispatch pattern folded from obra/superpowers/skills/requesting-code-review and the reception discipline from obra/superpowers/skills/receiving-code-review. Layer 4 covers branch finishing (verify, push, PR with squash-merge convention, worktree cleanup); folded from obra/superpowers/skills/finishing-a-development-branch. Operational superset; further source skills will be folded in over time.
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Completion Gate
@@ -255,6 +255,7 @@ Skip any step = lying, not verifying.
 - "Just this once".
 - Tired and wanting work over.
 - ANY wording implying success without having run verification in this turn.
+- About to `git worktree remove --force` after a refusal. The refusal means files exist only in that worktree; `--force` destroys them. Show the human partner and ask (see Layer 4 Step 5).
 
 ### Rationalisation prevention
 
@@ -372,7 +373,7 @@ This deletes the remote branch as part of the merge. The local branch survives u
 After the merge:
 
 - **Local branch.** Switch off the branch first (`git switch --detach origin/main` or check out main), then `git branch -D <branch-name>`. Git refuses to delete a branch that is checked out in any worktree, so this step has to come after switching.
-- **Worktree, if applicable.** If the worktree path is under `.claude/worktrees/`, the harness owns cleanup; do NOT remove it manually. The harness will clean up when the session ends. If you created a manual worktree under some project-local path (rare in this vault per `using-git-worktrees`), use `git worktree remove` from the main repo root, then `git worktree prune` to clean up stale registrations.
+- **Worktree, if applicable.** If the worktree path is under `.claude/worktrees/`, the harness owns cleanup; do NOT remove it manually. The harness will clean up when the session ends. If you created a manual worktree under some project-local path (rare in this vault per `using-git-worktrees`), use `git worktree remove` from the main repo root, then `git worktree prune` to clean up stale registrations. If `git worktree remove` is refused (`contains modified or untracked files`), the worktree holds files that exist nowhere else, uncommitted plans, notes, or scratch work. Do NOT `--force` on your own initiative. Show what is at stake (`git -C "$WORKTREE_PATH" status --porcelain -uall`) and ask which of three: commit them to the branch before cleanup, move them into the main repo root, or delete them (unrecoverable). Carry out the choice, then remove the worktree.
 - **Pruning remote-tracking refs.** `git fetch --prune` after the merge to remove the now-stale `origin/<branch-name>` ref.
 
 ### Quick reference for Layer 4
