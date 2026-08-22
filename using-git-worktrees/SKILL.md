@@ -45,7 +45,21 @@ Why: native tools handle directory placement, branch creation, harness state tra
 
 ## Step 2: Manual fallback (only if no native tool)
 
-If the harness has no worktree tool and you genuinely need a manual worktree, use `git worktree add` against an explicit branch name. Place the worktree somewhere outside the main checkout (e.g. `~/tmp/<branch>` or a project-local `.worktrees/<branch>` directory if the project conventions support it). The vault itself uses `.claude/worktrees/<harness-managed-name>/`; do not write into that directory by hand.
+If the harness has no worktree tool and you genuinely need a manual worktree, use `git worktree add` against an explicit branch name.
+
+**Place it UNDER the repo, at a gitignored path, not beside it.** `<repo>/.claude/worktrees/<branch>` is the default; a project with its own convention (`.worktrees/<branch>`) is equally fine. What matters is that the worktree sits inside the repo directory.
+
+Why, and this is the part that bites: **a sibling worktree inherits the PARENT directory's treatment, not the repo's.** Every protection scoped to the repo path stops at its boundary, so `../wt-<branch>` silently opts out of all of them at once:
+
+- backup and sync rules that name the repo (`--exclude='/MyRepo/'` does not match `MyRepo-worktrees/`, and a backup job listing `MyRepo` as a root does not cover a sibling);
+- ignore rules, since the parent directory is governed by whatever is above it, not by the repo's `.gitignore`;
+- anything keyed on the repo path at all, including permissions and tooling that resolves paths into the clone.
+
+A worktree under the repo inherits all of them for free, and being gitignored keeps it out of the index. Worked case: a vault whose repo sat directly inside a two-way-synced folder had every `../wt-<task>` worktree land in that synced folder with live `.git` state, which reverted refs mid-session and resurrected deleted worktrees; the fix was placement, not more excludes.
+
+**Put the ignore rule in the tracked `.gitignore`, not `.git/info/exclude`.** `info/exclude` is local-only and never travels, so a cold clone would show every worktree as untracked and the convention would quietly fail for the next person.
+
+Do not hand-write files into a directory the harness manages, `.claude/worktrees/<harness-managed-name>/`; create your own named worktree there instead.
 
 If `git worktree add` fails with a permission error (sandbox denial), tell the user the sandbox blocked worktree creation and you are working in the current directory instead.
 
@@ -108,7 +122,7 @@ Before claiming the worktree is ready, run the project's test command (or build,
 | `GIT_DIR != GIT_COMMON` and not submodule | Already in a worktree; skip creation |
 | In a submodule | Treat as normal repo |
 | Native `EnterWorktree` tool available | Use it; do NOT call `git worktree add` |
-| No native tool | Manual `git worktree add` to an out-of-tree path |
+| No native tool | Manual `git worktree add` to a gitignored path UNDER the repo (`<repo>/.claude/worktrees/<branch>`), never a sibling |
 | Permission error on create | Sandbox fallback; work in place; report |
 | Tests fail at baseline | Report failures; ask before proceeding |
 | Change ships via a worktree branch and PR | Edit in the worktree; main clone stays clean and current |

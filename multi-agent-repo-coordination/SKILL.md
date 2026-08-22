@@ -2,7 +2,7 @@
 name: multi-agent-repo-coordination
 description: "Use before the first edit, commit, or push in any git repo that a concurrent agent or person may also be touching this session - peer Claude sessions, a shared estate or knowledge base, or a repo whose `.git` is shared by other worktrees. Trigger phrases and symptoms - \"worktree\", \"concurrent session\", \"peer is editing\", \"shared checkout\", \"multi-agent\", a branch ref that shuffled mid-commit, a commit that landed on the wrong branch, \"cannot lock ref\", \"'<base>' is already used by worktree\", a push that seemed to vanish, `git rev-parse origin/<branch>` failing after a push that landed, two local clones of one repo under different names, \"rename the repo directory\", \"mv the clone\", a folder-name cleanup or space-to-hyphen rename batch, a session whose cwd vanished mid-run, \"no such file or directory\" right after a directory was moved, a stale clone serving old code, a parallel session that merged the same feature, a merged change that reads back as absent from whatever consumes the repo, \"the rebuild did not pick it up\", a symlink farm or editable install or PATH entry pointing into a clone, a clone left parked on a feature branch. Covers worktree-per-session, ff-only sync, branch-per-task, verify-the-pushed-ref via `ls-remote`, SHA recovery after a ref shuffle, append-not-rewrite for shared docs and memory, clone-not-assume (one canonical local clone), treating a clone that something resolves through by path as a live serving surface (it serves the checked-out working tree, so branch in a worktree and keep it on main; regenerating the integration does not rescue it and `pull --ff-only` refuses), and treating a repo-directory rename as a multi-session operation (check every session cwd before each move, record the old-to-new mapping durably). NOT for solo repos with no concurrent actors; NOT for choosing where on disk a repo lives (that is repo-safe-locations). Composes with using-git-worktrees and pull-before-dev."
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Multi-Agent Repo Coordination
@@ -36,10 +36,15 @@ Never edit in a shared main checkout. Work in your own linked worktree so a peer
 
 ```
 git -C <repo> fetch --prune origin main
-git -C <repo> worktree add ../wt-<task> -b <area>/<task> origin/main
-# edit, commit, push, open the PR in ../wt-<task>, then:
-git -C <repo> worktree remove ../wt-<task>
+git -C <repo> worktree add .claude/worktrees/<task> -b <area>/<task> origin/main
+# edit, commit, push, open the PR in that worktree, then:
+git -C <repo> worktree remove .claude/worktrees/<task>
 ```
+
+**Put the worktree UNDER the repo at a gitignored path, never beside it as `../wt-<task>`.** A sibling
+inherits the parent directory's treatment rather than the repo's, so it silently escapes every protection
+scoped to the repo path at once: backup roots and sync excludes that name the repo, ignore rules, and
+anything else keyed on that path. `using-git-worktrees` carries the full reasoning and the worked case.
 
 All Edit / Write / Read use the worktree-prefixed absolute path, never the main-repo path. Editing the main clone instead also strands an uncommitted copy that blocks its post-merge `pull --ff-only`; `using-git-worktrees` carries that rule, its symptoms, and the restore-then-pull recovery.
 
@@ -173,6 +178,7 @@ Then confirm the local tip is what actually merged, by comparing the branch tip 
 - Completing a batch rename without recording the old-name-to-new-name mapping anywhere durable.
 - Moving or renaming a repo directory without checking what recorded its absolute path (virtualenv wrappers, scheduled jobs, interpreter paths).
 - Scanning for `.venv/` under repo roots instead of for `pyvenv.cfg`, and so missing environments inside linked worktrees.
+- Creating a worktree as a sibling (`../wt-<task>`) instead of under the repo, so it inherits the parent directory's backup, sync and ignore rules rather than the repo's.
 - Branching in a clone that something resolves through by path, so an unreviewed branch is served machine-wide for as long as it stays checked out.
 - Re-running a linker, builder, or installer to "refresh" a consumer that resolves a path, when the checked-out branch is what actually decides the content.
 - Reading "the merged change is missing from the consumer" as a merge or sync problem before checking what branch the clone is on.
