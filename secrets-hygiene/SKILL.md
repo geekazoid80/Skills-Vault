@@ -1,9 +1,9 @@
 ---
 name: secrets-hygiene
-description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also fires on questions ABOUT a credential you must not read: whether two secrets on different hosts are the same (hash each in place, compare short digests), what a credential can actually do (an inert write probe with a known-good control, since an API's permissions field usually describes the principal and a token's name is only a note somebody typed), and when it expires (ask the service; an absent expiry field means none is set, not that this kind does not report one). Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
+description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also fires on questions ABOUT a credential you must not read: whether two secrets on different hosts are the same (hash each in place, compare short digests), what a credential can actually do (an inert write probe with a known-good control, since an API's permissions field usually describes the principal and a token's name is only a note somebody typed), and when it expires (ask the service; an absent expiry field means none is set, not that this kind does not report one). Also fires on a secret materialised as a FILE instead of into an environment variable: a token written to a session scratchpad, a tok.txt or similar left on disk at mode 0644, a plaintext PAT on disk outside the repo where no gitignore entry or pre-commit hook can see it, and nothing ever cleans it up; covers sourcing into an env var in the same shell invocation, a mode-0700 wrapper where a value must persist, sweeping the scratchpad as well as the repo at a boundary gate and reporting by filename, size, mode and length, removing with rm -P, and not deleting another session's scratchpad file unilaterally because it may be the only evidence of which credential leaked. Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
 license: MIT
 metadata:
-  version: 1.5.0
+  version: 1.6.0
 ---
 
 # Secrets Hygiene
@@ -58,6 +58,7 @@ Pair every gitignored secret file with a tracked sample template using that proj
 - Any tracked `*.sample` / `*.example` / `*.template` (use placeholder literals, never real values).
 - TodoWrite entries, plan files, persisted summaries, agent return messages.
 - Bug-report scaffolds, support tickets, screenshots without redaction.
+- A scratchpad, temp file, or any working file outside the repo. No gitignore entry covers it, no pre-commit hook sees it, and nothing ever cleans it up (see Never materialise a secret as a file below).
 
 When discussing the gap in writing, say "the hardcoded `wrsroot` password" or "the device root credential", never the value itself.
 
@@ -213,6 +214,7 @@ Read the expiry off the service where it offers one (see Characterising a creden
 4. When extracting a real value from one place to another, use ssh + grep + redirect on the remote machine so the literal never lands in your local tool output. Then `scp` or `rsync` the file back if needed.
 5. When wiring per-deployment identity, read from the secret store; do not default to a developer's handle.
 6. Never point a subagent at a live secret file. Do credential-adjacent extraction yourself in the main agent, projecting only the non-secret fields (see below).
+7. Never write a secret to a file for convenience. Source it into an environment variable in the same shell invocation that uses it, and where a value must genuinely persist, persist a mode-0700 wrapper that sources it rather than the value itself (see below).
 
 ## Never delegate a live secret-file read to a subagent
 
@@ -232,6 +234,22 @@ The brief is not the control. The control is **never giving the subagent access 
   ```
 
 If a subagent does leak a literal, follow Leak response below; the transcript `.jsonl` is a persisted artefact, so treat the credential as exposed even though no tracked file changed.
+
+## Never materialise a secret as a file
+
+A secret written to a file for convenience and then left there is the leak that none of the controls above catches. It never reaches the transcript, so no scrubber and no redaction brief applies. It sits outside the repo, so no gitignore entry and no pre-commit hook fires. And nothing ever sweeps a scratchpad, so the file simply outlives the command that needed it, indefinitely and unwatched.
+
+**Recognise the shape, because it comes from a real difficulty rather than from carelessness.** A token has to reach several commands across several tool calls without ever being echoed. Writing it to a file feels like the careful option next to pasting it onto a command line, and for the transcript it genuinely is. It is worse for the disk, and only the transcript half ever gets checked.
+
+**The rules:**
+
+- **Source the value into an environment variable inside the same shell invocation that uses it**, as the first statement of that call, exactly as the Use pattern under Probing the credential store prescribes. The value then lives in one process and dies with it.
+- **Where a value must genuinely persist across invocations, persist a wrapper, not the secret.** A mode-0700 script that sources the credential at run time and never prints it. The artefact that survives is the wrapper; the secret stays in the store.
+- **At any boundary gate, sweep the session scratchpad as well as the repo.** A secret-shaped file outside the working tree is invisible to every git-based check, which is exactly why nothing has ever reported one. Where you already hold the value, match by **digest** rather than by opening the candidate file (see Characterising a credential without reading it above), and report the finding by **filename, size, mode and length** only.
+- **Remove with `rm -P`** so the bytes are overwritten rather than merely unlinked, and then follow Leak response below. Say plainly that **rotation is the operator's call**: finding one copy is not evidence it was the only one, so do not quietly decide the exposure was small enough to skip the question.
+- **Do NOT delete another session's scratchpad file unilaterally.** It is not yours, and it may be the only remaining evidence of *which* credential leaked, which is frequently worth more than removing the copy. Report it to the owner with the same filename, size, mode and length detail, and let them decide.
+
+**Dated origin, 2026-08-23.** A live API token, in plaintext, at mode 0644, in a session scratchpad directory, found roughly nine hours after the command that needed it. It had never been in any repo, commit or PR, and the parent directory was 0700, so the blast radius was local disk only. Nothing detected it: it surfaced because a delegated agent happened to list that directory and mention the filename in passing. A **second, unrelated** token file, a day older, was then found in a different session's scratchpad. That second one is what makes this a pattern worth a rule rather than one session's slip.
 
 ## Leak response
 
@@ -397,6 +415,9 @@ Related skills:
 - A credential's capability taken from a permission field the API returned (usually a property of the principal, not the credential), from its name or entry label, or from identification by elimination
 - A capability probe reported without a known-good control, so a denial cannot be told apart from a wrong URL or a dead credential
 - Two secrets compared by reading both values, where hashing each in place and comparing short digests would answer it without either value moving
+- A secret written to a scratchpad, a temp file, or any working file outside the repo, on the reasoning that it keeps the value out of the transcript; it does, and it puts the value on disk where nothing is watching
+- A boundary gate, secret sweep, or pre-commit check that scans the repo and never looks at the session scratchpad
+- Another session's secret-bearing scratchpad file deleted on sight, destroying the evidence of which credential leaked
 - The same credential value found in three or more files (fragmentation)
 - A commit message that quotes a config value
 - Tool output (TodoWrite, plan, summary) that quotes a real secret
