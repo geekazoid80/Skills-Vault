@@ -37,6 +37,16 @@ The encoded project path is the absolute project path with `/` replaced by `-` a
 
 If the directory doesn't exist OR is empty (only `.` and `..`), this is a fresh project with no project-scoped overrides yet. Note that in the plan's Reminders block ("project memory: empty"); do NOT skip silently.
 
+**A path that does not resolve is not automatically an empty project: it may be a pointer that has rotted.** Memory namespaces get retired when a repo is relocated or renamed, and a repo's own `AGENTS.md` / `CLAUDE.md` frequently names the memory directory, sometimes naming individual topic files to read. Nothing errors when those stop existing. The reading session simply finds nothing and proceeds under-informed, which is the exact failure the pointer exists to prevent, and it looks identical to a project that genuinely has no memory yet.
+
+Tell the two apart before recording "project memory: empty":
+
+- **Check whether a tombstone or redirect is present.** A retired namespace is often left holding only a `MEMORY.md` that says where the live one is. Finding one file where you expected many is the signal.
+- **Check whether the encoded path still matches the repo's actual location and name.** If the repo lives at `.../Foo-Bar` and the pointer names `...-Foo-Baz`, the pointer predates a rename, and the real memory is sitting unread under the current name.
+- **Distrust a pointer that explains its own absence.** Wording like "currently empty, create on first note" makes a rotted path indistinguishable from a working one, because the absence you find confirms the sentence instead of contradicting it. Verify the path rather than accepting the explanation.
+
+When a pointer has rotted, fix it in the same change that noticed it and say where the content actually went; a stale pointer is worse than a missing one because it is trusted. A cheap periodic sweep of every memory path named in a tracked file, checking only that it still resolves, catches the whole class before a session acts on it.
+
 `MEMORY.md` files are indexes of point-in-time observations. Each link typically points at a `feedback_*.md` (cross-project behavioural rule) or `project_*.md` (project-specific design decision). Read MEMORY.md AND every linked file IN PARALLEL (one tool message, N Read calls); don't sequentially traverse, the latency adds up.
 
 Each file carries a header: "This memory is N days old. Memories are point-in-time observations, not live state, claims about code behavior or file:line citations may be outdated. Verify against current code before asserting as fact."

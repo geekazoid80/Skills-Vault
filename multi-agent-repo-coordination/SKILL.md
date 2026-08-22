@@ -101,6 +101,16 @@ Before moving any repo directory, for EACH directory in scope:
 
 `isRunning: false` means idle, not finished. A recently-active session still counts as occupied; it resumes into the path it remembers.
 
+**A move also breaks build artefacts that recorded the old path, and those fail silently long afterwards.** A Python virtualenv is the common case: every console-script wrapper in its `bin/` hard-codes an absolute interpreter path at creation time, so after the directory moves, `./.venv/bin/pytest`, `./.venv/bin/pip` and the rest die with `No such file or directory` on a path that no longer exists. Three properties make this mislead badly:
+
+- **The interpreter beside them is fine.** `.venv/bin/python -m pytest` works, so it reads as a broken test-runner install rather than a moved directory, and the obvious fix (reinstall the tool) fails too, because `pip` is one of the broken wrappers.
+- **The venv is usually gitignored**, so the damage lives on the host and can never appear in a diff, a review, or CI.
+- **A genuinely fresh clone is unaffected**, so verifying the bootstrap the honest way, in a new venv, reports green while every existing clone stays broken.
+
+Detect it by scanning for **`pyvenv.cfg`**, not for `.venv/` under repo roots: a repo-directory walk misses environments inside linked worktrees, which is exactly how a sweep reports fewer environments than exist. For each one found, test whether the path each wrapper actually execs still resolves, rather than matching against the old name you expect. Repair by recreating the environment rather than editing the wrappers, and capture the installed set first (`.venv/bin/python -m pip freeze`) so a project with no requirements file does not lose its dependency list along with its wrappers.
+
+The same shape applies to anything else that recorded the absolute path: check the environment's own `home` value still resolves, and check any scheduled job that invokes an interpreter by full path, since a cron entry calling a moved venv fails on its next run with nobody watching.
+
 Afterwards, record the old-name-to-new-name mapping somewhere durable (project memory, the tracking task, the estate's coordination board), not only in the moving session's transcript. A later session reading a stale absolute path needs a way to find where it went; without the mapping it concludes the repo is missing and re-clones it, which is exactly how the duplicate twin above appears in the first place.
 
 ## Concurrent duplicate PR: check main, close yours, do not clobber
@@ -110,6 +120,17 @@ When a change you just built hits a "not mergeable" conflict, a parallel session
 ## `gh pr merge --delete-branch` from a worktree
 
 `gh pr merge <N> --delete-branch` run from inside a linked worktree of the same repo errors `'<base>' is already used by worktree` (gh cannot check out the base held by the canonical clone), but the **API merge still succeeds**. Verify `state=MERGED`, then clean up by hand: `worktree remove`, `pull --ff-only` the canonical base, `branch -D` plus `push origin --delete` the head. Gate on the merged-state artifact, not the `gh` exit code.
+
+## Deciding a branch is finished: the tree test and the PR state answer different questions
+
+Before deleting any branch in a shared repo, know which question you are asking. `git merge-tree --write-tree <base> <branch>` compared against the base tree answers **"would merging this change the base"**. That is not the same as **"is this branch finished"**, and the gap runs both ways:
+
+- **A landed branch can read as unmerged work.** After a squash merge the base keeps moving; once a later commit touches the same files, merging the old branch would *revert* them, so the trees differ and the branch looks like work worth keeping. It is in fact the safest to delete, and the most dangerous to keep, because keeping it invites someone to merge a revert.
+- **A live branch can read as unremarkable.** A branch whose PR is still **open**, possibly with a peer working in it, tests exactly like a spent one.
+
+So resolve the PR state, and resolve it **at the moment of deletion** rather than when you audited, because a peer can open or merge one in between. Delete only on a merged PR; skip an open one; treat "no PR ever opened" as needing a human.
+
+Then confirm the local tip is what actually merged, by comparing the branch tip against the PR's head ref. A local branch carrying commits *beyond* its merged PR head is indistinguishable from a fully-landed one under every other test, and that is the case where deleting loses real work.
 
 ## Red Flags
 
@@ -126,6 +147,10 @@ When a change you just built hits a "not mergeable" conflict, a parallel session
 - Reading `isRunning: false` as "finished" rather than "idle, and will resume into the old path".
 - Hand-moving a directory a linked worktree points into, without `git worktree move` or a follow-up `repair`.
 - Completing a batch rename without recording the old-name-to-new-name mapping anywhere durable.
+- Moving or renaming a repo directory without checking what recorded its absolute path (virtualenv wrappers, scheduled jobs, interpreter paths).
+- Scanning for `.venv/` under repo roots instead of for `pyvenv.cfg`, and so missing environments inside linked worktrees.
+- Deleting a branch on the tree test alone, without resolving its PR state at the moment of deletion.
+- Reading a `merge-tree` difference as unmerged work when the base has simply moved on past a squash merge.
 
 ## Bottom Line
 
