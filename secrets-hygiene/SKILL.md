@@ -1,9 +1,9 @@
 ---
 name: secrets-hygiene
-description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
+description: "Use when handling API keys, passwords, tokens, OAuth secrets, device credentials, OIDC client secrets, PATs, account IDs, or any other identifying or authenticating value. Covers gitignored secret files, tracked sample templates with placeholder literals, single canonical secret file per project (config.toml + config.example.toml is the default for a new project; an estate or project convention overrides it, so check for one before inferring from file extensions), per-deployment identity from the secret store (never hard-coded), static-credential expiry tracking and rotate-in-place via the secret store, the \"treat as non-rotatable\" defensive default, and the leak-response procedure when a real literal lands in tracked output. Offers to migrate existing code to the gitignored pattern. Also fires on questions ABOUT a credential you must not read: whether two secrets on different hosts are the same (hash each in place, compare short digests), what a credential can actually do (an inert write probe with a known-good control, since an API's permissions field usually describes the principal and a token's name is only a note somebody typed), and when it expires (ask the service; an absent expiry field means none is set, not that this kind does not report one). Also covers GitHub Actions secrets discipline (prefer OIDC over long-lived PATs; least-privilege GITHUB_TOKEN; no secrets in pull_request_target with fork checkout; expression injection and pwn-request defence) folded from xixu-me/skills/github-actions-docs and getsentry/skills/gha-security-review. Includes Azure Entra ID OIDC and RBAC narrow checklists (federated identity credentials over client secrets; roleAssignments/write privilege ladder) folded selectively from microsoft/azure-skills/entra-app-registration and microsoft/azure-skills/azure-rbac. Deep concept references (load on demand): secrets-management-concepts.md (secret lifecycle, sprawl, dynamic vs static secrets, rotation patterns, zero-downtime rotation, envelope encryption, HSMs, zero-trust distribution) and pki-concepts.md (CA hierarchy, X.509 structure and extensions, chain validation, CRL/OCSP/stapling/CAA, Certificate Transparency, ACME protocol and challenges, key algorithms, compliance). For HashiCorp Vault operations see hashicorp-vault-ops; for certificate issuance see cert-manager and lets-encrypt. Concept references folded from chrishuffman5/domain-expert/plugins/security/skills/secrets and its pki subtree (MIT)."
 license: MIT
 metadata:
-  version: 1.4.0
+  version: 1.5.0
 ---
 
 # Secrets Hygiene
@@ -108,6 +108,61 @@ security find-generic-password -a "$USER" -s gh_<org>_pat -w && echo found
 
 Beware `set -x` / `set -v` debug modes; they echo variable assignments to stderr, leaking the right-hand side. Disable them around credential-fetching commands. Beware `-v` / `--debug` on consumer tools: curl logs `Authorization:` headers; some CLIs log token values on token-set events.
 
+## Characterising a credential without reading it
+
+Probe and use are not the only two operations. A third comes up constantly and has no obvious recipe, so people reach for the value by default: questions **about** a credential rather than about its existence. Are these two the same secret? What can this one actually do? When does it expire?
+
+Each has an answer that touches no value at all. Reading the value to find out is precisely what the question was trying to avoid, so treat "I will just look at it" as the failure mode, not the fallback.
+
+### Are these two the same secret?
+
+Hash each one **in place, on the host that holds it**, and compare only the digests. Nothing secret crosses the network, nothing lands in a transcript, and the answer is exact rather than inferential.
+
+```bash
+# Run separately on each host. Print a short prefix, never the full digest.
+security find-generic-password -s <entry> -w | tr -d '\n' | shasum -a 256 | cut -c1-12   # macOS Keychain
+sudo cat /path/to/secret | tr -d '\n' | shasum -a 256 | cut -c1-12                        # a file on another host
+```
+
+- **Normalise before hashing, on both sides.** A trailing newline changes the digest, so two hosts whose extraction commands differ in that one respect report "different secrets" for an identical value. `tr -d '\n'` on every side, or the comparison is worthless in the direction that matters (a false "these differ" reads as reassuring).
+- **Print a prefix, not the whole hash.** Twelve hex characters distinguish a handful of candidates and are useless for anything else.
+- **It is still a read**, done by a process rather than by you, so do it only with the owner's say-so.
+
+### What can this credential actually do?
+
+Two traps first, because both produce a confident wrong answer.
+
+**A self-reported permission field usually describes the principal, not the credential.** GitHub's `GET /repos/{owner}/{repo}` returns a `permissions` object, and for a fine-grained PAT it reflects **the user's role on the repo**, not the token's scope. A read-only token and a write token held by the same admin return an identical all-true `{admin, maintain, push, triage, pull}`. Check what any such field is actually a property of before letting it answer a question about a credential.
+
+**A credential's name is a note somebody typed.** "Read-only" in a token's label, an entry name, or a prior memory note is not evidence, and neither is identifying a credential by elimination from a list.
+
+The recipe is an **inert write probe**: a call the permission gates, chosen so it mutates nothing even when it succeeds.
+
+| | |
+|---|---|
+| Probe | `PATCH /repos/{owner}/{repo}` with an **empty JSON body** |
+| Denied | `403 Resource not accessible by personal access token` |
+| Permitted | `200`, and no field changes, because the body names none |
+
+- **Always run a control.** This is the load-bearing half, not a nicety. A bare 403 could equally mean a wrong URL, a resource the credential cannot see, or a dead credential; only a paired success from a known-good credential proves the probe detects the capability when it is there.
+- **Verify nothing moved afterwards** from a timestamp the service maintains (`updated_at`, a version counter, an audit entry), so "inert" is observed rather than assumed.
+- **The shape generalises.** Look for a call the permission gates but whose payload can be empty or a no-op write of the current value. Where no such call exists, say the capability is untested rather than inferring it; a genuinely mutating test only causes damage in exactly the case you were testing for.
+
+### When does it expire?
+
+Ask the service, not the credential's type and not a note beside it. Many APIs return expiry on any authenticated call, for example GitHub:
+
+```bash
+curl -sI -H "Authorization: Bearer $TOK" https://api.github.com/user \
+  | grep -i github-authentication-token-expiration
+```
+
+**An absent field means no expiry is configured, not that this kind of credential does not report one.** The inference from type is the easy mistake and it is backwards: two tokens of the same kind, issued from the same account, will differ here purely because of what was chosen at creation.
+
+**A non-expiring credential flips the risk rather than removing it.** It will never cause the outage that a lapsed one causes, so nothing ever forces a rotation and nothing prompts anyone to think about it. The exposure moves from availability to security: standing access, held indefinitely, usually shared more widely than anyone remembers. Record it as an accepted risk with a named owner, or rotate it; what it must not be is unlisted because it never breaks.
+
+Whether that matters depends entirely on the capability, which is why the write probe above comes first. A non-expiring **read-only** credential on an unattended host is a reasonable posture; the same credential with write scope is the thing to raise.
+
 ## Treat as non-rotatable by default
 
 Many real-world credentials cannot be rotated cheaply, sometimes not at all from your side: vendor-set device passwords, infrastructure root accounts, supplied API keys, hard-coded firmware credentials, OEM SNMP communities. Don't assume rotation is available. The defence is *not leaking in the first place*.
@@ -148,7 +203,7 @@ new Notifier({ escalateTo: secrets.read("ESCALATE_TO") });
 
 Every PAT, API key, signed cert, OAuth refresh token, or otherwise long-lived static credential carries an `expiresAt` field somewhere a monitor can read it. Seven days before expiry, raise an urgent rotate-in-place ticket. Rotation uses the secret store, never a redeploy.
 
-If the upstream system does not expose an expiry, store the issue date plus the documented validity window (e.g. "GitHub fine-grained PATs: 1 year max") and compute `expiresAt`.
+Read the expiry off the service where it offers one (see Characterising a credential without reading it above), rather than off the credential's type or a note beside it. If the upstream system genuinely does not expose an expiry, store the issue date plus the documented validity window (e.g. "GitHub fine-grained PATs: 1 year max") and compute `expiresAt`.
 
 ## How to apply (workflow)
 
@@ -338,6 +393,10 @@ Related skills:
 - A real email / handle / account ID baked into a default value
 - A `.sample` file with real values "for convenience"
 - A PAT or API key with no documented expiry or owner
+- A credential established as never-expiring and then left unlisted, with no owner and no accepted-risk note, because nothing will ever break to remind anyone
+- A credential's capability taken from a permission field the API returned (usually a property of the principal, not the credential), from its name or entry label, or from identification by elimination
+- A capability probe reported without a known-good control, so a denial cannot be told apart from a wrong URL or a dead credential
+- Two secrets compared by reading both values, where hashing each in place and comparing short digests would answer it without either value moving
 - The same credential value found in three or more files (fragmentation)
 - A commit message that quotes a config value
 - Tool output (TodoWrite, plan, summary) that quotes a real secret
