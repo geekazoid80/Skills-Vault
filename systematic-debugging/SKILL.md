@@ -2,7 +2,7 @@
 name: systematic-debugging
 description: Use when encountering any bug, test failure, unexpected behaviour, network outage, deploy failure, vendor integration glitch, or system-level anomaly, BEFORE proposing fixes. Triggers include "this is broken", "the deploy failed", "the API is returning 500s", "the cron didn't fire", "the LXC won't boot", "the firewall is dropping packets", "the OIDC handshake is failing", "logins are slow", "the migration crashed". Enforces the iron law NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST. Walks the four phases (root-cause investigation; pattern analysis; hypothesis and minimal test; implementation with single fix), with explicit guidance on building a fast deterministic pass/fail signal as the foundation of Phase 1. Covers code, sysadmin, network, vendor, and infra failure modes; widens the upstream's code-only examples into the broader operational surface (package or kernel updates, config drift, firmware change, vendor side-effect, certificate rotation, DNS hiccup). Localised customisation of obra/superpowers/skills/systematic-debugging with pass/fail-signal framing folded in from mattpocock/skills/engineering/diagnose.
 metadata:
-  version: 2.1.0
+  version: 2.2.0
 ---
 
 # Systematic Debugging
@@ -183,11 +183,30 @@ You MUST complete each phase before proceeding to the next.
    - One variable at a time.
    - Don't fix multiple things at once. If you change two things and the symptom resolves, you don't know which one mattered.
 
-3. **Verify before continuing.**
+3. **The minimal test must not be able to damage the thing you are diagnosing.**
+   - **Read the current state before you retry anything.** A failed call very often already did its work;
+     an error is a statement about the response, not proof about the effect. Checking first is one call and
+     it frequently ends the investigation outright.
+   - **Never diagnose a failed write with another write against the live object.** Test against a
+     throwaway target, or with a payload that changes nothing even when it succeeds (an empty-body write
+     to a write-gated endpoint, a no-op update of the current value). A diagnostic write only causes
+     damage in exactly the case you were testing for, which is the case where your assumption was wrong.
+   - **Pair a negative result with a known-good control.** A bare failure cannot distinguish "denied" from
+     "wrong URL", "invisible resource" or "dead credential". Without the control you have not learnt
+     anything, you have just collected a symptom.
+   - **Do not trust your own reading of which line a traceback points at** when a script makes several
+     similar calls. Print a marker per call, or you will confidently diagnose the wrong one.
+   - Worked case: a session investigating a `403` fired a real `PUT {"notes": "probe"}` at the live
+     record. The `PUT` succeeded and destroyed a correction written a minute earlier. The 403 had come
+     from a different call in the same script, and the original write had already landed, so the probe was
+     both destructive and unnecessary. `secrets-hygiene` states the same discipline for credentials; it is
+     not credential-specific and belongs here too.
+
+4. **Verify before continuing.**
    - Did the hypothesis hold? Yes → Phase 4.
    - Didn't hold? Form a NEW hypothesis. DON'T add more fixes on top.
 
-4. **When you don't know.**
+5. **When you don't know.**
    - Say "I don't understand X" out loud (in chat).
    - Don't pretend to know.
    - Ask the user / vendor / on-call peer.

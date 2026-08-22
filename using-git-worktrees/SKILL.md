@@ -1,8 +1,8 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination). Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
+description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination). Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Using Git Worktrees
@@ -60,6 +60,17 @@ A worktree under the repo inherits all of them for free, and being gitignored ke
 **Put the ignore rule in the tracked `.gitignore`, not `.git/info/exclude`.** `info/exclude` is local-only and never travels, so a cold clone would show every worktree as untracked and the convention would quietly fail for the next person.
 
 Do not hand-write files into a directory the harness manages, `.claude/worktrees/<harness-managed-name>/`; create your own named worktree there instead.
+
+**The one real cost of placing worktrees in-repo, stated so it is not a surprise: any tool that walks the repo tree WITHOUT respecting `.gitignore` now sees a full second copy of the repo inside it.** Git itself is fine, and so is anything built on git (`git grep`, `git ls-files`, `git clean` without a double `-f`, most linters and formatters that honour ignore files). What is not fine is the large class of tools that just walk a directory:
+
+- a plain `find`, `grep -r`, `rg --no-ignore`, `os.walk`, a shell glob;
+- documentation generators, sitemap or index builders, asset pipelines;
+- "how many files / lines are in this repo" audits, licence scanners, duplicate-content checks;
+- backup or upload jobs pointed at the repo path.
+
+Each of those will count the worktree's content as part of the repo, and a worktree carries the whole tree, so the inflation is roughly a factor of two per live worktree, plus a nested `.git` file that some tools choke on. The failure is quiet and looks like real data: a doubled file count, a duplicate hit for every match, a doc index with everything twice.
+
+Mitigations, cheapest first: prefer the git-aware form of the tool (`git grep` over `grep -r`, `git ls-files | wc -l` over `find | wc -l`); pass the exclusion explicitly when it is not (`--exclude-dir=.claude`, `rg -g '!.claude'`, a `prune` in `find`); and remove worktrees promptly on merge so there is usually nothing nested to hit. If a repo's own tooling cannot be made ignore-aware, that is a genuine reason to keep worktrees out of the tree for that repo, and it is the one case where a sibling is the lesser evil, provided you then check what the parent directory's rules do to it.
 
 If `git worktree add` fails with a permission error (sandbox denial), tell the user the sandbox blocked worktree creation and you are working in the current directory instead.
 
@@ -132,6 +143,9 @@ Before claiming the worktree is ready, run the project's test command (or build,
 ## Red flags
 
 - Creating a worktree when Step 0 detects existing isolation.
+- Counting, indexing or scanning a repo with a tool that does not respect `.gitignore` while a worktree
+  is nested inside it, so the worktree's copy is silently included (use `git grep` / `git ls-files`, or
+  exclude the directory explicitly).
 - Calling `git worktree add` when the harness provides `EnterWorktree`.
 - Creating a worktree inside another worktree (nesting).
 - Writing into `.claude/worktrees/<x>/` by hand (that path is the harness's, not the user's).
