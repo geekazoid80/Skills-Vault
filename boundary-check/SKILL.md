@@ -231,6 +231,26 @@ drift now**, in this turn, before the boundary:
   (commits, PR text, docs, memory, plan). Sweep any stray em dash you added.
 - **Coverage / cross-reference** - every artefact created this session is linked from the place that should
   point to it (README/AGENTS/index/plan); no orphaned doc, no dangling `[[link]]` or path, no stale pointer.
+  **Name the stores and rescan all three**, because a claim retired in one survives in the others: the
+  **repo tree** (the docs this session touched), **project memory** at
+  `~/.claude/projects/<encoded>/memory/` (the index AND every topic file it links, which a repo-scoped grep
+  can never reach), and the **active plan file** under `~/.claude/plans/`. Say which three you
+  checked; a sweep that names no store reads as though it covered all of them. Prefer a pointer to a copy
+  while you are in there: where something already reads a live source on every run, an artefact should name
+  that SOURCE rather than cache its answer, or the cached count, version, total or state goes stale in every
+  place it was written down at once.
+
+  **The plan file is the dangerous one, and it is the one that gets skipped.** It is transient, so it reads
+  as scratch; it is also the FIRST artefact a resuming session opens and the one whose whole job is to say
+  what to do next, so a stale claim there does not sit inert like a stale doc, it actively misdirects the
+  next session. This has fired three times on one workstream: a retirement done in the repo tree only, where
+  a gate then found a live copy in project memory that a repo grep could never have reached; the same
+  workstream retiring a superseded model, reconciling BOTH memory stores, calling it done, and a delegated
+  gate finding that model still stated in four places in the plan file including its resume-pickup step, so
+  a resumer would have sat watching for a trigger that no longer existed; and, hours after the work landed,
+  a gate finding a closed item still listed as open in that same plan file, caught only because the
+  dispatching session had briefed the gate to look there. The middle one is the shape to carry: the failure
+  was not ignorance of the rule, it was SCOPE, a two-store habit against a rule whose real shape is three.
 - **Family-close stale-forward-ref scan (fold-vault only, when a skill family's last PR lands)** - when the
   boundary closes a fold FAMILY (a group of related skills whose final member just landed), grep the WHOLE
   vault for the forward-ref idioms - `not yet in this vault`, `not yet adopted`, `when adopted`,
