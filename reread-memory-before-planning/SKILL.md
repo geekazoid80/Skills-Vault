@@ -25,7 +25,7 @@ When this skill fires, before any planning content goes into a plan file or an A
 
 Path: `~/.claude/memory/MEMORY.md` + every file it links to.
 
-This is where cross-project `feedback_*.md` rules live (utc-timestamps, secrets-hygiene, multi-pat-direnv, worktree-workflow, plan-files-concise, verify-now-not-next-session, index-entries-audit-first, stacked-pr-delete-branch-trap, etc.). Always read the index first; then read every linked file in parallel. These rules apply regardless of project.
+This is where cross-project `feedback_*.md` rules live (utc-timestamps, secrets-hygiene, multi-pat-direnv, git_branch_worktree_and_merge_traps, plan-files-concise, verify-now-not-next-session, index-entries-audit-first, etc.). Always read the index first; then read every linked file in parallel. These rules apply regardless of project.
 
 If `MEMORY.md` has changed since the last session (new entries, removed entries), the re-read picks up the delta naturally; do not skip on the assumption "I already know what's there."
 
@@ -65,7 +65,7 @@ If neither file exists at the project root (some projects encode discipline else
 
 Invoke the `plan-time-tooling` skill at the same plan-mode entry. Its job is to enumerate:
 
-- Which vault skills fire on this chunk's trigger surface (e.g. `secrets-hygiene` if the chunk touches credentials; `worktree-workflow` if the chunk creates a worktree; `humanise-comms` always-on for any human-bound text).
+- Which vault skills fire on this chunk's trigger surface (e.g. `secrets-hygiene` if the chunk touches credentials; `using-git-worktrees` if the chunk creates a worktree; `humanise-comms` always-on for any human-bound text).
 - Which MCP servers are needed beyond the default set (e.g. `asana` MCP if the chunk integrates with Asana; `box` MCP if Box; usually "none beyond default" for vault-edit chunks).
 
 Record the enumerated skills + MCPs in the Reminders block alongside the memory entries. The point: a plan that doesn't enumerate its tooling shifts that work into execution where it disrupts flow.
@@ -119,7 +119,7 @@ correction the brief itself got wrong, which is a second reason not to execute a
 The rule lives in TWO source-of-truth files, both under `~/.claude/`:
 
 - This file, `~/.claude/skills/reread-memory-before-planning/SKILL.md`
-- The companion memory, `~/.claude/memory/feedback_reread_memory_before_plan.md`
+- The companion memory, `~/.claude/memory/boundary_read_discipline.md`
 
 Both are cross-project. The template carries verbatim into every plan in every project. Skills-Vault, other repos, and brand-new projects all use the same template. There is no project-specific variant; if a project needs to add a project-scoped wrinkle, it goes into the project's `AGENTS.md` / `CLAUDE.md` (Class 3) or into a project-memory file (Class 2), NOT into this template.
 
@@ -136,7 +136,7 @@ Every plan file I write MUST carry this section AT THE TOP, before the existing 
 >
 > **Before drafting OR resuming a plan, re-read all four classes:**
 >
-> 1. **Global memory** at `~/.claude/memory/MEMORY.md` and every file it links to (cross-project rules: utc-timestamps, secrets-hygiene, multi-pat-direnv, worktree-workflow, plan-files-concise, etc.).
+> 1. **Global memory** at `~/.claude/memory/MEMORY.md` and every file it links to (cross-project rules: utc-timestamps, secrets-hygiene, multi-pat-direnv, git_branch_worktree_and_merge_traps, plan-files-concise, etc.).
 > 2. **Project memory** at `~/.claude/projects/<encoded-project-path>/memory/MEMORY.md` and every file it links to (project-specific rules; encoded path = absolute project path with `/` replaced by `-` and leading `-` preserved).
 > 3. **Project conventions**, root `AGENTS.md` / `CLAUDE.md` plus module-scoped `AGENTS.md` for every surface the plan touches.
 > 4. **Necessary skills + MCPs** for the chunk (invoke the `plan-time-tooling` skill; enumerate vault skills that fire on this chunk's trigger surface and MCP servers needed beyond the default set).
@@ -145,7 +145,7 @@ Every plan file I write MUST carry this section AT THE TOP, before the existing 
 >
 > **Also:** every plan file I author MUST contain a section like this one at the top, so future-me (or a fresh session) inheriting the plan sees the expectation immediately.
 >
-> **Scope:** this reminder is GLOBAL, lives in `~/.claude/skills/reread-memory-before-planning/SKILL.md` + `~/.claude/memory/feedback_reread_memory_before_plan.md`, and applies to every plan in every project. Not project-specific.
+> **Scope:** this reminder is GLOBAL, lives in `~/.claude/skills/reread-memory-before-planning/SKILL.md` + `~/.claude/memory/boundary_read_discipline.md`, and applies to every plan in every project. Not project-specific.
 >
 > Carry this reminder forward to every plan in every session.
 ```
@@ -231,7 +231,7 @@ RIGHT, re-read all four classes in parallel, invoke `plan-time-tooling`, THEN sc
 Read(~/.claude/memory/MEMORY.md)
 Read(~/.claude/memory/feedback_secrets_hygiene.md)
 Read(~/.claude/memory/feedback_multi_pat_direnv.md)
-Read(~/.claude/memory/worktree-workflow.md)
+Read(~/.claude/memory/git_branch_worktree_and_merge_traps.md)
 ... (every file MEMORY.md links to)
 
 # Class 2: project memory in parallel (skip-if-empty)
@@ -271,7 +271,7 @@ AskUserQuestion({
 - Memory file claims a code shape (filename, line number, signature) the plan depends on; planning without verifying it's still true.
 - A fresh session inherits a plan file that has no standing-reminder block → the skill's enforcement broke at the previous plan-author point; reflag and add it.
 - Plan-mode entry that does NOT invoke `plan-time-tooling` (Class 4), the tooling enumeration must be part of the plan, not deferred to execution.
-- The two source-of-truth files (`SKILL.md` here + `feedback_reread_memory_before_plan.md`) have drifted out of sync on the template block, re-align before the next plan.
+- The two source-of-truth files (`SKILL.md` here + `boundary_read_discipline.md`) have drifted out of sync on the template block, re-align before the next plan.
 - A project's `MEMORY.md` lacks the standing-header line at the top (or has prose that doesn't match the template), add or re-align before the next plan that touches that project.
 - Creating a new project memory directory without the standing-header, the very first `MEMORY.md` line is the project-name header; the second is the standing-header blockquote. Both before any rule entries.
 
