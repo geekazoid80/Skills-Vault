@@ -1,8 +1,8 @@
 ---
 name: completion-gate
-description: Use before any claim of "done", "fixed", "passing", "ready to merge", or any expression of satisfaction with code state, AND before pushing any sub-agent diff that exceeds trivial scope, AND when finishing a development branch (verify, push, PR, cleanup). Combines the iron law of verification (no claim without fresh evidence; the gate function; red flags; rationalisation prevention) with the mandatory code-review trigger (run engineering:code-review on diffs over 50 LOC, public-contract changes, or new module additions; skip only for typo, single-line, or bookkeeping diffs) and the incremental write-then-verify-fast loop (typechecker, schema validators, lint preemptively after writes, without pausing to ask permission). Layer 2 includes the BASE_SHA / HEAD_SHA dispatch pattern, the four-severity response model (Critical / Important / Minor / push-back) for code-review subagent dispatch, the deep security-review pass (5-phase attack-surface + checklist sweep folded from getsentry/skills/find-bugs), and the reception discipline for incoming review feedback (no performative agreement, verify against codebase before implementing, ask if unclear, push back with technical reasoning); the dispatch pattern folded from obra/superpowers/skills/requesting-code-review and the reception discipline from obra/superpowers/skills/receiving-code-review. Layer 4 covers branch finishing (verify, push, PR with squash-merge convention, worktree cleanup); folded from obra/superpowers/skills/finishing-a-development-branch. Operational superset; further source skills will be folded in over time.
+description: Use before any claim of "done", "fixed", "passing", "ready to merge", or any expression of satisfaction with code state, AND before pushing any sub-agent diff that exceeds trivial scope, AND when finishing a development branch (verify, push, PR, cleanup). Combines the iron law of verification (no claim without fresh evidence; the gate function; red flags; rationalisation prevention) with the mandatory code-review trigger (run engineering:code-review on diffs over 50 LOC, public-contract changes, or new module additions; skip only for typo, single-line, or bookkeeping diffs) and the incremental write-then-verify-fast loop (typechecker, schema validators, lint preemptively after writes, without pausing to ask permission). Layer 2 includes the BASE_SHA / HEAD_SHA dispatch pattern, the four-severity response model (Critical / Important / Minor / push-back) for code-review subagent dispatch, the deep security-review pass (5-phase attack-surface + checklist sweep folded from getsentry/skills/find-bugs), and the reception discipline for incoming review feedback (no performative agreement, verify against codebase before implementing, ask if unclear, push back with technical reasoning); the dispatch pattern folded from obra/superpowers/skills/requesting-code-review and the reception discipline from obra/superpowers/skills/receiving-code-review. Layer 4 covers branch finishing (verify, push, PR with squash-merge convention, worktree cleanup); folded from obra/superpowers/skills/finishing-a-development-branch. Layer 3 also gates the supervised first run of a new capability an unattended schedule (cron/CI) will apply at scale, run once supervised in dry-run against the case it was designed for before the schedule owns it. Operational superset; further source skills will be folded in over time.
 metadata:
-  version: 1.3.0
+  version: 1.4.0
 ---
 
 # Completion Gate
@@ -304,6 +304,21 @@ right:  Agent reports success, check the VCS diff, verify changes,
         report actual state
 wrong:  Trust the agent report
 ```
+
+### Supervised first run before an unattended schedule owns a new capability
+
+The iron law above gates a completion CLAIM. This gates a DEPLOY. When a newly-built capability is about to be applied at scale by an unattended scheduled job (cron, a CI job, a queue worker), run it supervised ONCE, in dry-run, against the case it was actually DESIGNED for, read the output, and only then let the schedule own it.
+
+Why: a mechanism is built and proven against the instance in front of you, and that instance is almost never the hard case. If the easy case and the hard case disagree, the easy case gives a clean, plausible, complete-looking result, so nothing prompts a second look. The schedule then converts one silent error into an estate-wide one, and a bulk write that "succeeded" reads as a successful rollout.
+
+- **Test the case the mechanism EXISTS for**, not the one you built against: the ambiguity it disambiguates, the collision it avoids, the edge it scopes around. If the design says "this key keeps X and Y apart", your verification must contain an X and a Y.
+- **Prefer a per-unit supervised pass over one aggregate run.** An aggregate total hides a per-unit skew; a coverage ratio well below the pilot's is a signal to investigate, not a shortfall to accept.
+- **When the numbers do not match the pilot, find out WHY before applying.** "Fewer matches than expected" has two very different causes - missing data and a wrong join - and they look identical in a summary line.
+- **Where the mechanism cannot resolve something, make it write NOTHING rather than guess.** A refusal turns a silent corruption into a visible gap, and the gap is what surfaces the real data-quality problem underneath.
+- **A monitor's success criterion must match each monitored thing's ACTUAL convention**, not a uniform assumption. `rc 0` is not universally "success": a job can exit non-zero for "found issues" as its normal healthy state, so key the watcher on each job's own convention, not a blanket "non-zero is FAILED".
+- **Name the window.** A scheduled job is a deadline; say it out loud ("the cron applies this at 08:15") so the supervised run is scheduled against it rather than deferred past it.
+
+Full rule + origins (2026-08-10: a VNF-to-blade join wrong at 5 of 7 clusters that a per-cluster dry-run caught hours before the daily cron would have written ~500 wrong placements; and a cron-health watcher that mislabelled an `rc 1 = issues found` job as failed): `~/.claude/memory/feedback_supervise_first_run_of_a_scheduled_capability.md`. Related: the `engineering:deploy-checklist` skill is the broader pre-deploy gate; this subsection is the one check that specifically catches a new capability proven only on its easy case.
 
 ## Layer 4: Branch finishing
 
