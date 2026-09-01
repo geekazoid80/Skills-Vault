@@ -4,3 +4,4 @@
 _tmp/
 graphify-out/
 .claude/worktrees/
+.claude/settings.local.json
