@@ -1,6 +1,6 @@
 ---
 name: boundary-check
-description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. The per-file read-ledger is its OWN step, posted after the reads and BEFORE the first action that acts, never bundled into the closing stamp, and derived from the Read calls actually issued rather than the ones planned; a ledger written at the end describes what happened instead of gating what happens next, and a ledger composed from intent is a false statement rather than an incomplete task. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". Composes with reread-memory-before-planning, pre-park-externalisation, and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
+description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. The per-file read-ledger is its OWN step, posted after the reads and BEFORE the first action that acts, never bundled into the closing stamp, and derived from the Read calls actually issued rather than the ones planned; a ledger written at the end describes what happened instead of gating what happens next, and a ledger composed from intent is a false statement rather than an incomplete task. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". At a park / standdown / quit it also has the session clear its OWN worktree, as the LAST tool call of the session, because nothing else does (ending a session does not remove a worktree and neither does archiving one) and because removing the tree you are standing in partway through a turn strands the rest of the close; only your own, never a peer's, without --force. Composes with reread-memory-before-planning, pre-park-externalisation, using-git-worktrees (which owns the disposal mechanics this gate only times), and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
 ---
 
 # boundary-check
@@ -364,6 +364,38 @@ survive an app restart). Walk every loose end: if it can be closed now, close it
 proper handoff; if it can be neither, it BLOCKS standdown - surface it and resolve before standing down. No
 unwritten prose, no unrecorded chunk, no vague pending (feedback_no_dangling_bits_at_standdown). Then STOP
 (park means stop; do not push/merge/start-next after).
+
+### Clear your own worktree, as the last tool call
+
+If this session has been working in its own worktree, disposing of it is part of the park, and it is the
+one step that comes after everything else.
+
+**Nothing else clears it.** Ending a session does not remove a worktree, and neither does archiving one. A
+native exit helper typically only knows about worktrees IT created in THIS session, so a session that
+resumed into an existing one, or made one by hand, gets a clean no-op and the directory stays. What
+accumulates is full second copies of a repository that nobody is watching, found only by someone
+enumerating the filesystem, and the reason nobody enumerates is that everyone believes the disposal already
+happened. Clearing it is cheap only at this moment, because right now you are the one context that knows
+which worktree is yours.
+
+**Only your own. Never a peer's.** A live peer's workspace is indistinguishable from abandoned residue from
+outside: no process holds it and no descriptors are open, since a parked session holds neither, and
+removing it destroys uncommitted work irrecoverably. If you notice others, report them and leave them
+alone. Sweeping other sessions' worktrees is a separate and expensive audit, not part of this gate.
+
+**It must be the LAST tool call of the session.** You cannot remove the tree you are standing in partway
+through a turn: the shell's working directory vanishes underneath you and every remaining step of the close
+is stranded. So the order is fixed. Flush, commit, reconcile the tracker, post the stamp, and only then
+remove, writing the closing confirmation afterwards from memory without reaching for a tool again.
+
+**Push, then pin, then remove without `--force`.** Anything already on the remote is safe. A commit that
+exists only locally is pinned to a permanent ref first (`git -C <canonical> update-ref
+refs/archive/<date>/<name> <sha>`), because a SHA recorded only in a transcript dies with the transcript.
+Then `git -C <canonical> worktree remove .claude/worktrees/<name>` and `git -C <canonical> worktree prune`,
+run from the canonical clone rather than from inside the worktree. **A refusal from the dirty guard is the
+last line of defence and is information, not an obstacle:** read what it names, then either resolve it or
+leave the worktree in place and say so. The full mechanics live in `using-git-worktrees`; this gate owns
+only WHEN.
 
 ## The stamp (post it before the boundary action)
 
