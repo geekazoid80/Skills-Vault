@@ -1,8 +1,8 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination). Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
+description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. Also owns worktree DISPOSAL at session close, and corrects the common false premise that something else handles it. Triggers include "clear the worktree", "remove the worktree", "worktree cleanup", "leftover worktrees", "worktree residue", "who cleans up the worktree", "does archiving remove the worktree", "worktree remove refused", "contains modified or untracked files". A worktree is not disposed of for you; ending a session does not remove it and neither does archiving one, so the owning session clears its OWN as the LAST tool call, never a peer's, without --force, pinning any local-only commit to refs/archive first. NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination); NOT for sweeping OTHER sessions' leftovers, which is a separate and expensive audit. Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, clear-your-own-at-close, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Using Git Worktrees
@@ -41,7 +41,9 @@ If that prints a path, you are in a submodule, not a worktree; treat as a normal
 
 Claude Code provides `EnterWorktree`. Use it. Do not call `git worktree add` directly when the native tool is available.
 
-Why: native tools handle directory placement, branch creation, harness state tracking, and cleanup automatically. Using `git worktree add` when `EnterWorktree` exists creates phantom state the harness cannot see, can't manage, and won't clean up at session end.
+Why: native tools handle directory placement, branch creation and harness state tracking, and a natively-created worktree is the only kind the native exit helper can later remove for you. Using `git worktree add` when `EnterWorktree` exists creates phantom state the harness cannot see or manage.
+
+**What the native tool does NOT do is dispose of the worktree when the session finishes.** Read "Remove your own worktree at session close" below before assuming otherwise; that assumption is the single largest source of worktree residue.
 
 ## Step 2: Manual fallback (only if no native tool)
 
@@ -126,6 +128,59 @@ Skip if no relevant manifest exists.
 
 Before claiming the worktree is ready, run the project's test command (or build, if no test suite). If tests fail at baseline, report the failures; do not silently proceed. The user needs to know whether failures are pre-existing or introduced.
 
+## Remove your own worktree at session close
+
+**A worktree is not disposed of for you.** Ending a session does not remove it, and neither does archiving
+one. The native exit helper only knows about worktrees it created in the CURRENT session, so a session that
+resumed into an existing worktree, or that made one by hand because the native tool was unavailable or
+resolved to the wrong repository, gets a clean no-op and the directory stays exactly where it was.
+
+The accumulation is quiet. Each leftover is a full second copy of the repository under
+`.claude/worktrees/`, indistinguishable from a live workspace, and nothing reports it. They are found only
+by someone enumerating the filesystem, and the reason nobody enumerates is that everyone believes the
+disposal already happened. One sweep of an estate found nineteen across eleven of sixty-eight repositories,
+several belonging to sessions that had been closed for weeks, with nobody having done anything wrong in any
+single session.
+
+So the owning session clears its own, while it is still around to know which one is its own.
+
+**Only your own. Never a peer's.** From outside, a live peer's worktree is indistinguishable from abandoned
+residue: no process holds it and no file descriptors are open, because a parked session holds neither.
+Removing it destroys uncommitted work irrecoverably. If you notice others, report them and leave them
+alone. That hazard is precisely why a sweep is expensive, and it is not something to take on at a close.
+Reducing what YOU leave behind is the whole of this step.
+
+**It is the LAST tool call of the session.** You cannot remove the tree you are standing in partway through
+a turn: the shell's working directory vanishes underneath you and every remaining step is stranded. Finish
+everything else first, the commits, the flush, the tracker update, the closing gate, then remove, then
+write the closing message from memory without reaching for a tool again.
+
+**Preserve before removing:**
+
+1. **Push anything worth keeping.** A branch that exists on the remote is not at risk.
+2. **Pin any commit that exists only locally**, a detached HEAD or a branch never pushed, to a permanent
+   ref BEFORE removing anything:
+
+   ```bash
+   git -C <canonical> update-ref refs/archive/<date>/<name> <sha>
+   ```
+
+   A SHA recorded only in a transcript dies with the transcript, and the reflog expires. Then say in a
+   durable place that the ref exists and why, or the next reader meets an unexplained `refs/archive/*`.
+3. **Remove without `--force`**, run from the canonical clone rather than from inside the worktree, since
+   the shell resets into the worktree on every call and a removal launched from there leaves later calls
+   with a missing directory:
+
+   ```bash
+   git -C <canonical> worktree remove .claude/worktrees/<name>
+   git -C <canonical> worktree prune
+   ```
+
+   **A refusal is information, not an obstacle.** The dirty guard declining means the tree holds something
+   that exists nowhere else, and it is the last line of defence. Read what it names and resolve it, which is
+   a decision for the human per `completion-gate` Layer 4 Step 5, or leave the worktree in place and say so.
+   Never `--force` past it on your own initiative.
+
 ## Quick reference
 
 | Situation | Action |
@@ -139,6 +194,9 @@ Before claiming the worktree is ready, run the project's test command (or build,
 | Change ships via a worktree branch and PR | Edit in the worktree; main clone stays clean and current |
 | `pull --ff-only` aborts on a locally-modified file | Confirm the content is yours and merged, then `git restore <path>` and pull |
 | The modified path is not yours, or you cannot confirm it landed | Stop and surface; never `git reset` the shared tree |
+| Session closing and it owns a worktree | Push, pin any local-only commit to `refs/archive/...`, then `worktree remove` without `--force` as the LAST tool call |
+| `worktree remove` refused (modified or untracked files) | The guard is right: something exists only there. Resolve with the human, or leave the worktree and say so. Never `--force` |
+| A worktree you did not create | Leave it alone. Report it; never remove a peer's |
 
 ## Red flags
 
@@ -150,7 +208,10 @@ Before claiming the worktree is ready, run the project's test command (or build,
 - Creating a worktree inside another worktree (nesting).
 - Writing into `.claude/worktrees/<x>/` by hand (that path is the harness's, not the user's).
 - Skipping baseline test verification on a fresh worktree.
-- Removing a worktree the harness created (provenance check first; if path is under `.claude/worktrees/`, the harness owns cleanup).
+- Removing a worktree this session did not create (provenance check first; a peer's live workspace looks exactly like abandoned residue from outside, and the removal is unrecoverable).
+- Assuming a worktree under `.claude/worktrees/` gets disposed of on its own. Ending a session does not remove it and neither does archiving one, so the owning session clears its own at close.
+- Clearing your own worktree anywhere other than as the LAST tool call, which strands the rest of the close when the working directory disappears.
+- Reaching for `worktree remove --force` after a refusal, instead of reading what the guard named.
 - Editing a doc, WORKLOG entry, or README in the main clone when the change is going to ship through a worktree branch.
 - A dirty main clone during a worktree chunk (its job is fetch, ff-only pull, read).
 - Reaching for `git reset`, `checkout -f`, or a forced pull to clear "Your local changes would be overwritten by merge".

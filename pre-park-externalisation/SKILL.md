@@ -1,6 +1,6 @@
 ---
 name: pre-park-externalisation
-description: "Use BEFORE any session park, restart, quit-and-reopen, sleep, or compact-then-quit moment. Triggers include \"park\", \"park this\", \"let's park\", \"park and restart\", \"save state\", \"I'll come back to this\", \"let me restart\", \"quit Claude Code\", \"kill this session\", \"stand down\", \"park for a restart\". Iron rule: ephemeral state (TaskList, background subprocess IDs, current cwd assumptions, in-memory caches, in-flight AskUserQuestion answers already received, pending decisions) does NOT survive a process boundary. Flush every category to the plan file BEFORE confirming the park. Sibling discipline to the pre-compact externalisation pass; both run at process-boundary moments."
+description: "Use BEFORE any session park, restart, quit-and-reopen, sleep, or compact-then-quit moment. Triggers include \"park\", \"park this\", \"let's park\", \"park and restart\", \"save state\", \"I'll come back to this\", \"let me restart\", \"quit Claude Code\", \"kill this session\", \"stand down\", \"park for a restart\". Iron rule: ephemeral state (TaskList, background subprocess IDs, current cwd assumptions, in-memory caches, in-flight AskUserQuestion answers already received, pending decisions) does NOT survive a process boundary. Flush every category to the plan file BEFORE confirming the park. Then, if this session owns a worktree, remove it as the LAST tool call of the session, because nothing else does (ending a session does not remove a worktree and neither does archiving one) and because removing the tree you are standing in strands whatever the close still owed; only your own, never a peer's, and never with --force. Sibling discipline to the pre-compact externalisation pass; both run at process-boundary moments."
 ---
 
 # pre-park-externalisation
@@ -56,7 +56,25 @@ Every plan file at park-time MUST carry this section at the TOP, above the stand
 4. **Flush** each category to the chosen durable surface (plan file primarily; memory file / CLAUDE.md / vault skill for cross-session learnings).
 5. **Write the SESSION RESTART PICKUP section** at the top of the plan file with the resume order (verify-permissions → re-poll-CI → re-create-tasks → resume-execution).
 6. **Brief the user** with what was flushed, what was deferred, what the next session will see.
-7. **THEN** confirm safe to park.
+7. **If this session owns a worktree, remove it now, and make it the LAST tool call.** Nothing else will:
+   ending a session does not remove a worktree, archiving one does not either, and a native exit helper
+   only handles worktrees it created in the current session. Push first, pin any commit that exists only
+   locally to a permanent ref (`git -C <canonical> update-ref refs/archive/<date>/<name> <sha>`), then
+   `git -C <canonical> worktree remove .claude/worktrees/<name>` **without `--force`**, run from the
+   canonical clone. Only your own, never a peer's. `using-git-worktrees` carries the full rule.
+8. **THEN** confirm safe to park, in text, written from memory without reaching for another tool.
+
+**Why step 7 sits after the brief rather than beside the flush.** The removal destroys the working directory
+this session is standing in, so anything still owed afterwards is stranded mid-turn: the plan-file write, the
+commit, the tracker update, the stamp. Every one of those has to be finished while the worktree still
+exists. That is also why the confirmation in step 8 is the one part written from memory, and why a session
+that finds itself needing "just one more command" after step 7 has ordered its close wrongly rather than
+found an exception.
+
+**The worktree is the one category here that is NOT flushed somewhere else.** Everything above moves state
+INTO the plan file so it survives the boundary; this removes a thing that would otherwise survive it and
+should not. It sits in this skill because it belongs to the park sequence and its correctness is entirely a
+question of ORDER, which is what this skill owns.
 
 ## Worked example (a real park session)
 
@@ -84,10 +102,15 @@ When in doubt, flush. The cost is small and the failure mode (next session loses
 - A resolved user decision (from a recently-answered AskUserQuestion) that exists only in conversational context, not in the plan file.
 - About to "save state" by writing prose ("we discussed X, Y, Z") instead of structured sections the next session can act on mechanically.
 - Recognised mid-session that a lesson lacks a durable artefact, then parked WITHOUT first codifying (per the north-star "codify at the point of pain" discipline).
+- Parking out of a worktree this session created and leaving it on disk, on the assumption that ending or archiving the session disposes of it. Neither does.
+- Removing the worktree anywhere other than as the LAST tool call, which strands whatever the close still owed.
+- Reaching for `worktree remove --force` to get past a dirty-guard refusal at park time, rather than reading what it named.
+- Removing a worktree this session did not create, or widening the park into a sweep of other sessions' leftovers.
 
 ## Cross-references
 
-- `feedback_pre_park_externalisation.md` (`~/.claude/memory/`), companion memory carrying this rule for the Class 1 re-read.
+- `park_and_standdown_discipline.md` (`~/.claude/memory/`), companion memory carrying this rule for the Class 1 re-read. (It previously named `feedback_pre_park_externalisation.md`, which was absorbed into that file and no longer exists; verified absent on disk rather than inferred.)
+- `using-git-worktrees`, which owns worktree disposal, why nothing else does it, and the preserve-before-removing steps. This skill only fixes where the removal sits in the park order.
 - `reread-memory-before-planning`, sibling discipline at plan-mode entry; both maintain durability across process boundaries.
 - `feedback_plan_files_concise`, plan file shape; the pre-park dump is allowed to grow the plan file but goes in its OWN clearly-labelled section (not interleaved with in-flight chunk content), and is the FIRST thing trimmed on next-session resume after tasks are re-created.
 - `task-vs-plan-tracking`, covers the opposite direction (plan → tasks at 4+ in-flight items). At park time, the discipline reverses: task → plan regardless of count, for the duration of the park.
