@@ -172,7 +172,19 @@ have violated. So the full read is scoped to **high-stakes boundaries**:
 - editing a schema, a contract, a credential, or an access path;
 - a cross-repo change;
 - a **park / standdown / quit**, where ephemeral state must survive the gap;
-- acting on a convention that lives in a linked file (an identifier, a naming rule, an access posture).
+- acting on a convention that lives in a linked file (an identifier, a naming rule, an access posture);
+- a scheduled or otherwise unattended run whose own contract has it write into such a convention: it opens
+  or closes a tracker entry under a naming and notes standard, files a finding under a shared id scheme, or
+  posts under a house style. The bullet above is then met **by construction on every fire**, so the
+  classification is not a judgement the fire has to make.
+
+**That last bullet names no job, deliberately, and it needs its own line even though the bullet above
+already covers these runs on the substance.** Such runs classify themselves routine anyway, because "acting
+on a convention" reads like something a session decides it is doing, while a scheduled run reads its own
+work as bookkeeping. A by-name list of the runs it applies to would decay faster than the criterion does, so
+state the criterion here, where it reaches runs nobody has built yet, and state the read scope in the run's
+own prompt as well, where it reaches the fire. Neither half is sufficient alone: a fire reads its own
+instructions and may never open the file this rule lives in.
 
 **Routine boundaries get a fixed CORE read instead:** the global rules file, the global memory index, the
 project memory index, the repo AGENTS.md, and the active plan file, all fresh from disk. This is NOT the
