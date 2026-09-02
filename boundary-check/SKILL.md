@@ -263,6 +263,23 @@ drift now**, in this turn, before the boundary:
   a gate finding a closed item still listed as open in that same plan file, caught only because the
   dispatching session had briefed the gate to look there. The middle one is the shape to carry: the failure
   was not ignorance of the rule, it was SCOPE, a two-store habit against a rule whose real shape is three.
+
+  **Name the instrument too, and state both numbers.** The scan itself can be the thing that is wrong, and
+  it fails more convincingly than a missed store, because it returns a confident, specific, false answer
+  instead of going quiet. Two shapes. A cheap stand-in read as the artefact: a session-start snapshot, an
+  unmaintained "last modified" style field, a cached count, a peer's summary, when the artefact itself is
+  one read away. And a hand-rolled extractor over an index, where the pattern silently skips entries whose
+  names it was never written for. The tell is arithmetic, so **state what the index links AND what the store
+  holds, and stop when the two disagree** rather than reporting whichever is reassuring. A denominator that
+  does not reconcile is a defect in the CHECK until proven otherwise.
+
+  **A positive control on the wrong axis is not a control.** Proving a scan can match something proves it is
+  wired up, not that its extraction is complete: a control that fires on any hit passes happily while the
+  pattern misses three entries in fifty-six. Make the control exercise the specific failure you are worried
+  about. And do not attach an owner, a cause or a mechanism to a discrepancy before reading the artefact,
+  because **a false number invites doubt and a false number with a plausible mechanism attached does not**.
+  Both shapes above happened in one session, at this step rather than at the walk, which is the step that
+  had no such guard.
 - **Family-close stale-forward-ref scan (fold-vault only, when a skill family's last PR lands)** - when the
   boundary closes a fold FAMILY (a group of related skills whose final member just landed), grep the WHOLE
   vault for the forward-ref idioms - `not yet in this vault`, `not yet adopted`, `when adopted`,
@@ -418,7 +435,9 @@ Tick a box **only** if that check ran from disk this turn:
    went up **before** you started reconciling, and only if it was derived from the Read calls you issued
    rather than from the ones you planned;
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
-   and fixed what was found;
+   and fixed what was found, naming the scanning instrument and stating its counts against what the store
+   actually holds, since a scan that under-reads returns a clean answer rather than an error (see
+   **Reconcile and fix**);
 4. externalised any one-off insight not yet on disk;
 5. committed the standing-instruction paths this session wrote, naming them explicitly. Tick it unchanged
    when the store is not a repo (the write was the durable act) or when the session wrote nothing, but
