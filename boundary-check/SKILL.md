@@ -280,6 +280,16 @@ drift now**, in this turn, before the boundary:
   because **a false number invites doubt and a false number with a plausible mechanism attached does not**.
   Both shapes above happened in one session, at this step rather than at the walk, which is the step that
   had no such guard.
+
+  **And when such a field turns out to be stale, do NOT patch the one you noticed.** The reflex on catching
+  a "last modified" style field lagging its own artefact is to correct that entry and move on. Resist it.
+  These fields lag precisely because nothing maintains them, so the one you spotted is a sample rather than
+  the defect, and the others are lagging too by amounts nobody has measured. Correcting it alone leaves the
+  store **worse than you found it**: one accurate stamp sitting among many stale ones is what a maintained
+  field looks like, so the next reader stops treating the rest with suspicion. Either leave the field alone
+  and take freshness from something that cannot go stale unnoticed, or fix the writer so every entry is
+  maintained. **Correcting a single instance of an unmaintained signal is not a partial fix, it is a
+  stronger false signal**, and that generalises past freshness to any derived field a reader might trust.
 - **Family-close stale-forward-ref scan (fold-vault only, when a skill family's last PR lands)** - when the
   boundary closes a fold FAMILY (a group of related skills whose final member just landed), grep the WHOLE
   vault for the forward-ref idioms - `not yet in this vault`, `not yet adopted`, `when adopted`,
