@@ -24,6 +24,33 @@ it should catch; and a separate read-only pass is harder to run on momentum. Kee
 fixes in the working session, the agent only walks and reports. Where no such agent exists, run the walk
 here as written.
 
+**Dispatch it AFTER the closing writes are on disk and committed, never in parallel with them.** The
+dispatch is cheap and the close's own writes are not, so firing the agent first and letting it run while
+you finish looks like the efficient order. It is the expensive one. A gate that races the work it audits
+reads a half-written store and reports what was true when it looked and false by the time it reported, and
+those findings are the worst kind: confident, specific and wrong. A high-severity finding cannot be waved
+through, so verifying one costs a full re-verification pass at exactly the moment the session is trying to
+end cleanly. Land the memory write, the plan-file flush and the commit first, then dispatch.
+
+**Where a write genuinely cannot precede the gate, name it in the brief as in flight.** A gate told which
+file is being written, and where, verifies against a stated expectation rather than an assumed empty one,
+and reports the gap as pending rather than as drift. Silence about an in-flight write is what turns it into
+a finding.
+
+**Worktree removal is the sole exception and still comes last, after the gate**, because removing the tree
+the gate is reading strands it. That ordering is already fixed in the Park-only section below, and the two
+rules meet there rather than competing: every other closing write precedes the dispatch, and this one step
+follows it.
+
+**Brief it, and read an absence as scoped to what it searched.** A gate has no conversation context, so it
+cannot tell your own in-flight work from a peer's, nor an authorised decision from a defaulted one. Two
+findings recur and both arrive sounding certain. It calls landed work unmerged from an ancestry test, which
+says the opposite of the truth wherever the estate squash-merges, since the squash is a new commit and the
+branch tip is never an ancestor of the base; `multi-agent-repo-coordination` carries that trap and the test
+that does answer it. And it reports a branch or a file missing after looking in one repository, when it sat
+in another, or was gone precisely because the work landed and was cleaned up. So ask a gate to name the
+surface it searched, and resolve any absence against the artefact yourself before acting on it.
+
 ## When it fires
 
 Fire it, before doing the boundary action, at any of:
@@ -412,8 +439,14 @@ alone. Sweeping other sessions' worktrees is a separate and expensive audit, not
 
 **It must be the LAST tool call of the session.** You cannot remove the tree you are standing in partway
 through a turn: the shell's working directory vanishes underneath you and every remaining step of the close
-is stranded. So the order is fixed. Flush, commit, reconcile the tracker, post the stamp, and only then
-remove, writing the closing confirmation afterwards from memory without reaching for a tool again.
+is stranded. So the order is fixed. Flush, commit, dispatch the gate and read its report back, reconcile the
+tracker, post the stamp, and only then remove, writing the closing confirmation afterwards from memory
+without reaching for a tool again.
+
+**This removal is the one closing step that follows the gate rather than preceding it**, and it is the sole
+exception to the dispatch rule at the top of this skill, which otherwise has every closing write land before
+the agent is sent. It goes last for the same reason it goes after everything else: a gate reading a worktree
+that has just been removed is a gate reading nothing.
 
 **Push, then pin, then remove without `--force`.** Anything already on the remote is safe. A commit that
 exists only locally is pinned to a permanent ref first (`git -C <canonical> update-ref
