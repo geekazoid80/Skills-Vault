@@ -68,8 +68,43 @@ and `SKILLS_FARM`, so a clone in another location works once they are set (for e
   refreshes one from its source, `list-skills.sh` lists installed skills. Re-run `bootstrap.sh`
   after adding, renaming, or removing a skill. `README.md` carries their detailed usage.
 
+## Landing a change
+
+**A skill change is not finished when the pull request merges.** The consumer is the symlink
+farm, and the farm moves only on **merge plus a local pull plus a rebuild**, so the close
+condition is the text read back through `~/.claude/skills/<skill>/SKILL.md` after a rebuild.
+"Landed in PR #N" is a claim about a pull request, not about what a session actually loads.
+Whoever lands the change owns that read-back.
+
+1. **Work in your own worktree, under the repo.** `git worktree add .claude/worktrees/<task> -b
+   <area>/<task> origin/main`, which `.gitignore` already covers. Place it under the repo, never
+   beside it as `../wt-<task>`: a sibling inherits the PARENT directory's treatment rather than
+   the repo's, so it escapes every protection scoped to the repo path at once. The reasoning is
+   in `using-git-worktrees` and `multi-agent-repo-coordination`.
+2. **Parse the frontmatter yourself before committing.** This repo has no CI, so the exit-7 gate
+   in the conventions above fires only locally at rebuild time, which is *after* a merge. A
+   `yaml.safe_load` of each changed `SKILL.md` costs nothing and is the only check you get.
+3. **Push, then verify the pushed ref with `git ls-remote origin refs/heads/<branch>`** against
+   your local `HEAD`, never a local tracking ref. A shallow or single-branch clone has no
+   tracking ref for a new branch, so `rev-parse origin/<branch>` fails after a successful push.
+4. **Fast-forward the canonical clone and confirm it is on `main`.** The farm serves the clone's
+   working TREE, not a ref, so a clone left on a feature branch serves that branch's skills to
+   every session on the machine, and a rebuild does not rescue it because it relinks the same
+   paths.
+5. **Rebuild, then read the change back through the farm path** and compare it against
+   `origin/main`. Run the builder this machine needs: `./bootstrap.sh`, or the overlay builder if
+   an overlay vault is installed (see Related repos; the brownfield guard, exit 6, enforces
+   this). Verify by CONTENT, not by the PR number, and pair the comparison with a control you
+   know differs, so a comparison that cannot fail is not mistaken for a pass.
+6. **Clean up.** Expect `gh pr merge --delete-branch` to leave at least one ref behind; delete
+   whatever survives by hand, after `git merge-tree --write-tree origin/main <branch>` equals
+   `origin/main^{tree}`, which proves the branch adds nothing.
+
+A change to this file, or to anything else that is not a skill directory, needs no rebuild:
+only skill directories are linked into the farm.
+
 ## More
 
 `README.md` holds the user-facing quickstart, the repo layout, and the add / update / list
-script usage. This file, `AGENTS.md`, is the operating SSOT and is canonical for the bootstrap
-and the conventions above.
+script usage. This file, `AGENTS.md`, is the operating SSOT and is canonical for the bootstrap,
+the conventions, and the landing sequence above.
