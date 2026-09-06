@@ -134,7 +134,8 @@ it said earlier in the session.
 2. **Project standing instructions** - compute the encoded project dir (the absolute project path with every
    `/` replaced by `-`), then fresh Read:
    - `~/.claude/projects/<encoded>/memory/MEMORY.md` and **every file it links**, on the same terms.
-   - Any project coverage-audit note it points to (e.g. a `compact_coverage_audit` entry).
+   - Any project coverage-audit note it points to (a project's own pre-compact scan-surface entry, where
+     one exists; the index is what names it, so do not assume a fixed filename).
 
 3. **Repo standing instructions** - fresh Read of the repo's root `AGENTS.md` / `CLAUDE.md` and any module
    `AGENTS.md` under paths this session edited.
@@ -331,7 +332,7 @@ drift now**, in this turn, before the boundary:
 - **Follow-ups / commitments (no prose-only, no chip-only)** - every cross-repo / cross-agent follow-up or
   deferred commitment mentioned this session is captured in a *durable* home (project/global memory, AGENTS,
   or the plan file), not left only in prose. A `spawn_task` chip alone is NOT durable: chips and their
-  completion signals do not survive a Claude Code app restart (feedback_spawn_task_restart_verify), so back
+  completion signals do not survive a Claude Code app restart (`peer_session_concurrency` section C), so back
   every chip with a one-line memory note. If you said "I'll note / flag / follow up on X" and X is only in
   the transcript, write it down now.
 - **Work-coordination tracker** - if the estate keeps a shared work-coordination tracker (a board, a project,
@@ -416,7 +417,7 @@ host/path/command + what to verify) with a NAMED owner (a running task, the oper
 and, where feasible, its own actionable flag (spawn_task chip backed by a memory note, since chips do not
 survive an app restart). Walk every loose end: if it can be closed now, close it; if not, turn it into a
 proper handoff; if it can be neither, it BLOCKS standdown - surface it and resolve before standing down. No
-unwritten prose, no unrecorded chunk, no vague pending (feedback_no_dangling_bits_at_standdown). Then STOP
+unwritten prose, no unrecorded chunk, no vague pending (`park_and_standdown_discipline`). Then STOP
 (park means stop; do not push/merge/start-next after).
 
 ### Clear your own worktree, as the last tool call
