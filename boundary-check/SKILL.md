@@ -215,8 +215,10 @@ Fewer than four is not a delegated read, it is a partial read with a subcontract
 2. **The agent reports its METHOD, not only its verdicts, and the caller CHECKS that method.** Ask for
    per-file read calls with per-file line counts, and page counts for anything past the read cap. Then
    verify the ledger mechanically: the returned filenames against a real listing, the returned line counts
-   against `wc -l`. **Recording a method is not checking one.** A verdict without a method is not evidence,
-   and an unchecked method ledger is a verdict wearing the shape of one.
+   against `wc -l`, each row passing if it lands within `{0, +1}` of that count rather than matching it
+   exactly (the band, and why it has to be one, is set out below). **Recording a method is not checking
+   one.** A verdict without a method is not evidence, and an unchecked method ledger is a verdict wearing
+   the shape of one.
 3. **The caller reads directly, itself, the files it is about to ACT under**: every index in scope, the
    workstream's own source of truth, and any file carrying a convention this run will write into (a naming
    standard, a notes standard, a house voice, an access posture). Delegation covers breadth. It never
@@ -246,8 +248,8 @@ Condition 2 asks for a mechanically checkable ledger, and how you brief the walk
 worth.
 
 Hand the agent the filename list and the true line counts, and every row will match while proving nothing:
-**a match against supplied counts is an echo of the brief.** Withhold them, and a returned count that
-verifies against `wc -l` is strong evidence, because nothing in the brief could have produced it. So brief
+**a match against supplied counts is an echo of the brief.** Withhold them, and a returned count that lands
+in the band against `wc -l` is strong evidence, because nothing in the brief could have produced it. So brief
 without the counts by default. Keep the supplied-list form for a re-run after a failure, where bounding the
 filename set is the point and the counts are a belt-and-braces check rather than the evidence.
 
@@ -263,6 +265,23 @@ its punctuation converted into house style. Plausibility is what padding is made
 Check the whole ledger against the directory and against `wc -l`. Both are one command over every row,
 neither needs the agent's cooperation, and either alone catches this in seconds. Pair them with a control
 that would fail, since a listing check that cannot detect a phantom is not a check.
+
+**State the pass condition for the count half, or the check will reject the honest ledgers.** `wc -l`
+counts newlines, while a read tool that numbers lines numbers the empty position after the final newline.
+So for any file ending in a newline, which is nearly all of them, the tool's last line number is `wc -l`
+plus one, and an agent faithfully quoting the tool is off by one on every row against a naive exact-match
+test. **A row passes when it lands within `{0, +1}` of `wc -l`.** An agent quoting the tool's last line
+number is right; one quoting the last line that holds content is also right; they differ by one and neither
+is a defect. Widening to a band gives up nothing, because no fabricated row can reach it at all: the file
+it names does not exist to be measured. **That is why the FILENAME half does the heavy lifting here**, and
+the counts corroborate it rather than carrying it.
+
+**A ledger that mixes the two conventions row by row is normal, and is not by itself a signal.** Expect
+most rows on one convention and a few on the other from the same agent in one walk, and expect two agents
+over the same corpus to settle on different ones. **So do not read a single-line deviation as evidence of
+anything.** Reserve suspicion for a row that misses the band entirely, or for a filename with no file
+behind it. Chasing an in-band outlier as a suspected mid-walk edit, or as some structural quirk of that
+one file, costs real time and finds nothing.
 
 **And discard a failed report whole.** The temptation is to keep the rows that did check out, having just
 proved they are real. Do not. A source wrong about half its claims offers no way to trust the other half
@@ -556,7 +575,8 @@ Tick a box **only** if that check ran from disk this turn:
    went up **before** you started reconciling, and only if it was derived from the Read calls you issued
    rather than from the ones you planned. Where any part of the walk was delegated, tick it only if the
    ledger says which rows an agent supplied and you checked those rows against a directory listing and
-   `wc -l`, per the four conditions above; an unchecked delegated ledger is not a read;
+   `wc -l`, on the `{0, +1}` band the four conditions above set out; an unchecked delegated ledger is not a
+   read, and neither is one rejected for missing an exact match it was never owed;
 3. rescanned the project index and the repo docs this session touched for drift/orphans/dangling pointers,
    and fixed what was found, naming the scanning instrument and stating its counts against what the store
    actually holds, since a scan that under-reads returns a clean answer rather than an error (see
