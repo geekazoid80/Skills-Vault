@@ -1,6 +1,6 @@
 ---
 name: powershell-module-compat
-description: Use before installing, importing, or running any PowerShell module for an M365 / Entra / Exchange Online / Microsoft Graph / Power Platform / Azure operation, especially on pwsh 7 (PowerShell Core) on macOS or Linux (the NUC). Fires on symptoms - "The term '<cmdlet>' is not recognized" after a successful Import-Module; a module that imports with an "unapproved verbs" warning but whose cmdlets are then missing; Add-PowerAppsAccount / Test-PowerAppsAccount / New-PowerAppManagementApp not found; an M365 module that "installs fine but does nothing"; Desktop-vs-Core or Windows-PowerShell-5.1-vs-pwsh-7 edition mismatch. NOT for guaranteed Windows PowerShell 5.1 environments, NOT for non-PowerShell tooling. Covers the pre-flight check (PSVersion + $IsWindows + CompatiblePSEditions + Get-Command the SPECIFIC cmdlet after import) and the three escape hatches (Windows PowerShell 5.1, the REST API with an az-cli / MSAL / cert-JWT token, or a cross-platform module), plus the known M365 traps (Power Platform admin modules, EXO cert-file-vs-thumbprint, Graph X509Certificate2). ALSO covers the adjacent bash-vs-pwsh shell-syntax trap - pasting unix command syntax into a PowerShell prompt - symptoms "Missing property name after reference operator", "The term '-H' is not recognized", "could not be loaded ... Import-Module 'TOKEN=...'", a multi-line curl / scp / ssh failing on the second line, a bash $(...) / VAR= assignment / backslash line-continuation / export / heredoc rejected at a PS> prompt; fix by running unix commands in zsh/bash or translating REST calls to Invoke-RestMethod -Headers @{}. ALSO covers the SharePoint-admin-from-Linux escape - the Windows-only SharePoint Online Management Shell (Set-SPOUser -IsSiteCollectionAdmin) does not run on pwsh 7, and PnP.PowerShell admin cmdlets (Set-PnPTenantSite -Owners, Add-PnPSiteCollectionAdmin) return 'unauthorized' on Linux even with a correct SharePoint-audience token and full admin roles (pnp/powershell #889, systemic since 2024-05-09), so both route to CLI for Microsoft 365 (@pnp/cli-microsoft365, a Node.js tool, m365 spo site admin add/remove --asAdmin).
+description: Use before installing, importing, or running any PowerShell module for an M365 / Entra / Exchange Online / Microsoft Graph / Power Platform / Azure operation, especially on pwsh 7 (PowerShell Core) on macOS or Linux (the NUC). Fires on symptoms - "The term '<cmdlet>' is not recognized" after a successful Import-Module; a module that imports with an "unapproved verbs" warning but whose cmdlets are then missing; Add-PowerAppsAccount / Test-PowerAppsAccount / New-PowerAppManagementApp not found; an M365 module that "installs fine but does nothing"; Desktop-vs-Core or Windows-PowerShell-5.1-vs-pwsh-7 edition mismatch. NOT for guaranteed Windows PowerShell 5.1 environments, NOT for non-PowerShell tooling. Covers the pre-flight check (PSVersion + $IsWindows + CompatiblePSEditions + Get-Command the SPECIFIC cmdlet after import) and the three escape hatches (Windows PowerShell 5.1, the REST API with an az-cli / MSAL / cert-JWT token, or a cross-platform module), plus the known M365 traps (Power Platform admin modules, EXO cert-file-vs-thumbprint, Graph X509Certificate2). ALSO covers the adjacent bash-vs-pwsh shell-syntax trap - pasting unix command syntax into a PowerShell prompt - symptoms "Missing property name after reference operator", "The term '-H' is not recognized", "could not be loaded ... Import-Module 'TOKEN=...'", a multi-line curl / scp / ssh failing on the second line, a bash $(...) / VAR= assignment / backslash line-continuation / export / heredoc rejected at a PS> prompt; fix by running unix commands in zsh/bash or translating REST calls to Invoke-RestMethod -Headers @{}. ALSO covers the SharePoint-admin-from-Linux escape - the Windows-only SharePoint Online Management Shell (Set-SPOUser -IsSiteCollectionAdmin) does not run on pwsh 7, and PnP.PowerShell admin cmdlets (Set-PnPTenantSite -Owners, Add-PnPSiteCollectionAdmin) return 'unauthorized' on Linux even with a correct SharePoint-audience token and full admin roles (pnp/powershell #889, systemic since 2024-05-09), so both route to CLI for Microsoft 365 (@pnp/cli-microsoft365, a Node.js tool, m365 spo site admin add/remove --asAdmin). ALSO covers the single-item-collection-return trap - a function that builds a List/array and returns it with a bare `return $list` unwraps to a bare scalar at the caller when the collection holds exactly one element (0 or 2+ elements return the real collection type), so `$result.Count` still reads 1 but a later range-index slice (`$result[0..0]`) on the collapsed scalar silently returns empty with no error; fix with the unary comma operator, `return ,$list`.
 ---
 
 # PowerShell module compatibility pre-flight
@@ -78,6 +78,28 @@ Rules of thumb:
 - When handing commands to a user, read their prompt first: `PS ...>` is pwsh, `user@host:~$` is bash/zsh.
   Match the command syntax to the prompt they are actually at.
 
+## Single-item collection return silently unwraps to a scalar
+
+A separate, general PowerShell trap, not specific to M365/module compatibility, but caught by the
+same pre-flight discipline of testing the exact case rather than trusting the happy path: a function
+that builds a `[System.Collections.Generic.List[object]]` (or any array) and returns it with a bare
+`return $list` gets **unwrapped to a bare scalar at the caller when the collection holds exactly one
+element** (0 or 2+ elements return the real collection type unchanged).
+
+- **Why it's dangerous rather than merely surprising:** the caller's `$result.Count` still reads `1`
+  (PowerShell gives every object a synthetic `.Count` member), so nothing looks wrong. The defect
+  only shows up if the caller then does something that depends on the object actually being a
+  collection: a range-index slice (`$result[0..0]`) on the collapsed scalar silently returns EMPTY
+  rather than the one item, with no error and no exception.
+- **Fix:** `return ,$list` (the unary comma operator) forces the object through as the collection it
+  is, regardless of element count.
+- **Who is safe:** a caller that only ever does a plain `foreach ($x in $result)` is unaffected
+  either way (it iterates a scalar once, functionally identical to a 1-element array). The risk is
+  index access, range slicing, `.Count`-gated branching, or piping into something that behaves
+  differently for a scalar vs. an array.
+- **Test the 1-item case explicitly.** A happy-path test using 0 or 2+ items will never catch this;
+  only an exactly-one-item input exercises the collapse.
+
 ## Red flags
 
 - Pasting a bash `$(...)`, `\` line-continuation, `export`, heredoc, or `curl -H` command into a `PS>` prompt
@@ -93,6 +115,9 @@ Rules of thumb:
   switch to the GUI / REST / Windows route. (Seen on `Connect-MicrosoftTeams` 7.9.0.)
 - Assuming a cmdlet exists because the module "installed fine".
 - Reaching for `-CertificateThumbprint` on a Linux/macOS host.
+- A function returning a built-up List/array with a bare `return $list`, where the caller does
+  anything more than a plain `foreach` over the result: check the 1-item case explicitly, since
+  0- and 2+-item returns hide the collapse.
 
 ## Bottom line
 
