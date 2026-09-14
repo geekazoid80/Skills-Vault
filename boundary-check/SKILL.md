@@ -1,6 +1,6 @@
 ---
 name: boundary-check
-description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. The per-file read-ledger is its OWN step, posted after the reads and BEFORE the first action that acts, never bundled into the closing stamp, and derived from the Read calls actually issued rather than the ones planned; a ledger written at the end describes what happened instead of gating what happens next, and a ledger composed from intent is a false statement rather than an incomplete task. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". At a park / standdown / quit it also has the session clear its OWN worktree, as the LAST tool call of the session, because nothing else does (ending a session does not remove a worktree and neither does archiving one) and because removing the tree you are standing in partway through a turn strands the rest of the close; only your own, never a peer's, without --force. Composes with reread-memory-before-planning, pre-park-externalisation, using-git-worktrees (which owns the disposal mechanics this gate only times), and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
+description: Run at every session boundary BEFORE acting - before you propose /compact, before you accept a park / standdown / quit / restart / "come back later" / sleep, at a chunk-shift (finishing one chunk and promoting the next), at EVERY chunk close (a PR lands + deploys, a fix is verified, bookkeeping is written - the gate runs BEFORE you offer next-chunk options or ask "what's next"; bookkeeping alone is NOT the gate), and whenever the user asks to verify memory + standing instructions are being followed. Every open item the chunk leaves behind must be actioned-to-completion or carry a single NAMED SSOT owner (person / cron / plan-file pickup step / peer session) - never a vague "worth a look". Does a FRESH-DISK walk of every standing-instruction source (global ~/.claude/CLAUDE.md + ~/.claude/memory/MEMORY.md and its linked files, the SKILL.md of every skill this gate itself relies on, the project memory index and its linked files, repo AGENTS.md/CLAUDE.md, the active plan file), reconciles the current session's work against each rule, fixes any drift, checks that every in-flight workstream and every spawned background task carries an open, current entry in the estate's work-coordination tracker if it has one, externalises un-saved insight, then emits the visible boundary-check stamp. Where the standing-instruction store is version controlled, do not judge whether a file changed, ask the store for the delta (log since session start, status for a peer's uncommitted edit, last-touch on the standing files) and read what actually moved. The per-file read-ledger is its OWN step, posted after the reads and BEFORE the first action that acts, never bundled into the closing stamp, and derived from the Read calls actually issued rather than the ones planned; a ledger written at the end describes what happened instead of gating what happens next, and a ledger composed from intent is a false statement rather than an incomplete task. Universal - all sessions, all projects. Manual triggers - "run the boundary gate", "gate check", "check memory and standing", "walk the standing instructions", "are memory and standing all followed", "commit the memory updates". Also fires on the phrases that mean the gate is about to be ticked from recall - "unchanged since my session-start read", "I already read that this session", "nothing has changed since I checked", "ask the store what moved", "delta re-read", "a peer's uncommitted edit". At a park / standdown / quit it also has the session clear its OWN worktree, as the LAST tool call of the session, because nothing else does (ending a session does not remove a worktree and neither does archiving one) and because removing the tree you are standing in partway through a turn strands the rest of the close; only your own, never a peer's, without --force. Composes with reread-memory-before-planning, pre-park-externalisation, using-git-worktrees (which owns the disposal mechanics this gate only times), and the pre-compact coverage audit; this skill is the single runnable gate that fires those checks at a boundary instead of relying on recall.
 ---
 
 # boundary-check
@@ -136,6 +136,18 @@ it said earlier in the session.
    - `~/.claude/memory/MEMORY.md` (the global index), then Read **every file it links**. Not a relevant
      subset, not the ones whose one-liner looks related: every one. A file you judge irrelevant is still
      opened, then noted why.
+   - **The SKILL.md of every skill this gate itself leans on** - everything named in this file's own
+     frontmatter "Composes with" line, plus any skill that owns a check appearing below in *Reconcile and
+     fix* (currently: `task-vs-plan-tracking` for the plan-file-vs-TaskCreate threshold, `secrets-hygiene`,
+     `resource-registry`, `pre-park-externalisation`, `reread-memory-before-planning`, `humanise-comms`,
+     `using-git-worktrees`). CLAUDE.md's skills table is a one-line pointer to each of these, not the rule,
+     and the global instructions consolidate the bulk of their detail INTO these skill bodies precisely so
+     CLAUDE.md can stay a one-liner - which means the pointer alone is exactly the index-only defect this
+     gate exists to catch, applied to a skill instead of a memory file. A skill's own trigger-phrase
+     mechanism fires on a task's wording; it does not fire on the fact that the skill's own file changed
+     since you last loaded it, so a stale in-context memory of "what that skill says" is no more current
+     than a stale memory of a CLAUDE.md rule, and gets the same fresh-disk treatment here rather than being
+     assumed from recall or from the trigger having fired earlier in the session.
 
 2. **Project standing instructions** - compute the encoded project dir (the absolute project path with every
    `/` replaced by `-`), then fresh Read:
@@ -182,10 +194,12 @@ path, a naming convention or a notes standard, so reading an index and skipping 
 as reading nothing. Reading *some* of the links is also that defect, because the one you skipped is where
 the rule you are about to break lives. A linked file you judge irrelevant is still opened, then noted why.
 
-**Ledger per index, not per session.** The walk names more than one index: a global standing index, a
-project index, sometimes a repo one. A ledger that covers one of them exhaustively while leaving another at
-index-only reads as complete precisely *because* it is long, and the asymmetry is invisible to the person
-who wrote it. Give each index its own ledger section and close each off explicitly.
+**Ledger per index, not per session.** The walk names more than one index: a global standing index, the
+composing-skills set, a project index, sometimes a repo one. A ledger that covers one of them exhaustively
+while leaving another at index-only reads as complete precisely *because* it is long, and the asymmetry is
+invisible to the person who wrote it. Give each index its own ledger section and close each off explicitly -
+the composing-skills set gets its own section exactly like the memory indexes do, never folded silently into
+the "global standing instructions" line as if reading CLAUDE.md's pointer table already covered it.
 
 Which one gets skipped is predictable. The index nearest the task feels relevant and the broader one feels
 like background, when the relationship is the other way round: the near index holds what the work **is**,
@@ -571,7 +585,7 @@ only WHEN.
 
 After the checks actually ran from disk this turn, post one line:
 
-`Gate: date re-derived ✓ · CLAUDE+MEMORY fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓ · memory committed ✓`
+`Gate: date re-derived ✓ · CLAUDE+MEMORY+SKILLS fresh-read ✓ · index/coverage rescan ✓ · externalisation ✓ · memory committed ✓`
 
 **The ledger is not part of this stamp.** It was already posted, upstream, before you reconciled or fixed
 anything. Here you only refer back to it. If you find yourself composing it now, the gate ran in the wrong
@@ -582,9 +596,12 @@ Tick a box **only** if that check ran from disk this turn:
 1. date re-derived via live `date`;
 2. the store delta was run first (log + `status` + last-touch), and then a fresh Read of
    `~/.claude/CLAUDE.md` + global `MEMORY.md` + the project memory index **and every file those indexes
-   link**, each accounted for in the ledger against a stated denominator. A file confirmed by mtime, git state, or a
+   link**, **plus the SKILL.md of every skill this gate leans on** (the list in walk-step 1), each accounted
+   for in the ledger against a stated denominator. A file confirmed by mtime, git state, or a
    session-start reminder snippet is **not** read, so do not tick on one, and "unchanged since I last
-   checked" is not a delta, it is the assertion the delta exists to replace. Tick this only if the ledger
+   checked" is not a delta, it is the assertion the delta exists to replace. A skill you did not re-open
+   this turn is not covered by "the trigger fired earlier in the session" any more than a memory file is
+   covered by having been paraphrased in an earlier reply. Tick this only if the ledger
    went up **before** you started reconciling, and only if it was derived from the Read calls you issued
    rather than from the ones you planned. Where any part of the walk was delegated, tick it only if the
    ledger says which rows an agent supplied and you checked those rows against a directory listing and
