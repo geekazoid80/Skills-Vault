@@ -1,6 +1,6 @@
 ---
 name: pre-park-externalisation
-description: "Use BEFORE any session park, restart, quit-and-reopen, sleep, or compact-then-quit moment. Triggers include \"park\", \"park this\", \"let's park\", \"park and restart\", \"save state\", \"I'll come back to this\", \"let me restart\", \"quit Claude Code\", \"kill this session\", \"stand down\", \"park for a restart\". Iron rule: ephemeral state (TaskList, background subprocess IDs, current cwd assumptions, in-memory caches, in-flight AskUserQuestion answers already received, pending decisions) does NOT survive a process boundary. Flush every category to the plan file BEFORE confirming the park. Then, if this session owns a worktree, remove it as the LAST tool call of the session, because nothing else does (ending a session does not remove a worktree and neither does archiving one) and because removing the tree you are standing in strands whatever the close still owed; only your own, never a peer's, and never with --force. Sibling discipline to the pre-compact externalisation pass; both run at process-boundary moments."
+description: "Use BEFORE any session park, restart, quit-and-reopen, sleep, or compact-then-quit moment where the session is PAUSING rather than being archived. Triggers include \"park\", \"park this\", \"let's park\", \"park and restart\", \"save state\", \"I'll come back to this\", \"let me restart\", \"quit Claude Code\", \"kill this session\", \"stand down\", \"park for a restart\". If the intent is instead to actually END the session (\"archive this\"), call the harness's own session-archive tool rather than this skill's manual worktree removal: that tool stops the process and, per its own description, cleans up a session's own natively-created worktree by default, so a manual removal first is redundant, and doing the removal INSTEAD of calling it does not end the session (it just gets a fresh worktree on its next turn). Iron rule for the genuine park case: ephemeral state (TaskList, background subprocess IDs, current cwd assumptions, in-memory caches, in-flight AskUserQuestion answers already received, pending decisions) does NOT survive a process boundary. Flush every category to the plan file BEFORE confirming the park. Then, if this session owns a worktree, remove it as the LAST tool call of the session, because nothing else does for the park case or for a worktree the native archive flow was never going to see (one resumed into or made by hand); only your own, never a peer's, and never with --force. Sibling discipline to the pre-compact externalisation pass; both run at process-boundary moments."
 ---
 
 # pre-park-externalisation
@@ -50,16 +50,25 @@ Every plan file at park-time MUST carry this section at the TOP, above the stand
 
 ## How to apply
 
+0. **Confirm this is genuinely a park, not an archive.** "Park" here means the session stays open; nobody
+   has told the harness to end it, and it may receive another instruction later. If the actual intent is
+   to end the session ("archive this", the workstream is done), call the harness's own session-archive
+   tool instead of this whole flush-and-remove sequence: it stops the process and, per its own
+   description, cleans up a session's own natively-created worktree by default, making the manual removal
+   in step 7 below redundant. Substituting the manual removal for that call does not end the session, so it
+   stays alive and the harness gives it a fresh worktree on its next turn, which repeats on every
+   subsequent "archive this".
 1. **The moment the user says "park" / "restart" / "stand down" / "save state"**, OR you proactively recognise an imminent park (compact + quit, sleep, low context):
 2. **Pause** any in-flight action; do NOT confirm park yet.
 3. **Scan** every ephemeral state category in the table above. Note what's loaded that wouldn't survive a restart.
 4. **Flush** each category to the chosen durable surface (plan file primarily; memory file / CLAUDE.md / vault skill for cross-session learnings).
 5. **Write the SESSION RESTART PICKUP section** at the top of the plan file with the resume order (verify-permissions → re-poll-CI → re-create-tasks → resume-execution).
 6. **Brief the user** with what was flushed, what was deferred, what the next session will see.
-7. **If this session owns a worktree, remove it now, and make it the LAST tool call.** Nothing else will:
-   ending a session does not remove a worktree, archiving one does not either, and a native exit helper
-   only handles worktrees it created in the current session. Push first, pin any commit that exists only
-   locally to a permanent ref (`git -C <canonical> update-ref refs/archive/<date>/<name> <sha>`), then
+7. **If this session owns a worktree, remove it now, and make it the LAST tool call.** For the genuine
+   park case, or a worktree the native archive flow was never going to see (one this session resumed into
+   or made by hand), nothing else will: a native exit / archive helper only handles worktrees it created
+   for the current session. Push first, pin any commit that exists only locally to a permanent ref
+   (`git -C <canonical> update-ref refs/archive/<date>/<name> <sha>`), then
    `git -C <canonical> worktree remove .claude/worktrees/<name>` **without `--force`**, run from the
    canonical clone. Only your own, never a peer's. `using-git-worktrees` carries the full rule.
 8. **THEN** confirm safe to park, in text, written from memory without reaching for another tool.

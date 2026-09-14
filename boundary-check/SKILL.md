@@ -516,18 +516,31 @@ proper handoff; if it can be neither, it BLOCKS standdown - surface it and resol
 unwritten prose, no unrecorded chunk, no vague pending (`park_and_standdown_discipline`). Then STOP
 (park means stop; do not push/merge/start-next after).
 
+### Park versus archive, first: only one of them cleans up the worktree for you
+
+"Park" in this skill means pause the work; the session itself stays open and nobody has told the harness
+to end it. If the actual boundary is ending the session (the user said "archive this", the workstream is
+genuinely done), call the harness's own session-archive tool instead of the manual removal below. That
+tool stops the session's process and, per its own description, cleans up a session's own natively-created
+worktree by default, so a manual removal first is redundant. Doing the manual removal INSTEAD of calling
+the archive tool does not end the session, so it stays alive and the harness re-provisions it a fresh
+worktree on its next turn, which repeats on every subsequent "archive this": measured directly, four
+consecutive rounds of exactly that substitution in one session. The rest of this section is for the
+genuine park case, or for a worktree the native archive flow was never going to see in the first place
+(one this session resumed into, or made by hand).
+
 ### Clear your own worktree, as the last tool call
 
-If this session has been working in its own worktree, disposing of it is part of the park, and it is the
-one step that comes after everything else.
+If this session has been working in its own worktree AND the boundary is a park rather than an archive,
+disposing of it is part of the park, and it is the one step that comes after everything else.
 
-**Nothing else clears it.** Ending a session does not remove a worktree, and neither does archiving one. A
-native exit helper typically only knows about worktrees IT created in THIS session, so a session that
-resumed into an existing one, or made one by hand, gets a clean no-op and the directory stays. What
-accumulates is full second copies of a repository that nobody is watching, found only by someone
-enumerating the filesystem, and the reason nobody enumerates is that everyone believes the disposal already
-happened. Clearing it is cheap only at this moment, because right now you are the one context that knows
-which worktree is yours.
+**Nothing else clears it, in the park case.** A native exit / archive helper typically only knows about
+worktrees IT created for THIS session, so a session that resumed into an existing one, or made one by
+hand, gets a clean no-op and the directory stays; parking without ever archiving falls into the same gap,
+since nothing archive-shaped runs at all. What accumulates is full second copies of a repository that
+nobody is watching, found only by someone enumerating the filesystem, and the reason nobody enumerates is
+that everyone believes the disposal already happened. Clearing it is cheap only at this moment, because
+right now you are the one context that knows which worktree is yours.
 
 **Only your own. Never a peer's.** A live peer's workspace is indistinguishable from abandoned residue from
 outside: no process holds it and no descriptors are open, since a parked session holds neither, and
