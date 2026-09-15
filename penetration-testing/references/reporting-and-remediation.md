@@ -2,9 +2,9 @@
 
 ## Two audiences, two documents (or two clearly separated sections)
 
-**Executive summary** — for people who will not read a CVSS vector string. States: what was tested and what was explicitly out of scope (including excluded OSSTMM channels), the overall risk posture in business terms, the two or three findings that matter most and what an attacker could actually do with them, and the RAV trend if this is a repeat engagement. No technical jargon; if a finding needs "SQL injection" explained, explain it once in a sentence, not with a payload example.
+**Executive summary**: for people who will not read a CVSS vector string. States: what was tested and what was explicitly out of scope (including excluded OSSTMM channels), the overall risk posture in business terms, the two or three findings that matter most and what an attacker could actually do with them, and the RAV trend if this is a repeat engagement. No technical jargon; if a finding needs "SQL injection" explained, explain it once in a sentence, not with a payload example.
 
-**Technical findings report** — for the people who will fix it. Each finding carries: a clear title, the affected asset(s), a severity rating with the rationale (not just a CVSS number pasted in), reproduction steps precise enough that the engineering team can confirm the fix later without re-hiring the tester, evidence (screenshots, redacted data samples, command output), and a specific remediation recommendation, not just "patch the system".
+**Technical findings report**: for the people who will fix it. Each finding carries: a clear title, the affected asset(s), a severity rating with the rationale (not just a CVSS number pasted in), reproduction steps precise enough that the engineering team can confirm the fix later without re-hiring the tester, evidence (screenshots, redacted data samples, command output), and a specific remediation recommendation, not just "patch the system".
 
 ## Severity and business-risk framing
 
@@ -21,8 +21,8 @@ Screenshots and extracted-data samples are evidence, not decoration. Redact anyt
 A report is not the end state; a tracked remediation programme is. For every finding:
 
 1. **Assign an owner and a due date** proportional to severity, using whatever SLA tiers `vulnerability-management`'s programme already defines for the organisation, rather than inventing pentest-specific SLAs that don't reconcile with the standing VM programme.
-2. **File it where the organisation already tracks remediation** (for Kacific specifically, the shared audit-findings hub per `kacific-audit-governance`'s conventions, not a new spreadsheet).
-3. **Agree a re-test date** for the highest-severity findings, and actually perform the re-test; a finding marked "remediated" by the asset owner without independent re-validation is a claim, not a fact (same discipline as `verify-security-findings`: re-verify against live state, don't just trust the ticket status).
+2. **File it where the organisation already tracks remediation**, whatever shared findings tracker it already runs, not a new spreadsheet invented for this engagement.
+3. **Agree a re-test date** for the highest-severity findings, and actually perform the re-test; a finding marked "remediated" by the asset owner without independent re-validation is a claim, not a fact, so re-verify against live state rather than trusting the ticket status.
 4. **Track the RAV/coverage trend across engagements**, not just this engagement's raw finding count, so the client can see whether the programme is actually reducing residual risk over time or just generating reports.
 
 ## Report retention and confidentiality

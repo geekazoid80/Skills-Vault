@@ -4,9 +4,9 @@
 
 MITRE ATT&CK organises adversary behaviour into three domains, each with its own matrix:
 
-- **Enterprise** — the default domain for most organisations: Windows, macOS, Linux, cloud (Azure AD/Entra ID, AWS, GCP, Office 365, SaaS, containers, network devices).
-- **Mobile** — Android and iOS-specific techniques.
-- **ICS** — industrial control systems and OT-specific techniques (distinct tactics from Enterprise, e.g. "Impair Process Control", "Inhibit Response Function").
+- **Enterprise**: the default domain for most organisations: Windows, macOS, Linux, cloud (Azure AD/Entra ID, AWS, GCP, Office 365, SaaS, containers, network devices).
+- **Mobile**: Android and iOS-specific techniques.
+- **ICS**: industrial control systems and OT-specific techniques (distinct tactics from Enterprise, e.g. "Impair Process Control", "Inhibit Response Function").
 
 Most detection-engineering work in a standard IT estate lives in Enterprise. Confirm which domain applies before mapping anything; an ICS technique ID means nothing against a Windows fleet and vice versa.
 
@@ -22,13 +22,13 @@ Always map at sub-technique granularity where one exists. "We cover T1059" is cl
 
 ATT&CK's data-source model is the bridge between "what we log" and "what we can detect". Each technique lists the **data components** that would evidence it, e.g.:
 
-- `Process: Process Creation` — proves most Execution and Persistence techniques.
-- `Command: Command Execution` — proves shell/scripting techniques (T1059.*).
-- `Network Traffic: Network Connection Creation` and `Network Traffic: Network Traffic Flow` — proves Command and Control and Exfiltration techniques.
-- `Logon Session: Logon Session Creation` — proves Initial Access and Lateral Movement via valid accounts (T1078, T1021).
-- `Cloud Service: Cloud Service Modification` — proves cloud persistence and defense-evasion techniques (disabling logging, modifying IAM policy).
+- `Process: Process Creation`, proving most Execution and Persistence techniques.
+- `Command: Command Execution`, proving shell/scripting techniques (T1059.*).
+- `Network Traffic: Network Connection Creation` and `Network Traffic: Network Traffic Flow`, proving Command and Control and Exfiltration techniques.
+- `Logon Session: Logon Session Creation`, proving Initial Access and Lateral Movement via valid accounts (T1078, T1021).
+- `Cloud Service: Cloud Service Modification`, proving cloud persistence and defense-evasion techniques (disabling logging, modifying IAM policy).
 
-Before scoring a technique's coverage, confirm the data component actually reaches your SIEM/EDR/NDR. A technique can look "Partial" on paper because the rule exists, while the underlying log source was silently disabled weeks ago — verify against live telemetry, not the rule catalogue.
+Before scoring a technique's coverage, confirm the data component actually reaches your SIEM/EDR/NDR. A technique can look "Partial" on paper because the rule exists, while the underlying log source was silently disabled weeks ago; verify against live telemetry, not the rule catalogue.
 
 ## Building an ATT&CK Navigator layer
 

@@ -22,9 +22,9 @@ Keep one Navigator layer per domain (endpoint, network, cloud) plus one aggregat
 
 Do not prioritise the backlog by which gap is easiest to close. Score each gap on:
 
-1. **Technique prevalence** — how often this technique appears in current threat intelligence relevant to your sector/region. Sources: the Center for Threat-Informed Defense's [Top ATT&CK Techniques](https://top-attack-techniques.mitre-engenuity.org/) project (calculates prevalence, choke-point value, and actionability), vendor annual threat reports (Red Canary, CrowdStrike, Mandiant), sector-specific ISAC advisories, and CISA/national-CERT advisories naming techniques used against your sector.
-2. **Asset criticality** — what would this technique compromise if undetected: a disposable dev box, or the domain controller / crown-jewel data store. Weight against your asset criticality tiering (reuse whatever tiering `vulnerability-management`'s programme already defines; do not invent a second one).
-3. **Current coverage gap** — None scores higher priority than Partial; a technique already at Partial needs validation effort, not net-new engineering.
+1. **Technique prevalence**: how often this technique appears in current threat intelligence relevant to your sector/region. Sources: the Center for Threat-Informed Defense's [Top ATT&CK Techniques](https://top-attack-techniques.mitre-engenuity.org/) project (calculates prevalence, choke-point value, and actionability), vendor annual threat reports (Red Canary, CrowdStrike, Mandiant), sector-specific ISAC advisories, and CISA/national-CERT advisories naming techniques used against your sector.
+2. **Asset criticality**: what would this technique compromise if undetected, a disposable dev box or the domain controller / crown-jewel data store. Weight against your asset criticality tiering (reuse whatever tiering `vulnerability-management`'s programme already defines; do not invent a second one).
+3. **Current coverage gap**: None scores higher priority than Partial; a technique already at Partial needs validation effort, not net-new engineering.
 
 A simple weighted score (`prevalence x criticality x (1 - current_score/100)`) is usually enough to rank the backlog; resist building an elaborate model before the simple one has been tried.
 

@@ -11,8 +11,8 @@
 # HARD SAFETY GATE: refuses to run against any target unless called with
 # --i-have-authorization pointing at a scope file that names this exact
 # engagement. This operationalises the authorisation discipline this skill
-# inherits from penetration-testing (or, for Kacific assets,
-# kacific-security-assessment-scope) in the tooling itself, not just prose.
+# inherits from penetration-testing (or an estate's own local companion
+# skill) in the tooling itself, not just prose.
 #
 # Usage:
 #   recon_chain.sh --domain example.com --i-have-authorization scope.txt [--outdir ./recon-out]

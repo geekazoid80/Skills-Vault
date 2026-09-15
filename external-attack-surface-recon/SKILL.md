@@ -36,7 +36,7 @@ This is the tactical, tool-agnostic recon/OSINT workflow: how to actually run an
 
 ## Core model (condensed)
 
-**Authorisation is inherited, never re-derived here.** This skill does not decide whether a target may be enumerated; `penetration-testing`'s rules-of-engagement gate (or, for Kacific assets, `kacific-security-assessment-scope`'s pointer) already decided that. If no authorisation can be confirmed for a given scope, stop and ask rather than proceeding on the assumption that "it's just recon, not exploitation" makes it exempt.
+**Authorisation is inherited, never re-derived here.** This skill does not decide whether a target may be enumerated; `penetration-testing`'s rules-of-engagement gate (or an estate's own local companion skill, where one exists) already decided that. If no authorisation can be confirmed for a given scope, stop and ask rather than proceeding on the assumption that "it's just recon, not exploitation" makes it exempt.
 
 **Exhaust passive sources before any active technique touches the target.** Certificate transparency logs, passive DNS databases, WHOIS/RDAP, search-engine dorking, and code-repository leakage search reveal a large share of an organisation's external footprint without a single packet reaching the target. Only move to active techniques (live-host probing, content discovery) once the passive pass is exhausted.
 
@@ -75,4 +75,4 @@ This is the tactical, tool-agnostic recon/OSINT workflow: how to actually run an
 
 ## Bottom line
 
-Recon is a chain, not a tool list: exhaust passive sources first, validate before fingerprinting, fingerprint before screenshotting, and rate-limit every active step so the sweep never looks like an attack to the target's own defences. This skill never grants its own authorisation; it inherits whatever `penetration-testing`'s rules of engagement (or, for Kacific assets, `kacific-security-assessment-scope`) already established, and stops to ask if that authorisation cannot be confirmed. The output is one normalised, attributable asset list feeding `attack-surface-management`'s attribution step or `penetration-testing`'s enumeration phase, not a pile of raw tool dumps.
+Recon is a chain, not a tool list: exhaust passive sources first, validate before fingerprinting, fingerprint before screenshotting, and rate-limit every active step so the sweep never looks like an attack to the target's own defences. This skill never grants its own authorisation; it inherits whatever `penetration-testing`'s rules of engagement (or an estate's own local companion skill) already established, and stops to ask if that authorisation cannot be confirmed. The output is one normalised, attributable asset list feeding `attack-surface-management`'s attribution step or `penetration-testing`'s enumeration phase, not a pile of raw tool dumps.

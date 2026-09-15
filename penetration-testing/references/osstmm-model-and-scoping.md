@@ -24,25 +24,25 @@ An engagement can legitimately scope to Data Networks only; the point is making 
 
 RAV expresses residual trust as a number derived from three inputs. This is a conceptual model for structuring the conversation, not a certification exercise; the bundled `rav_score_calculator.py` implements a simplified version of the formula for practical use.
 
-**Porosity** — the visible and reachable attack surface: every access point (open port, exposed service, public-facing form, physical entry point, radio-visible SSID, phone extension) that exists whether or not it is controlled. More porosity is not automatically worse if it is well controlled, but it always raises the baseline that controls must overcome.
+**Porosity**: the visible and reachable attack surface: every access point (open port, exposed service, public-facing form, physical entry point, radio-visible SSID, phone extension) that exists whether or not it is controlled. More porosity is not automatically worse if it is well controlled, but it always raises the baseline that controls must overcome.
 
-**Controls** — the ten OSSTMM operational security controls, split into two groups:
+**Controls**: the ten OSSTMM operational security controls, split into two groups:
 
 *Class A (preventing loss of control over an asset):*
-1. Authentication — verifying identity before granting access
-2. Indemnification — contractual/insurance protection against loss
-3. Resilience — the ability to keep functioning under attack
-4. Subjugation — ensuring an interaction only proceeds on the tester's/defender's terms
-5. Continuity — maintaining service/access despite disruption
+1. Authentication: verifying identity before granting access
+2. Indemnification: contractual/insurance protection against loss
+3. Resilience: the ability to keep functioning under attack
+4. Subjugation: ensuring an interaction only proceeds on the tester's/defender's terms
+5. Continuity: maintaining service/access despite disruption
 
 *Class B (preserving the value of an interaction that occurs):*
-6. Non-repudiation — proof an action occurred and who performed it
-7. Confidentiality — restricting access to information to authorised parties
-8. Privacy — restricting access to identifying information specifically
-9. Integrity — ensuring information/systems are not altered without authorisation
-10. Alarm — detecting and notifying on an attempted or successful interaction
+6. Non-repudiation: proof an action occurred and who performed it
+7. Confidentiality: restricting access to information to authorised parties
+8. Privacy: restricting access to identifying information specifically
+9. Integrity: ensuring information/systems are not altered without authorisation
+10. Alarm: detecting and notifying on an attempted or successful interaction
 
-**Limitations** — five categories of weakness that reduce the value of the controls present: Vulnerabilities (a flaw that grants access), Weaknesses (a flaw in a control's implementation), Concerns (a potential flaw not yet confirmed exploitable), Exposures (information disclosure that aids further attack), and Anomalies (unidentified or unexplained items that cannot be verified safe).
+**Limitations**: five categories of weakness that reduce the value of the controls present: Vulnerabilities (a flaw that grants access), Weaknesses (a flaw in a control's implementation), Concerns (a potential flaw not yet confirmed exploitable), Exposures (information disclosure that aids further attack), and Anomalies (unidentified or unexplained items that cannot be verified safe).
 
 **The RAV formula (simplified for practical use):** `RAV ≈ 100 - (porosity_unmitigated) + (controls_present_and_verified) - (limitations_weighted)`, normalised so 100 represents a fully trusted, zero-residual-risk state and lower values represent increasing residual risk. The exact ISECOM formula is more elaborate (separate calculations per channel, weighted by control class); `rav_score_calculator.py` implements a defensible simplified version suitable for a single engagement's summary metric, not a certified OSSTMM audit.
 
@@ -58,6 +58,6 @@ Every engagement needs a written RoE before any active technique runs (see `exam
 - **Allowed techniques**: what level of exploitation is authorised (identification only, PoC exploitation, full exploitation with lateral movement), whether social-engineering pretexts need pre-approval, whether DoS-adjacent techniques are explicitly excluded (they should be, by default).
 - **Escalation contact**: a named person reachable during the test window who can authorise scope changes or halt the test.
 - **Data handling**: how evidence (screenshots, extracted data samples, credentials found) is stored, encrypted, and destroyed after the engagement closes.
-- **Emergency stop condition**: what happens if the tester causes unexpected impact (a crashed service, an unintended lockout) — who gets notified immediately and how testing pauses.
+- **Emergency stop condition**: what happens if the tester causes unexpected impact (a crashed service, an unintended lockout); who gets notified immediately and how testing pauses.
 
-For Kacific engagements specifically, the authorisation record itself (not just the RoE template) has a durable home defined in the private companion skill `kacific-security-assessment-scope` — check there before assuming this template alone satisfies the organisation's authorisation requirement.
+The authorisation record itself, not just the RoE template, may have a durable home your organisation already defines elsewhere (a standing security-testing procedure, a local companion skill); check for it before assuming this template alone satisfies your organisation's authorisation requirement.

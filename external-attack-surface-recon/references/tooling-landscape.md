@@ -4,23 +4,23 @@ Named for orientation only; none of these is endorsed over another, and the reco
 
 ## Subdomain enumeration
 
-- **Amass** (OWASP project) — combines passive sources (CT logs, passive DNS, WHOIS, many API-backed data sources) with active DNS resolution and brute-forcing in one tool; the most comprehensive single option, at the cost of needing several API keys configured to reach its full passive coverage.
-- **Subfinder** (ProjectDiscovery) — passive-source aggregation focused on speed and simplicity; a lighter alternative to Amass's passive mode when a quick pass is enough.
-- **assetfinder** — a minimal passive-source tool, useful as a fast first pass or for chaining into other tools.
+- **Amass** (OWASP project): combines passive sources (CT logs, passive DNS, WHOIS, many API-backed data sources) with active DNS resolution and brute-forcing in one tool; the most comprehensive single option, at the cost of needing several API keys configured to reach its full passive coverage.
+- **Subfinder** (ProjectDiscovery): passive-source aggregation focused on speed and simplicity; a lighter alternative to Amass's passive mode when a quick pass is enough.
+- **assetfinder**: a minimal passive-source tool, useful as a fast first pass or for chaining into other tools.
 
 ## Live-host validation and fingerprinting
 
-- **httpx** (ProjectDiscovery) — takes a list of hostnames, resolves and probes each over HTTP(S), and reports status code, title, technology fingerprint (via Wappalyzer-style detection), and response headers in one pass. The natural next step after subdomain enumeration.
-- **Wappalyzer** (CLI or library form) — technology fingerprinting specifically, useful standalone or as a cross-check against `httpx`'s built-in detection.
+- **httpx** (ProjectDiscovery): takes a list of hostnames, resolves and probes each over HTTP(S), and reports status code, title, technology fingerprint (via Wappalyzer-style detection), and response headers in one pass. The natural next step after subdomain enumeration.
+- **Wappalyzer** (CLI or library form): technology fingerprinting specifically, useful standalone or as a cross-check against `httpx`'s built-in detection.
 
 ## Screenshot triage
 
-- **gowitness** / **EyeWitness** — take a list of live hosts and produce a screenshot gallery (often as a single browsable HTML report), the standard way to triage a large host list visually.
+- **gowitness** / **EyeWitness**: take a list of live hosts and produce a screenshot gallery (often as a single browsable HTML report), the standard way to triage a large host list visually.
 
 ## Content discovery
 
-- **ffuf** / **feroxbuster** — fast, wordlist-driven content discovery with built-in rate-limiting flags; always set an explicit rate limit rather than relying on the tool's default, which is tuned for speed, not politeness.
-- **Nuclei** (ProjectDiscovery) — template-driven scanning; for recon purposes, restrict to its passive/detection-only template categories (technology detection, exposed-panel detection) rather than its vulnerability-exploitation templates, which belong to `penetration-testing`'s later phases under full RoE authorisation.
+- **ffuf** / **feroxbuster**: fast, wordlist-driven content discovery with built-in rate-limiting flags; always set an explicit rate limit rather than relying on the tool's default, which is tuned for speed, not politeness.
+- **Nuclei** (ProjectDiscovery): template-driven scanning; for recon purposes, restrict to its passive/detection-only template categories (technology detection, exposed-panel detection) rather than its vulnerability-exploitation templates, which belong to `penetration-testing`'s later phases under full RoE authorisation.
 
 ## Chaining pattern
 

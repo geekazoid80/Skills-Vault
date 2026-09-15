@@ -8,13 +8,13 @@ If certificate transparency and passive DNS leave obvious gaps (a naming convent
 
 ## Live-host validation
 
-Not every name discovered (via CT logs, passive DNS, or brute-force) is still live. Validate by attempting an HTTP(S) connection (a lightweight HEAD or GET request) to each candidate host on common ports (80, 443, and any others explicitly in scope). Record: does it resolve, does it respond, what status code, is there a redirect (and to where — a redirect to a different, possibly out-of-scope domain is itself worth noting for the attribution step). This single pass typically eliminates a large fraction of stale CT-log and passive-DNS entries.
+Not every name discovered (via CT logs, passive DNS, or brute-force) is still live. Validate by attempting an HTTP(S) connection (a lightweight HEAD or GET request) to each candidate host on common ports (80, 443, and any others explicitly in scope). Record: does it resolve, does it respond, what status code, is there a redirect and to where (a redirect to a different, possibly out-of-scope domain is itself worth noting for the attribution step). This single pass typically eliminates a large fraction of stale CT-log and passive-DNS entries.
 
 ## Technology fingerprinting
 
 For each live host, identify the technology stack from passive signals in the HTTP response: server header, response headers characteristic of a specific framework or CMS, favicon hash (a distinctive favicon hash can identify a specific product even when other headers are stripped), TLS certificate issuer and SAN list, and visible page content (a login page's markup often reveals the product). This is passive-to-the-target (a single normal-looking HTTP request) but active in the sense of directly touching the host; it stays well inside recon, never attempting to exploit anything the fingerprint reveals.
 
-Feed fingerprint results into `nvd-cve` later (once this skill's job is done) to check whether the identified version has known CVEs — that step belongs to `vulnerability-management`/`nvd-cve`, not this skill.
+Feed fingerprint results into `nvd-cve` later (once this skill's job is done) to check whether the identified version has known CVEs; that step belongs to `vulnerability-management`/`nvd-cve`, not this skill.
 
 ## Screenshot triage
 

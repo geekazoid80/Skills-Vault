@@ -1,4 +1,4 @@
-# Rules of Engagement — [Engagement Name]
+# Rules of Engagement: [Engagement Name]
 
 **This document must be signed by an authorised representative of the target
 organisation before any active technique begins. No active technique proceeds
@@ -16,13 +16,13 @@ on a draft, a verbal approval, or an "implied" authorisation.**
 ### In scope
 - IP ranges / CIDRs: [list]
 - Domains / subdomains: [list]
-- Applications: [name, URL, environment — production or staging]
+- Applications: [name, URL, environment: production or staging]
 - Physical locations (if Physical channel included): [address(es)]
 - Phone numbers / extensions (if Telecommunications channel included): [list]
 - SSIDs / wireless networks (if Wireless channel included): [list]
 
 ### Explicitly out of scope
-- [List anything adjacent that might be assumed in-scope but is not — third-party
+- [List anything adjacent that might be assumed in-scope but is not; third-party
   SaaS the client doesn't control, a specific production database, a partner's
   network reachable via a VPN, etc.]
 
@@ -46,15 +46,15 @@ on a draft, a verbal approval, or an "implied" authorisation.**
 
 - Exploitation level authorised: [ ] Identification only  [ ] Proof-of-concept exploitation  [ ] Full exploitation with lateral movement (specify boundary)
 - Social-engineering pretexts require pre-approval: Yes / No
-- Denial-of-service or availability-impacting techniques: **excluded by default** — explicit written exception required, listed here if granted: [ ]
-- Physical intrusion methods authorised (if Physical in scope): [list — badge cloning, tailgating, lock bypass, etc.]
+- Denial-of-service or availability-impacting techniques: **excluded by default**; explicit written exception required, listed here if granted: [ ]
+- Physical intrusion methods authorised (if Physical in scope): [list: badge cloning, tailgating, lock bypass, etc.]
 
 ## 6. Data handling
 
 - Evidence storage method and encryption: [describe]
 - Evidence retention period post-report: [duration]
 - Evidence destruction method and confirmation process: [describe]
-- Handling of any credentials or PII discovered during testing: per `secrets-hygiene` discipline — never stored in plaintext, never included in the report body.
+- Handling of any credentials or PII discovered during testing: per `secrets-hygiene` discipline; never stored in plaintext, never included in the report body.
 
 ## 7. Emergency stop condition
 
