@@ -285,6 +285,28 @@ Layer7 regexes use POSIX-ERE semantics. The biggest gotcha: precedence. `(a|b|c)
 - `add` appends to the END of the chain; if you need a rule earlier, use `add place-before=<id>`.
 - Re-ordering existing rules: `move` (`/ip firewall filter move <id> destination=<n>`).
 - Always run `/ip firewall filter print` BEFORE and AFTER a change; diff the output.
+- **`place-before=`/`move ... destination=` need a resolved `.id` (`*HEX`), not a live `[find ...]`
+  expression embedded inline in the same command.** Verified: `add ... place-before=[find comment="X"]`
+  ran without error but silently failed to reposition the new rule (it landed appended at the end
+  instead). Resolve the target's `.id` first with a separate call (`:put [/ip firewall filter find
+  comment="X"]`, note the plain `find` needs the full path prefix outside interactive shorthand), then
+  pass that literal value to `place-before=`/`move ... destination=`.
+- **A `where`-filtered `print` does not display rows in true chain order**; it can print matches in an
+  order that does not reflect their actual position (observed: a rule genuinely positioned before another
+  still printed after it under a combined `where comment=A or comment=B` query). Only a full, unfiltered
+  print of the relevant chain (`print where chain=output`) shows genuine top-to-bottom position — combine
+  with the "row numbers are not stable IDs" trap above; neither the print-index number nor a filtered
+  print's row order can be trusted for position, only full-chain traversal order can.
+- **A chain with only `action=accept` rules and no trailing `drop` predicts implicit-accept for anything
+  unmatched — verify this empirically before trusting it.** Verified counter-example: on a production
+  CCR1072 (RouterOS 7.24.2), `chain=output` had 15 accept-only rules and no catch-all drop (unlike its
+  sibling `input`/`forward` chains, which both ended in one), yet a specific locally-originated UDP flow
+  matching none of the 15 rules was still not leaving the device — confirmed by both an application-level
+  receipt check on the destination and a direct capture attempt. Adding an explicit `accept` rule for that
+  exact traffic fixed delivery; root cause is unconfirmed (a version-specific deviation from documented
+  chain semantics, a hardware-offload/FastTrack interaction, or something else). Do not conclude "no drop
+  rule exists, so it must pass" from a rule read alone on `output`-bound traffic that matters; test
+  delivery directly.
 
 ### Common LLM mistakes (consolidated checklist)
 
@@ -317,6 +339,19 @@ RouterOS scripting is not shell, Lua, or Python; the traps LLMs most often get w
 - **Flattening a multi-line script into one line with a bare space destroys RouterOS statement boundaries.** `:local threshold 5 :local expiry "1d"` (joined by a space, no separator) parses as one malformed statement and fails with `expected end of command`; RouterOS needs an explicit `;` between statements on one line. When building multi-line source programmatically, join with `;`, never with whitespace alone.
 
 ## 3. State queries, REST, and the mikrotik-api client
+
+**`/ip route print` is unsafe, even `where`-filtered, on a device carrying a full BGP table (a DFZ /
+full-view router, hundreds of thousands of entries).** RouterOS's CLI `where` filter still requires
+evaluating the condition against every entry before printing filtered results — verified: repeated
+attempts at `/ip route print where dst-address~"X" and protocol!=bgp`-style queries on a production
+full-table CCR1072 each hung for 30-60+ seconds and had to be killed rather than complete, consistent with
+the device owner's explicit warning that this class of command risks locking up the router. Do not run any
+`/ip route print` variant on a full-table router without confirming with the device owner first; there is
+no confirmed safe single-destination equivalent on RouterOS 7 (a Linux-`ip route get`-style targeted
+lookup does not exist under `/ip route` — attempting `/ip route get <dest>` returns an instant, harmless
+syntax error, so at least that failure mode is cheap to rule out). The small, bounded tables — `/ip
+firewall filter`/`raw`/`mangle`, `/ip address`, `/system resource` — do not carry this risk; the danger is
+specific to route-table size, not to `print where` queries generally.
 
 `/console/inspect` is the canonical way to introspect any path. Two surfaces matter: the CLI-form (`path=/ip/address`) for interactive use, and the REST-form (POST body with `path` as a COMMA-SEPARATED string) for automation.
 
