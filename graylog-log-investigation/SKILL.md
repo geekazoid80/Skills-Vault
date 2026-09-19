@@ -199,6 +199,26 @@ Pipelines run on the message at ingest. Use for:
 
 Pipeline rules are written in the Graylog DSL (lookup tables, when / then / let). Test with `pipeline simulator` before connecting to a stream; a buggy rule blocks ingestion.
 
+### Prefer Extractors over pipeline-rule `regex()` for peeling fields out of unstructured text
+
+Both mechanisms can extract fields from a raw message string, but they are not equally reliable in
+practice. Verified 2026-09-18: a pipeline rule using the `regex()` function (both named `(?<name>...)`
+capture groups and positional groups accessed via `m["1"]`/`m["ros_user"]`) **compiled with zero validation
+errors, connected to a stream, and never populated a single field at runtime** across multiple real
+messages that unambiguously matched the pattern (confirmed independently via a plain search-API query on
+the same messages) — no error surfaced anywhere, the rule just silently did nothing. The named-group form
+additionally hit an unrelated parser quirk choking on underscores inside `(?<name>...)`
+(`"named capturing group is missing trailing '>'"` pointing at the underscore itself, not the missing
+`>`). Switching the identical extraction logic to the older, input-level **Extractor** mechanism
+(`POST /api/system/inputs/{inputId}/extractors`, `extractor_type: "regex"`, one extractor per target field,
+each with its own single capture group and a `condition_type: "string"` gate) worked cleanly on the first
+correctly-escaped attempt and has run reliably since. If a field-extraction need can be expressed as one
+regex per field with a single capture group, reach for an Extractor first; only fall back to a pipeline
+rule if the transform genuinely needs multi-step logic, lookup tables, or cross-field conditionals that
+Extractors cannot express — and if a pipeline rule with `regex()` compiles but never seems to fire, do not
+assume the rule is broken before checking a plain search for the messages it should be matching; it may be
+a silent runtime no-op rather than a logic error.
+
 ## Alerts
 
 Alerts attach to a stream and a condition:
@@ -208,6 +228,42 @@ Alerts attach to a stream and a condition:
 - Pivot (top N hosts by error count)
 
 Alert payload should include the runbook URL (see `oncall-runbooks`); do not page on-call without naming the procedure.
+
+### REST API: event definition `series` uses `type`, not `function` — the silent-failure trap
+
+Building an `aggregation-v1` event definition directly via `POST /api/events/definitions` (not through the
+web UI), a grouped/threshold condition (`group_by` non-empty, `series` non-empty, `conditions.expression` a
+real comparison) needs each `series` entry shaped as:
+
+```json
+{"type": "count", "id": "fail-count", "field": ""}
+```
+
+**Not** `{"id": "fail-count", "function": "count"}` — `function` is not a recognised property on the series
+spec. The trap: `POST`/`PUT` with the wrong key **returns HTTP 200 with no validation error**, the
+definition shows `state: ENABLED`, and it sits there silently never firing — no error, no log line (this
+Graylog version's own `graylog-server` application logging can independently be broken after an unrelated
+outage-recovery, which makes this doubly silent; see the outage runbook this was found alongside). Verified
+2026-09-18: three separate hand-built definitions using `function` never matched across 15+ minutes of
+observation despite thousands of qualifying messages in the stream; switching every `series` entry to the
+`type`/`id`/`field` shape (confirmed against a real API response sample) fired within one execution cycle
+against the same backlog. `field` is required even for `count` (pass `""`); for other series functions
+(`card`, `avg`, `sum`, ...) it names the field being aggregated, e.g. `{"type": "card", "id": "ip-count",
+"field": "gl2_remote_ip"}` for a distinct-count.
+
+**The simple existence-check pattern is unaffected and a safe fallback while debugging this**: `group_by:
+[]`, `series: []`, `conditions: {"expression": null}` fires on any single matching message in the window,
+no series spec involved at all — useful to confirm the stream/query/notification wiring works before adding
+a threshold. If a grouped-threshold definition creates cleanly, enables, and simply never matches against a
+stream you can independently confirm has qualifying traffic (e.g. via a plain search-API query), suspect
+this `type`-vs-`function` trap before suspecting the query or the stream.
+
+Two related PUT-specific gotchas hit alongside this: (1) updating an existing notification or event
+definition via `PUT /api/events/notifications/{id}` or `PUT /api/events/definitions/{id}` needs the body's
+own top-level `"id"` field to match the URL's id — omitting it returns `"Notification IDs don't match"` (or
+the definitions equivalent) rather than silently ignoring the mismatch. (2) A freshly-created event
+definition is `state: DISABLED`; enable with `PUT /api/events/definitions/{id}/schedule` (returns
+`state: ENABLED`), disable the same way with `.../unschedule`.
 
 ## Index lifecycle
 
