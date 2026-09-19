@@ -1,6 +1,6 @@
 ---
 name: resource-registry
-description: Use when you create or are handed a durable addressable resource, an Asana field/project/portfolio GID, a database table, a cloud resource ID, API or service access (M365/Graph, Action1, a PAT), an SSH host + account + access command, an endpoint, a config key, a deployed service, or a canonical file path, and when writing or updating a plan file, at chunk-close, at park, or on resume before acting on a prior session's resources. Catalogue each resource once in a durable home (project memory or AGENTS.md) with its real identifier and the exact command or API to reach it; the plan file carries only a pointer. On resume, refresh from the catalogue and address resources by their true IDs instead of guessing or hallucinating field names, GIDs, hostnames, or access methods. NOT for ephemeral run state (TaskList, subprocess IDs, cwd), that is pre-park-externalisation; NOT for secret values, that is secrets-hygiene (store the credential's location, never the secret).
+description: Use when you create or are handed a durable addressable resource, an Asana field/project/portfolio GID, a database table, a cloud resource ID, API or service access (M365/Graph, Action1, a PAT), an SSH host + account + access command, an endpoint, a config key, a deployed service, or a canonical file path, and when writing or updating a plan file, at chunk-close, at park, or on resume before acting on a prior session's resources. Catalogue each resource once in a durable home (project memory or AGENTS.md) with its real identifier and the exact command or API to reach it; the plan file carries only a pointer. On resume, refresh from the catalogue and address resources by their true IDs instead of guessing or hallucinating field names, GIDs, hostnames, or access methods. NOT for ephemeral run state (TaskList, subprocess IDs, cwd), that is pre-park-externalisation; NOT for secret values, that is secrets-hygiene (store the credential's location, never the secret). Also fires when several credentials of the same type exist across projects (multiple API keys, one PAT per org or environment) and a project-scoped registry stops being enough, in which case build one dedicated cross-project credential index (identifier, identity, every consumer, last verified) instead, so a found or leaked credential can be matched without an elimination hunt.
 ---
 
 # Resource Registry
@@ -65,6 +65,27 @@ their place for some resource types:
 - **Retire on decommission.** When a resource is deleted, rotated, or replaced, UPDATE or REMOVE its
   entry in the same change. An entry is only trustworthy if it is maintained on the way out as well as
   in; a registry that only ever grows accumulates stale, misleading entries.
+
+## When credentials of the same type multiply, index them separately from any one project
+
+A project-scoped registry works while each credential belongs to one project. It stops working once several
+credentials of the same TYPE exist across projects, one API key per environment, one PAT per org, one token
+per service tier, because no single project's registry is the place someone would think to look for "which of
+these five tokens is this one". At that point the identification cost shows up all at once, when a credential
+is found stray or leaked and has to be matched against every live candidate before it can be rotated safely: a
+capability probe or an elimination-by-inference can point at the wrong one when more than one candidate shares
+what is being tested (see `secrets-hygiene`'s "Which credential is this?" for the mechanics and a dated case),
+and only a deliberate cross-project index avoids needing that exercise at all.
+
+**The fix is a dedicated, machine- or account-wide registry, one row per credential, kept separate from any
+single project's own resource table:** its identifier or display name (never the secret value), the identity
+it authenticates as, every consumer (which projects, hosts, or jobs actually use it), and when it was last
+confirmed live. Build it by enumerating the credential store itself (a secret manager's list, a Keychain
+dump filtered to credential-shaped names, whatever the platform offers) rather than working forward from
+memory of what you think exists, and update it at the moment of creation or rotation, since reconstructing it
+after an incident is exactly the expensive exercise this section opens with. This is the same iron rule as
+above (durable resource, durable record) applied at the scope where duplication actually happens: many
+similar credentials outgrow any one project's table the same way a project's resources outgrow a plan file.
 
 ## Composition with sibling disciplines
 
