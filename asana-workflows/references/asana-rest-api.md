@@ -81,6 +81,24 @@ access token or OAuth2).
   passes, because neither actually POSTs. Model it in the fake, or assert the at-least-one-option invariant
   at the spec level, or the first real apply is where you find out.
 
+### Every write needs a JSON body, not form-encoding
+- `PUT`/`POST` a write with a form-encoded body for a nested `data` field is unreliable. **Bracket notation**
+  (`-d 'data[completed]=true'`) returns **HTTP 400** `"Could not interpret data[completed] as an identifier
+  in data[completed]."`. **Dot notation** (`-d 'data.completed=true'`) is worse: it returns **HTTP 200** while
+  **silently NOT applying the change** (the response body shows the field unchanged). Verified live 2026-09-20
+  on `PUT /tasks/{gid}` for both `completed` and `notes`, each isolated on a disposable task.
+- **Only a JSON body is verified-reliable**: `Content-Type: application/json` with `{"data": {"<field>": <value>}}`.
+  ```bash
+  curl -sS -X PUT "https://app.asana.com/api/1.0/tasks/<gid>" \
+    -H "Authorization: Bearer <token>" \
+    -H "Content-Type: application/json" \
+    -d '{"data": {"completed": true, "notes": "..."}}'
+  ```
+- **HTTP 200 does not prove a write took effect** for a form-encoded body; the dot-notation case above returns
+  200 on a genuine no-op. Read the field back out of the response before trusting a non-JSON write.
+- No dated Asana changelog entry was found for a body-parsing change as of the date above, so treat this as
+  "always send JSON", not "this recently broke".
+
 ### Mechanics
 - **Pagination**: `limit` (1-100) + `offset` (opaque token from `next_page.offset`).
 - **Sparse fields**: `opt_fields=a,b.c` (nested with dots). Many fields are opt-in (e.g. `parent`, `members`).
