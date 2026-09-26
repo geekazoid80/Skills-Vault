@@ -543,6 +543,45 @@ consecutive rounds of exactly that substitution in one session. The rest of this
 genuine park case, or for a worktree the native archive flow was never going to see in the first place
 (one this session resumed into, or made by hand).
 
+### When `archive_session` refuses citing "live work", diagnose before waiting
+
+The tool's refusal message names four possible causes in one sentence ("an agent run, a Remote Control
+client, a queued message, or a background task") and gives no way to tell which. `ListAgents` reporting
+nothing live for the session is not evidence the refusal is wrong: a background dispatch can report
+`completed` while the underlying process is still alive (`feedback_stall_watchdog_orphans_process`), so
+absence from that listing rules out nothing.
+
+**Two fields on `get_session self` are directly diagnostic and cost one call, before waiting or asking the
+user to use the sidebar:**
+
+- **`parentSessionId` + `detached`.** A session started FROM another (a linked side session, a fork) keeps
+  `parentSessionId` set until `detached` becomes `true`. `detached: false` means this session is still
+  tethered to that parent, and the parent's own state is worth checking directly
+  (`get_session <parentSessionId>`): a parent that is itself `isRunning: true` (busy, mid-turn, or running
+  its own background work) is a plausible reason a side session refuses to archive, since ending the child
+  while the parent that spawned it is still active leaves the parent holding a reference to a session that
+  no longer exists. `isRunning: true` on the session being archived itself is not a signal by contrast:
+  calling `archive_session self` is inherently a mid-turn action, so the target session reads `isRunning:
+  true` every time this is tried, refusal or not.
+- **`remoteControlState` / `remoteControlActive`.** `"off"` / `false` rules out the Remote Control client
+  possibility outright; anything else is a live candidate and matches the tool's own wording exactly.
+
+**What this buys you:** a refusal that would otherwise be reported as "unknown, ask the user" becomes
+either a specific, named cause (a busy parent session, an active Remote Control connection) worth stating
+plainly, or a confirmed elimination of two of the four possibilities, which narrows what remains to a
+queued message or a background task neither `get_session` nor `ListAgents` can see from here — genuinely
+"wait or ask the user" territory, but now for a smaller, honestly-stated remainder rather than the whole
+sentence.
+
+Origin 2026-09-26: a session dispatched two background agents (both completed and reported normally,
+neither visible in `ListAgents` afterward), stopped a pending `ScheduleWakeup`, and still had
+`archive_session self` refuse twice with the generic message. `get_session self` showed
+`parentSessionId` set and `detached: false`; the named parent's own `get_session` showed `isRunning: true`
+("Graylog monitoring setup investigation", a separate live conversation that had started this session as a
+side session and was still busy). Never confirmed as the sole cause (the refusal was reported to the
+operator rather than chased further that session), but it is the one lead `ListAgents` could not have
+surfaced and `get_session` produced in a single call, which is the point: check it before shrugging.
+
 ### Clear your own worktree, as the last tool call
 
 If this session has been working in its own worktree AND the boundary is a park rather than an archive,
