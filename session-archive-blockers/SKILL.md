@@ -2,7 +2,7 @@
 name: session-archive-blockers
 description: "Use when a Claude Code session refuses to archive, hangs on archive, or the archive/close attempt errors out blaming a running agent, a running background agent, or a background task as the reason it cannot end. Also fires on: archive stuck, archive won't complete, can't archive this session, orphaned background task, zombie subagent, nested background process, a TaskOutput 'Running background agent' entry with no matching ListAgents row, or a subagent's own completion notification saying its background work is still running. Covers the ordered checklist of known blockers to rule out (own session parentSessionId/detached state, Remote Control attachment, ListAgents rows still running, orphaned nested background tasks spawned BY a subagent that outlive its completion notification) before ever concluding the session cannot self-archive and must be closed from the GUI, plus the mandatory rule that any newly discovered blocker gets appended to this same checklist before the session finishes. NOT for the park-versus-archive distinction itself (pre-park-externalisation), NOT for worktree recycling between chips (chip-worktree-hygiene)."
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # session-archive-blockers
@@ -73,10 +73,34 @@ entry under its own, different, task id.
   names the orphaned task id explicitly.
 - **Fix:** stop that task id explicitly. Retry archive only after it is confirmed stopped.
 
-### 6. (reserved for the next blocker found)
+### 6. Your OWN hung foreground command, moved to the background, never finished
 
-Nothing further confirmed as of this skill's creation. See "Keeping this list alive" below; the
-next entry goes here, not in a separate note.
+The tell: earlier in the session a shell call came back with "Command did not complete within Ns and was
+moved to the background (ID: <id>)", and no completion notification ever followed for that id. The task
+stays registered as running for the whole session, invisible to `ListAgents` (it is not an agent), and
+the archive refusal names nothing. Every later call that DID finish drowns it out.
+
+Typical cause: a command that blocks on stdin, for example a stray `cat > file` (or `read`, `python -`
+with no input) chained in front of a heredoc, which consumes the terminal instead of the heredoc and
+waits forever; a hung `ssh`/`scp` prompt behaves the same way.
+
+- **Diagnose:** scan the session for every "moved to the background" line and confirm each id has a
+  matching completion notification. Any id without one is a suspect; its output file is empty or the
+  command text shows the blocking construct.
+- **Fix:** stop that id explicitly with the task-stop tool (it reports the command it killed, which
+  confirms the diagnosis), then retry archive.
+- **Prevent:** do not chain a bare `cat >` without its own `<<` or `<`; and when a call is auto-backgrounded
+  for hanging, stop it at once rather than working around it.
+
+Origin 2026-09-30: a session's very first NUC config-edit call hung on exactly this and was auto-backgrounded;
+the session then ran ten hours of other work, and three archive attempts were refused until that id was stopped.
+Ruled out first, in order: parent session (already archived), Remote Control (off), `ListAgents` (no rows),
+nested subagent tasks (none warned), and a scheduled task's completion subscription (cleared, no effect).
+
+### 7. (reserved for the next blocker found)
+
+Nothing further confirmed. See "Keeping this list alive" below; the next entry goes here, not in a
+separate note.
 
 ## Keeping this list alive (mandatory)
 
@@ -113,7 +137,7 @@ Stopping that id resolved it; the archive retry then succeeded immediately.
 
 An archive refusal blaming "a running agent" or "a background task" is diagnosable, not just
 clickable-from-GUI. Read the error literally, check this session's own parent/detach state, check
-Remote Control, check the agent list, and especially check for an orphaned nested background
-process a subagent spawned and left running after its own completion notification. Only ask for a
+Remote Control, check the agent list, check for an orphaned nested background
+process a subagent spawned, and check for your own earlier command that was auto-backgrounded and never finished. Only ask for a
 manual GUI close once the checklist is exhausted, and grow the checklist every time a new blocker
 turns up.
