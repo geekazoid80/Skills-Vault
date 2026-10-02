@@ -25,7 +25,7 @@ When this skill fires, before any planning content goes into a plan file or an A
 
 Path: `~/.claude/memory/MEMORY.md` + every file it links to.
 
-This is where cross-project `feedback_*.md` rules live (utc-timestamps, secrets-hygiene, multi-pat-direnv, git_branch_worktree_and_merge_traps, plan-files-concise, verify-now-not-next-session, index-entries-audit-first, etc.). Always read the index first; then read every linked file in parallel. These rules apply regardless of project.
+This is where cross-project `feedback_*.md` rules live (for example UTC timestamps, secrets handling, per-org credential setup, git branch and worktree traps, keeping plan files concise, verifying in the same session, and writing index entries from the source rather than a filename guess). Always read the index first; then read every linked file in parallel. These rules apply regardless of project.
 
 If `MEMORY.md` has changed since the last session (new entries, removed entries), the re-read picks up the delta naturally; do not skip on the assumption "I already know what's there."
 
