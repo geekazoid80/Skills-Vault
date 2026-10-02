@@ -99,6 +99,34 @@ access token or OAuth2).
 - No dated Asana changelog entry was found for a body-parsing change as of the date above, so treat this as
   "always send JSON", not "this recently broke".
 
+### Rich text (`html_notes` / `html_text`): a `<table>` cannot coexist with `<p>` or `<br/>`
+- The rich-text fields (`html_notes` on a task or project, `html_text` on a story) are validated as **strict
+  XML against a narrow, undocumented content model**, not as lenient HTML. A `<table>` cannot share a body
+  with a `<p>` or a `<br/>`, in either order, or the write fails with a bare
+  `{"errors":[{"error":"xml_parsing_error","message":"XML is invalid"}]}` that names no line and no tag.
+- Verified live 2026-09-21, each combination isolated on a disposable task's `html_notes`:
+
+  | Combination | Result |
+  |---|---|
+  | `<table>` alone, `<p>text</p>` alone, `<ul><li>text</li></ul>` alone, `<a href="...">text</a>` alone | OK |
+  | `<table>` + bare (unwrapped) text | OK |
+  | `<table>` + `<ul><li>` | OK |
+  | `<table>` + `<a>` as a body-level sibling (not nested in `<p>`) | OK |
+  | `<p>text</p>` then `<table>` (either order) | **FAILS**, `xml_parsing_error` |
+  | bare text then a `<p>` sibling | **FAILS** |
+  | `<a>` nested inside a `<p>` | **FAILS**, independent of any table |
+  | `<table>` + bare text + `<br/>` | **FAILS** |
+
+- **The practical rule: once a `<table>` is in the body, use no `<p>` and no `<br/>` anywhere in it.** Write
+  prose as bare text nodes separated by blank lines, emphasis as `<strong>` / `<em>`, lists as `<ul><li>`,
+  and a link as a body-level `<a href="...">` (never inside a paragraph). A plain URL in bare text also works
+  if a clickable link is not essential.
+- The error carries no detail, so **bisect by cutting the payload** into progressively smaller fragments
+  rather than guessing from the full body.
+- **Read it back, never trust the 200.** `GET` the task with `opt_fields=html_notes` (the story with
+  `html_text`) and confirm the `<table>` / `<tr>` structure persisted. The plain `notes` / `text` mirror
+  flattens a table to ordinary text and looks fine, so reading that field proves nothing.
+
 ### Mechanics
 - **Pagination**: `limit` (1-100) + `offset` (opaque token from `next_page.offset`).
 - **Sparse fields**: `opt_fields=a,b.c` (nested with dots). Many fields are opt-in (e.g. `parent`, `members`).

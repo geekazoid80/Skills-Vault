@@ -167,7 +167,8 @@ including plain interactive reads, not an exception.
   a hand-maintained "behaviours worth knowing" section: team-share via `POST /memberships` (not `addMembers`,
   which rejects teams); `access_level` enums per resource; the `private_to_team` -> `private` privacy trap;
   notifications are not in the API; portfolio membership does not cascade to child projects; the
-  custom-field-on-portfolio gotcha; pagination + rate limits.
+  custom-field-on-portfolio gotcha; the JSON-body requirement for every write; rich-text bodies (a `<table>`
+  cannot share an `html_notes` / `html_text` body with `<p>` or `<br/>`); pagination + rate limits.
 - **`references/gen_asana_ref.py`** - regenerates the reference from Asana's official OpenAPI spec.
 
 **Refresh on use when stale (cache-with-TTL, 30 days).** The reference carries a "Last refreshed" date and a
