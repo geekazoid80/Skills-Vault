@@ -2,7 +2,7 @@
 name: macos-office-docs
 description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # macOS Office Docs
@@ -40,7 +40,7 @@ APPLESCRIPT
 pdftoppm -jpeg -r 110 ~/Downloads/deck.pdf slide     # slide-1.jpg ... zero-padded from 10 pages up
 ```
 
-**Word is UNVERIFIED.** It is expected to behave the same way (`tell application "Microsoft Word"`, `save as active document file name "<path>" file format format PDF`), but only PowerPoint was ever exercised. Run it once against any existing `.docx`, writing to a standard user folder per trap 1, and record the result before relying on it. Do not state it as tested.
+**Word works the same way, but its exact verbs were never written down.** A 14-page policy `.docx` was opened and saved to PDF headless under the same 540-second timeout on 2026-08-09, with the same two traps below holding. The command was not recorded, so the form to expect is `tell application "Microsoft Word"` with `save as active document file name "<path>" file format format PDF`. Treat that as the starting point, write to `~/Downloads` per trap 1, and record the exact working command here the first time you run it.
 
 ### The two traps, both silent
 
@@ -98,8 +98,8 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Rezipping with a hand-picked file list that omits a part, or skipping the `unzip -l` count against the original.
 - Overwriting a Box-synced file without checking whether Word has it open.
 - `rm` on a synced file instead of `mv` to the Trash.
-- Declaring Word PDF export working when only PowerPoint was tried.
+- Quoting the Word verbs above as tested; only the outcome was verified, not the command.
 
 ## Bottom line
 
-Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. Word rendering is still unverified.
+Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. Word rendering is confirmed to work, but its exact verbs still need recording.
