@@ -1,6 +1,6 @@
 ---
 name: powershell-module-compat
-description: Use before installing, importing, or running any PowerShell module for an M365 / Entra / Exchange Online / Microsoft Graph / Power Platform / Azure operation, especially on pwsh 7 (PowerShell Core) on macOS or Linux (the NUC). Fires on symptoms - "The term '<cmdlet>' is not recognized" after a successful Import-Module; a module that imports with an "unapproved verbs" warning but whose cmdlets are then missing; Add-PowerAppsAccount / Test-PowerAppsAccount / New-PowerAppManagementApp not found; an M365 module that "installs fine but does nothing"; Desktop-vs-Core or Windows-PowerShell-5.1-vs-pwsh-7 edition mismatch. NOT for guaranteed Windows PowerShell 5.1 environments, NOT for non-PowerShell tooling. Covers the pre-flight check (PSVersion + $IsWindows + CompatiblePSEditions + Get-Command the SPECIFIC cmdlet after import) and the three escape hatches (Windows PowerShell 5.1, the REST API with an az-cli / MSAL / cert-JWT token, or a cross-platform module), plus the known M365 traps (Power Platform admin modules, EXO cert-file-vs-thumbprint, Graph X509Certificate2). ALSO covers the adjacent bash-vs-pwsh shell-syntax trap - pasting unix command syntax into a PowerShell prompt - symptoms "Missing property name after reference operator", "The term '-H' is not recognized", "could not be loaded ... Import-Module 'TOKEN=...'", a multi-line curl / scp / ssh failing on the second line, a bash $(...) / VAR= assignment / backslash line-continuation / export / heredoc rejected at a PS> prompt; fix by running unix commands in zsh/bash or translating REST calls to Invoke-RestMethod -Headers @{}. ALSO covers the SharePoint-admin-from-Linux escape - the Windows-only SharePoint Online Management Shell (Set-SPOUser -IsSiteCollectionAdmin) does not run on pwsh 7, and PnP.PowerShell admin cmdlets (Set-PnPTenantSite -Owners, Add-PnPSiteCollectionAdmin) return 'unauthorized' on Linux even with a correct SharePoint-audience token and full admin roles (pnp/powershell #889, systemic since 2024-05-09), so both route to CLI for Microsoft 365 (@pnp/cli-microsoft365, a Node.js tool, m365 spo site admin add/remove --asAdmin). ALSO covers the single-item-collection-return trap - a function that builds a List/array and returns it with a bare `return $list` unwraps to a bare scalar at the caller when the collection holds exactly one element (0 or 2+ elements return the real collection type), so `$result.Count` still reads 1 but a later range-index slice (`$result[0..0]`) on the collapsed scalar silently returns empty with no error; fix with the unary comma operator, `return ,$list`.
+description: "Use before installing, importing, or running any PowerShell module for an M365 / Entra / Exchange Online / Microsoft Graph / Power Platform / Azure operation, especially on pwsh 7 (PowerShell Core) on macOS or Linux (the NUC). Fires on symptoms - \"The term '<cmdlet>' is not recognized\" after a successful Import-Module; a module that imports with an \"unapproved verbs\" warning but whose cmdlets are then missing; Add-PowerAppsAccount / Test-PowerAppsAccount / New-PowerAppManagementApp not found; an M365 module that \"installs fine but does nothing\"; Desktop-vs-Core or Windows-PowerShell-5.1-vs-pwsh-7 edition mismatch. NOT for guaranteed Windows PowerShell 5.1 environments, NOT for non-PowerShell tooling. Covers the pre-flight check (PSVersion + $IsWindows + CompatiblePSEditions + Get-Command the SPECIFIC cmdlet after import) and the three escape hatches (Windows PowerShell 5.1, the REST API with an az-cli / MSAL / cert-JWT token, or a cross-platform module), plus the known M365 traps (Power Platform admin modules, EXO cert-file-vs-thumbprint, Graph X509Certificate2). ALSO covers the adjacent bash-vs-pwsh shell-syntax trap - pasting unix command syntax into a PowerShell prompt - symptoms \"Missing property name after reference operator\", \"The term '-H' is not recognized\", \"could not be loaded ... Import-Module 'TOKEN=...'\", a multi-line curl / scp / ssh failing on the second line, a bash $(...) / VAR= assignment / backslash line-continuation / export / heredoc rejected at a PS> prompt; fix by running unix commands in zsh/bash or translating REST calls to Invoke-RestMethod -Headers @{}. ALSO covers the SharePoint-admin-from-Linux escape - the Windows-only SharePoint Online Management Shell (Set-SPOUser -IsSiteCollectionAdmin) does not run on pwsh 7, and PnP.PowerShell admin cmdlets (Set-PnPTenantSite -Owners, Add-PnPSiteCollectionAdmin) return 'unauthorized' on Linux even with a correct SharePoint-audience token and full admin roles (pnp/powershell #889, systemic since 2024-05-09), so both route to CLI for Microsoft 365 (@pnp/cli-microsoft365, a Node.js tool, m365 spo site admin add/remove --asAdmin). ALSO covers the single-item-collection-return trap - a function that builds a List/array and returns it with a bare `return $list` unwraps to a bare scalar at the caller when the collection holds exactly one element (0 or 2+ elements return the real collection type), so `$result.Count` still reads 1 but a later range-index slice (`$result[0..0]`) on the collapsed scalar silently returns empty with no error; fix with the unary comma operator, `return ,$list`. ALSO covers three more pwsh 7 traps seen with Microsoft.Graph.Authentication: 'Argument types do not match' from @($list) on a List made with New-Object; a phantom nested element after @(Func ...) where Func does `return ,$array`; a write loop that carried on past a failure because an HTTP status was regex-parsed out of an exception message (a throttled Invoke-MgGraphRequest, 'retry after 404 seconds' read as a 404). Also covers testing a real .ps1 by shadowing a cmdlet with a same-named function, where the fake must fail the way the real module fails."
 ---
 
 # PowerShell module compatibility pre-flight
@@ -92,13 +92,49 @@ element** (0 or 2+ elements return the real collection type unchanged).
   collection: a range-index slice (`$result[0..0]`) on the collapsed scalar silently returns EMPTY
   rather than the one item, with no error and no exception.
 - **Fix:** `return ,$list` (the unary comma operator) forces the object through as the collection it
-  is, regardless of element count.
+  is, regardless of element count. The caller then has its own half of the contract: see trap 2
+  below, since `@(Func ...)` around a comma-returning function nests the array.
 - **Who is safe:** a caller that only ever does a plain `foreach ($x in $result)` is unaffected
   either way (it iterates a scalar once, functionally identical to a 1-element array). The risk is
   index access, range slicing, `.Count`-gated branching, or piping into something that behaves
   differently for a scalar vs. an array.
 - **Test the 1-item case explicitly.** A happy-path test using 0 or 2+ items will never catch this;
   only an exactly-one-item input exercises the collapse.
+
+## Three more traps in Graph SDK scripts (collections and error handling)
+
+Probed on pwsh 7.6.3 with `Microsoft.Graph.Authentication` 2.40.0. Re-probe on your own versions before
+leaning on the exact behaviour; the symptoms are what to recognise.
+
+1. **`@($list)` can throw `Argument types do not match`, depending on how the list was built.** It throws
+   when `$list` came from `New-Object System.Collections.Generic.List[object]` and works when it came from
+   `[System.Collections.Generic.List[object]]::new()`. Same type name, different construction path. The
+   unary-comma return idiom above does not fix it. Use `::new()` everywhere; a static test can grep the
+   script for `New-Object ... List`.
+2. **`@(SomeFunction ...)` nests the array that a `return ,$array` function hands back.** Assign first,
+   then wrap: `$x = SomeFunction ...; $arr = @($x)`. Symptom seen: one garbage element with an empty type
+   name, which then read as a genuinely new item.
+3. **Never parse an HTTP status out of an exception message.** A throttled `Invoke-MgGraphRequest`
+   (it retries a 429 itself, up to three times) ends as an `AggregateException` with a null `Response`,
+   and its message embeds the Graph response body. A regex over that message read `retry after 404 seconds`
+   as HTTP 404, and a write loop carried on past a failure.
+   - Read `$_.Exception.Response.StatusCode` only. If it is unreadable, the status is UNKNOWN: treat that as
+     a stop for a write loop, never as success.
+   - `$_.ErrorDetails.Message` on this module is the whole HTTP exchange (headers and body), not JSON, so
+     `ConvertFrom-Json` on it fails. Extract only the `"code"` token, and never print the dump.
+
+## Testing a real .ps1 against a fake: shadow the cmdlet
+
+A function shadows a cmdlet of the same name, so a test can run the REAL script against an in-memory fake
+(`function Invoke-MgGraphRequest`, `Connect-MgGraph`, `Read-Host`, `Import-Module`) with no network and no
+sign-in.
+
+- **The fake must fail the way the real module fails, or it proves nothing about the error path.** A
+  first-version fake that threw plain exceptions hid trap 3 entirely. Model the real shapes: an exception
+  carrying `Response.StatusCode`, an `ErrorRecord` with `ErrorDetails`, and an exception with no
+  `Response` at all.
+- `[Environment]::Exit` inside the fake models a hard kill, which is the only honest test of a script
+  that claims to write its results incrementally.
 
 ## Red flags
 
@@ -118,6 +154,14 @@ element** (0 or 2+ elements return the real collection type unchanged).
 - A function returning a built-up List/array with a bare `return $list`, where the caller does
   anything more than a plain `foreach` over the result: check the 1-item case explicitly, since
   0- and 2+-item returns hide the collapse.
+- `@($list)` throwing `Argument types do not match`, or `@(Func ...)` giving one odd element with an
+  empty type name: check how the list was built (`New-Object` versus `::new()`) and whether `Func`
+  returns `,$array`, before suspecting the data.
+- A write loop that decides what to do from a status regex-matched out of an exception message, or from
+  `ConvertFrom-Json` on `ErrorDetails.Message`. Read `Response.StatusCode`; unreadable means UNKNOWN and
+  stops the loop.
+- A test fake for `Invoke-MgGraphRequest` (or any Graph cmdlet) that throws plain exceptions: it cannot
+  reach the error path the real module takes.
 
 ## Bottom line
 
