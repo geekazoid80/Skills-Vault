@@ -2,7 +2,7 @@
 name: multi-agent-repo-coordination
 description: "Use before the first edit, commit, or push in any git repo that a concurrent agent or person may also be touching this session - peer Claude sessions, a shared estate or knowledge base, or a repo whose `.git` is shared by other worktrees. Trigger phrases and symptoms - \"worktree\", \"concurrent session\", \"peer is editing\", \"shared checkout\", \"multi-agent\", a branch ref that shuffled mid-commit, a commit that landed on the wrong branch, \"cannot lock ref\", \"'<base>' is already used by worktree\", a push that seemed to vanish, `git rev-parse origin/<branch>` failing after a push that landed, two local clones of one repo under different names, \"rename the repo directory\", \"mv the clone\", a folder-name cleanup or space-to-hyphen rename batch, a session whose cwd vanished mid-run, \"no such file or directory\" right after a directory was moved, a stale clone serving old code, a parallel session that merged the same feature, a merged change that reads back as absent from whatever consumes the repo, \"the rebuild did not pick it up\", a symlink farm or editable install or PATH entry pointing into a clone, a clone left parked on a feature branch. Covers worktree-per-session, ff-only sync, branch-per-task, verify-the-pushed-ref via `ls-remote`, SHA recovery after a ref shuffle, append-not-rewrite for shared docs and memory, clone-not-assume (one canonical local clone), treating a clone that something resolves through by path as a live serving surface (it serves the checked-out working tree, so branch in a worktree and keep it on main; regenerating the integration does not rescue it and `pull --ff-only` refuses), and treating a repo-directory rename as a multi-session operation (check every session cwd before each move, record the old-to-new mapping durably). NOT for solo repos with no concurrent actors; NOT for choosing where on disk a repo lives (that is repo-safe-locations). Composes with using-git-worktrees and pull-before-dev."
 metadata:
-  version: 1.3.1
+  version: 1.3.2
 ---
 
 # Multi-Agent Repo Coordination
@@ -150,6 +150,12 @@ When a change you just built hits a "not mergeable" conflict, a parallel session
 
 `gh pr merge <N> --delete-branch` run from inside a linked worktree of the same repo errors `'<base>' is already used by worktree` (gh cannot check out the base held by the canonical clone), but the **API merge still succeeds**. Verify `state=MERGED`, then clean up by hand: `worktree remove`, `pull --ff-only` the canonical base, `branch -D` plus `push origin --delete` the head. Gate on the merged-state artifact, not the `gh` exit code.
 
+## A failed `gh pr merge` chained to a branch delete closes the open PR
+
+`gh pr merge N --squash 2>&1 | tail -1; ...; git push origin --delete <branch>` in one shell call: the merge can answer "Pull request is not mergeable" (GitHub has not finished computing mergeability for a few seconds after a push), the pipeline's exit status is `tail`'s so nothing stops, and the delete runs against the head branch of a PR that is still open. GitHub then closes the PR. Nothing is lost if the local HEAD equals the PR head: re-push the branch, `gh pr reopen N`, wait for `mergeable` to leave `UNKNOWN`, merge, and only then delete.
+
+**Key every delete off a read of the PR's own state, never off the merge command's output.** Run `gh pr view N --json state -q .state` and delete only when it says `MERGED`, written as an explicit `if` rather than a `;` chain. After a push, poll `mergeable` until it is not `UNKNOWN` before merging at all. A merge that prints its own success line is still not evidence: only the state read is. Same family as the worktree error above: cleanup steps read as harmless and are not, so they follow the object's state, not the previous command.
+
 ## Deciding a branch is finished: the tree test and the PR state answer different questions
 
 Before deleting any branch in a shared repo, know which question you are asking. `git merge-tree --write-tree <base> <branch>` compared against the base tree answers **"would merging this change the base"**. That is not the same as **"is this branch finished"**, and the gap runs both ways:
@@ -186,6 +192,7 @@ Then confirm the local tip is what actually merged, by comparing the branch tip 
 - Reading "the merged change is missing from the consumer" as a merge or sync problem before checking what branch the clone is on.
 - Leaving a clone parked on a branch with no record of who parked it, why, or when it returns to `main`.
 - Deleting a branch on the tree test alone, without resolving its PR state at the moment of deletion.
+- A `gh pr merge ...; git push origin --delete` chain in one call, where the delete is not conditioned on the PR reading `MERGED`.
 - Reading a `merge-tree` difference as unmerged work when the base has simply moved on past a squash merge.
 
 ## Bottom Line
