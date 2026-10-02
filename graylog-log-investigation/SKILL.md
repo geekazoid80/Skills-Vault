@@ -1,9 +1,9 @@
 ---
 name: graylog-log-investigation
-description: "Use for any Graylog log investigation, query construction, alerting, or operational work. Covers Graylog 5.x and 6.x; the query language is Lucene + Graylog extensions (range, exists, list, fuzzy, regex). Triggers include 'graylog', 'graylog query', 'graylog search', 'graylog stream', 'graylog dashboard', 'graylog alert', 'graylog sidecar', 'graylog input', 'graylog content pack', 'graylog index set', 'graylog rotation strategy', 'graylog retention strategy', 'graylog API token', 'syslog severity', 'log level numeric', 'investigate this error', 'find logs by correlation id', 'aggregate log counts by host', 'log volume spike', 'log retention policy', 'graylog vs elastic stack', 'pipeline rules', 'extractor', 'GELF', 'beats input', 'syslog input'. Combines Graylog query-language reference (severity numerics 0-7 per RFC 5424, range syntax, exists / list / not, fuzzy + regex, time-range filters with relative + absolute + keyword forms), an investigation workflow (define scope, narrow by source / time / severity, pivot via correlation id, aggregate to spot patterns, escalate or close), index lifecycle management (rotation strategies time / size / message-count, retention strategies delete / close / archive, index set per data class), stream + pipeline + alert mechanics, sidecar / collector basics for Filebeat / NXLog / fluentd / rsyslog. Self-authored from public Graylog and RFC 5424 documentation; the NorceTech graylog-cli wrapper inspired the CLI-friendly query patterns but is not the source (no upstream licence). Pairs with linux-host-ops (host-side log shipping via systemd-journal-upload / Filebeat / rsyslog), zabbix-templates-and-triage (Stage 4 sibling; metrics complement logs in incident triage), oncall-runbooks (the runbook should name the Graylog stream and saved search the on-call engineer should open first), systematic-debugging (Phase 1 boundary evidence often surfaces in Graylog before metrics), secrets-hygiene (Graylog API tokens, LDAP service account, S3 / cold-storage archive credentials). For the Elasticsearch and OpenSearch search backend that Graylog shares with the Elastic Stack (ELK), covering data streams, ILM tiering, and KQL / Lucene / ES|QL log search, see references/elastic-stack-log-backend.md; for vendor-neutral SIEM / SOAR strategy, detection engineering, and SOAR playbooks see siem-soar-investigation."
+description: "Use for any Graylog log investigation, query construction, alerting, or operational work. Covers Graylog 5.x and 6.x; the query language is Lucene + Graylog extensions (range, exists, list, fuzzy, regex). Triggers include 'graylog', 'graylog query', 'graylog search', 'graylog stream', 'graylog dashboard', 'graylog alert', 'graylog sidecar', 'graylog input', 'graylog content pack', 'graylog index set', 'graylog rotation strategy', 'graylog retention strategy', 'graylog API token', 'syslog severity', 'log level numeric', 'investigate this error', 'find logs by correlation id', 'aggregate log counts by host', 'log volume spike', 'log retention policy', 'graylog vs elastic stack', 'pipeline rules', 'pipeline simulator', 'pipeline rule never matches', 'grok', 'extractor', 'streams:read', 'role permissions', 'search returns zero', 'event alert returns nothing', 'GELF', 'beats input', 'syslog input'. Combines Graylog query-language reference (severity numerics 0-7 per RFC 5424, range syntax, exists / list / not, fuzzy + regex, time-range filters with relative + absolute + keyword forms), an investigation workflow (define scope, narrow by source / time / severity, pivot via correlation id, aggregate to spot patterns, escalate or close), index lifecycle management (rotation strategies time / size / message-count, retention strategies delete / close / archive, index set per data class), stream + pipeline + alert mechanics, sidecar / collector basics for Filebeat / NXLog / fluentd / rsyslog. Self-authored from public Graylog and RFC 5424 documentation; the NorceTech graylog-cli wrapper inspired the CLI-friendly query patterns but is not the source (no upstream licence). Pairs with linux-host-ops (host-side log shipping via systemd-journal-upload / Filebeat / rsyslog), zabbix-templates-and-triage (Stage 4 sibling; metrics complement logs in incident triage), oncall-runbooks (the runbook should name the Graylog stream and saved search the on-call engineer should open first), systematic-debugging (Phase 1 boundary evidence often surfaces in Graylog before metrics), secrets-hygiene (Graylog API tokens, LDAP service account, S3 / cold-storage archive credentials). For the Elasticsearch and OpenSearch search backend that Graylog shares with the Elastic Stack (ELK), covering data streams, ILM tiering, and KQL / Lucene / ES|QL log search, see references/elastic-stack-log-backend.md; for vendor-neutral SIEM / SOAR strategy, detection engineering, and SOAR playbooks see siem-soar-investigation."
 license: Apache-2.0
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Graylog Log Investigation
@@ -219,6 +219,52 @@ Extractors cannot express — and if a pipeline rule with `regex()` compiles but
 assume the rule is broken before checking a plain search for the messages it should be matching; it may be
 a silent runtime no-op rather than a logic error.
 
+**The `["matches"]` condition is the specific failure, and it can be false even for a pattern that matches
+the same text everywhere else.** A rule whose `when` clause reads `regex("...", to_string($message.message))["matches"]`
+can evaluate false for a message that a plain search, a regex tester and an extractor all match with the
+identical pattern, anchored or not, while the plain `contains()` clauses in the same `when` pass. No error is
+raised; the rule simply never fires. Do not spend time rewriting the pattern. Take the capture out of the
+`when` clause and use `grok()` (or an extractor) instead:
+
+```
+rule "extract denied source address"
+when
+  has_field("message") && contains(to_string($message.message), "permission denied")
+then
+  set_fields(grok(pattern: "from: %{IPV4:denied_from} community", value: to_string($message.message), only_named_captures: true));
+end
+```
+
+`grok()` returns an empty map for a line it does not match, so `set_fields` on an unmatched message adds
+nothing and is safe to leave unguarded. Keep the cheap `contains()` pre-filter in `when` so the grok only runs
+on candidate messages. Whatever you choose, prove the rule fires with the simulator below before trusting it.
+
+### Test and bisect a pipeline rule with the simulator, not by watching live traffic
+
+Waiting for live messages to show whether a rule fires is slow and proves little when a rule is silently
+inert. Use the pipeline simulator over the API:
+
+```
+POST /api/system/pipelines/simulate
+{"stream_id": "<stream id>", "input_id": "<input id>",
+ "message": {"_id": "<any uuid>", "message": "<a real raw line>", "source": "<synthetic source>"}}
+```
+
+- The message object needs **`_id`**, not `id`; with `id` the request is rejected or the message is not
+  recognised. Like every non-GET Graylog call it needs an `X-Requested-By` header.
+- The response carries a rule-by-rule trace (which `when` clauses passed, which rule ran, which stage) plus the
+  resulting fields, so you see exactly which clause fails instead of guessing.
+- **Bisect by clause.** Run the same message with the `when` clause cut down one condition at a time; the
+  first clause whose removal flips the rule to matched is the culprit.
+- **Add a negative control.** Feed a message that must NOT match and confirm the output carries no new field. A
+  rule that "passes" because it matches everything is as broken as one that matches nothing.
+- **When bisecting on a live rule, guard every variant on a synthetic `source`** (a documentation-range
+  address that no real device uses) so live traffic cannot match your experimental variant, and restore the
+  saved original rule in a `finally`-style step so a failed experiment does not leave the pipeline altered.
+- To prove a deployed rule has never matched, read its `matched`, `not-matched` and `failed` meters
+  (`Rule.<rule id>...`) from the metrics API or the System > Metrics page: a rule whose `matched` stays at zero
+  while `not-matched` climbs is evaluating and failing, not being skipped.
+
 ## Alerts
 
 Alerts attach to a stream and a condition:
@@ -264,6 +310,30 @@ own top-level `"id"` field to match the URL's id — omitting it returns `"Notif
 the definitions equivalent) rather than silently ignoring the mismatch. (2) A freshly-created event
 definition is `state: DISABLED`; enable with `PUT /api/events/definitions/{id}/schedule` (returns
 `state: ENABLED`), disable the same way with `.../unschedule`.
+
+### A token without `streams:read` on a stream gets a silent zero, not an error
+
+Searches and event-alert queries are filtered to the streams the caller may read. Ask for data in a stream the
+token has no `streams:read` on and Graylog does not return 403: it returns an **empty result with HTTP 200**,
+indistinguishable from "nothing happened". A detector or report built on that token will look healthy while
+seeing none of the traffic.
+
+- **Treat a surprising zero as a permission gap until proven otherwise.** Repeat the identical query, over the
+  same closed time window, with a broader (admin-level) token and compare counts. A closed window matters:
+  comparing against live traffic makes a difference of a few messages ambiguous. Equal counts mean the zero is
+  real; reader lower than admin means the reader cannot see the stream.
+- **Grant it on the role, not on the token.** For a read-only automation role, prefer the **wildcard
+  `streams:read`** (no stream id) over listing stream ids one at a time: a new stream is then readable without
+  another round of "why is it zero", and the grant is still read-only. Listing ids is the right call only where
+  the role must be confined to specific streams.
+- **API path.** Read and change roles at `/api/roles/<role name>`. `/api/authorization/roles` is the web UI
+  route and returns the single-page-app HTML, which reads like a broken endpoint.
+- **A role `PUT` needs the full body** (name, description, the complete permissions list, `read_only`), and the
+  permissions list replaces the old one. Read the role first, add the permission to that list, and send the
+  whole thing back; sending only the new permission strips the rest.
+- Read-back after the change: list the streams as the reader token and re-run the comparison above, rather
+  than trusting the PUT's 200. Note that `streams:read` does not let a token list event definitions; that is
+  `eventdefinitions:read`, and the two are independent.
 
 ## Index lifecycle
 
@@ -313,6 +383,8 @@ For Linux hosts: prefer Filebeat or rsyslog with the omfwd module shipping to a 
 - **API token in dashboard URL.** Tokens belong in the secret store, not in shared links.
 - **Index sets per stream.** Sets cost cluster overhead; consolidate by data class.
 - **Sidecar configuration drift.** Hosts run different collector configs because someone edited one in place; bring them all back under sidecar control.
+- **Trusting a pipeline rule because it compiled.** A rule can be accepted, connected and never match (see the `["matches"]` note under Extractors); simulate it, with a negative control.
+- **Trusting a zero from a restricted token.** A missing `streams:read` returns an empty 200, not an error; compare against a broader token.
 - **No timestamp normalisation.** Some shippers send local time; without normalisation, search by `timestamp` returns wrong-timezone results.
 
 ## Elastic Stack as the search backend
@@ -346,6 +418,9 @@ Graylog stores and searches through Elasticsearch or OpenSearch, the same substr
 - About to disable the Sidecar collector configuration "to make a quick local change" (drift is forever).
 - About to delete an index set for "old logs" without confirming retention overlap with audit / compliance requirements.
 - About to add a wildcard regex to a pipeline rule that runs on every message (cluster CPU spike).
+- About to rely on `regex(...)["matches"]` in a rule's `when` clause without a simulator run that shows it true.
+- About to believe an empty search or event-alert result from a token whose stream permissions you have not checked.
+- About to `PUT` a role with only the permission you are adding (the body replaces the whole list).
 
 ## Bottom line
 
