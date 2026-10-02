@@ -27,7 +27,7 @@ Each has a sweet spot. Under 4 items, plan-file prose reads fine. At 4+ items, t
 ≥ 4 in-flight items   → harness TaskCreate; plan file holds only a one-line pointer
 ```
 
-**"In-flight"** means anything currently `pending` or `in_progress` that the user is waiting on the assistant to resolve. Completed items don't count (plan files shouldn't carry done history per `feedback_plan_files_concise.md` anyway).
+**"In-flight"** means anything currently `pending` or `in_progress` that the user is waiting on the assistant to resolve. Completed items don't count (plan files shouldn't carry done history anyway).
 
 The trigger fires the moment the queue **would** cross the threshold, not retroactively at chunk-close. If about to write the 4th bullet in a plan file's current-chunk section, call `TaskCreate` instead.
 
@@ -72,7 +72,7 @@ Three concrete problems with using harness tasks at low count:
 
 - **`plan-time-tooling`** owns the plan file's "Tooling to use this chunk" section. The Tooling section is prose and stays in the plan file regardless of where the task queue lives.
 - **`reread-memory-before-planning`** owns the standing-reminder block at the top of every plan file. That block stays in the plan file regardless.
-- **`feedback_plan_files_concise.md`** (global memory) says the plan file carries only doing + todo. This skill refines: at >3 items, the "todo" moves to harness tasks; the plan file then carries only background + principles + pointer.
+- The standing plan-file rule says the plan file carries only doing + todo. This skill refines: at >3 items, the "todo" moves to harness tasks; the plan file then carries only background + principles + pointer.
 - **CLAUDE.md "Switch from plan.md prose to TaskCreate at four in-flight items"** is the always-on safety net. This skill is the keyword-triggered version that catches sessions where the always-on rule was not internalised.
 
 ## Red flags

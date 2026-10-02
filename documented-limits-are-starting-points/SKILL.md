@@ -64,8 +64,7 @@ which sources need the alternative path, which are JavaScript-rendered and need 
 entirely, and which are genuinely blocked to everything. A source that fails every path is a real gap, so
 name it and say what it costs. A noisy false gap is very good at hiding a quiet true one.
 
-Full rationale and the origin incident live in
-[the under-reporting-surveys memory entry](../../memory/surveys_that_under_report.md), shape 3.
+Full rationale and the origin incident are recorded in a memory note on under-reporting surveys (shape 3), kept outside this vault.
 
 ## Red-flag carve-out: when the wall IS terminal
 
@@ -123,8 +122,7 @@ The carve-out above still applies in this direction. A constraint you can trace 
 a compliance rule or an architectural invariant is terminal whether or not anyone wrote it down. The
 test is whether you can NAME it, not whether it felt right.
 
-Full rule and the origin incident live in
-[the claim-is-not-evidence memory entry](../../memory/a_claim_is_not_evidence.md), eighth shape.
+Full rule and the origin incident are recorded in a memory note on the claim-is-not-evidence failure (eighth shape), kept outside this vault.
 Adjacent skills, which do not cover this: `verify-before-asserting` gates a finding about state that
 someone else will act on, and `completion-gate` gates a claim that your own work is finished. This is
 neither, it is a claim about what the code will let you do, made while you still have time to look.

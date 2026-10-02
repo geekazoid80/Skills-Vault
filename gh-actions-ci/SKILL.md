@@ -73,7 +73,7 @@ Adjacent pitfall: tooling-flag drift. `pandoc --highlight-style=...` (PR #7), `b
 
 ## CI debugging from a fine-grained PAT
 
-Fine-grained PATs cannot call the GitHub Checks API; `gh pr checks` returns HTTP 403 with `Resource not accessible by personal access token`. The full background lives in the [Multi-PAT direnv setup](../../memory/multi-pat-direnv.md) memory entry (the Checks-API gap section).
+Fine-grained PATs cannot call the GitHub Checks API; `gh pr checks` returns HTTP 403 with `Resource not accessible by personal access token`. The full background lives in a Multi-PAT direnv setup memory note (the Checks-API gap section), kept outside this vault.
 
 **Practical CI-debug substitute under `Actions: Read/Write`** (which IS grantable to fine-grained PATs):
 

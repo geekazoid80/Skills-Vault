@@ -118,10 +118,10 @@ When in doubt, flush. The cost is small and the failure mode (next session loses
 
 ## Cross-references
 
-- `park_and_standdown_discipline.md` (`~/.claude/memory/`), companion memory carrying this rule for the Class 1 re-read. (It previously named `feedback_pre_park_externalisation.md`, which was absorbed into that file and no longer exists; verified absent on disk rather than inferred.)
+- The companion memory note on park and standdown discipline, in your global memory directory (`~/.claude/memory/`) if you keep one, which carries this rule for the Class 1 re-read.
 - `using-git-worktrees`, which owns worktree disposal, why nothing else does it, and the preserve-before-removing steps. This skill only fixes where the removal sits in the park order.
 - `reread-memory-before-planning`, sibling discipline at plan-mode entry; both maintain durability across process boundaries.
-- `feedback_plan_files_concise`, plan file shape; the pre-park dump is allowed to grow the plan file but goes in its OWN clearly-labelled section (not interleaved with in-flight chunk content), and is the FIRST thing trimmed on next-session resume after tasks are re-created.
+- The standing plan-file-shape rule: the pre-park dump is allowed to grow the plan file but goes in its OWN clearly-labelled section (not interleaved with in-flight chunk content), and is the FIRST thing trimmed on next-session resume after tasks are re-created.
 - `task-vs-plan-tracking`, covers the opposite direction (plan → tasks at 4+ in-flight items). At park time, the discipline reverses: task → plan regardless of count, for the duration of the park.
 - `~/.claude/CLAUDE.md § Pre-park externalisation pass`, always-on safety net for moments when this skill does not load.
 - `~/.claude/CLAUDE.md § Pre-compact externalisation pass`, sibling rule for the OTHER process boundary (chunk-level compact vs session-level park).
