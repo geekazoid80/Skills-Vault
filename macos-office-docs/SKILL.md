@@ -2,7 +2,7 @@
 name: macos-office-docs
 description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.1
+  version: 1.0.2
 ---
 
 # macOS Office Docs
@@ -40,7 +40,22 @@ APPLESCRIPT
 pdftoppm -jpeg -r 110 ~/Downloads/deck.pdf slide     # slide-1.jpg ... zero-padded from 10 pages up
 ```
 
-**Word works the same way, but its exact verbs were never written down.** A 14-page policy `.docx` was opened and saved to PDF headless under the same 540-second timeout on 2026-08-09, with the same two traps below holding. The command was not recorded, so the form to expect is `tell application "Microsoft Word"` with `save as active document file name "<path>" file format format PDF`. Treat that as the starting point, write to `~/Downloads` per trap 1, and record the exact working command here the first time you run it.
+**Word works the same way.** Verified headless twice: a 14-page policy `.docx` on 2026-08-09 and a one-page throwaway on 2026-10-02, both to PDF in `~/Downloads`. Only the dictionary terms differ:
+
+```bash
+osascript <<'APPLESCRIPT'
+with timeout of 540 seconds
+  tell application "Microsoft Word"
+    open POSIX file "/abs/path/doc.docx"
+    set d to active document
+    save as d file name "/Users/<me>/Downloads/doc.pdf" file format format PDF
+    close d saving no
+  end tell
+end timeout
+APPLESCRIPT
+```
+
+Word may already be running, so address only the document you opened and close only that one. Do not name an AppleScript variable `before` or `after`; both are reserved words and fail with a `-2741` syntax error. The 2026-10-02 probe confirmed the recipe but did not re-test the two traps below for Word; the 2026-08-09 run found both held.
 
 ### The two traps, both silent
 
@@ -57,7 +72,7 @@ pdftoppm -jpeg -r 110 ~/Downloads/deck.pdf slide     # slide-1.jpg ... zero-padd
 
 ### Why Office rather than LibreOffice for visual QA
 
-Office is the renderer the audience will actually use, so text fit, font metrics and layout are exact. LibreOffice substitutes fonts it lacks, which makes overflow checks unreliable.
+Office is the renderer the audience will actually use, so text fit, font metrics and layout are exact. LibreOffice substitutes fonts it lacks, which makes overflow checks unreliable (the first-party `pptx` skill says the same).
 
 ## Part B: change an existing .docx or .pptx and keep its format
 
@@ -98,8 +113,7 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Rezipping with a hand-picked file list that omits a part, or skipping the `unzip -l` count against the original.
 - Overwriting a Box-synced file without checking whether Word has it open.
 - `rm` on a synced file instead of `mv` to the Trash.
-- Quoting the Word verbs above as tested; only the outcome was verified, not the command.
 
 ## Bottom line
 
-Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. Word rendering is confirmed to work, but its exact verbs still need recording.
+Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. The Word recipe is the same shape, with its own dictionary terms.

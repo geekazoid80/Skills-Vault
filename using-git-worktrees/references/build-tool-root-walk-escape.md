@@ -19,16 +19,16 @@ Vite 8.3.0 added a top-level `tsconfig` option (vitejs/vite#23310) that skips au
 
 Confirmed 8.3.0 alone, without the option, still fails identically; the option does the work and the version bump makes it available.
 
-**Test each half per repo before writing "both are required".** In one sibling repo the framework's own range already floated to 8.3.0 with no override, and the option alone fixed the build. The override was then added defensively, so a later range change could not silently regress below 8.3.0, but it was not load-bearing there. Do not carry a blanket claim from the repo where the fix was first found.
+**Test each half per repo before writing "both are required".** In one sibling repo the framework's and the Tailwind plugin's `vite` ranges (`vite@npm:^8.0.13`) already floated to 8.3.0 on a clean install with no override, and the option alone fixed the build. The framework's own `vite` peer range also allows 8.3.0, so the bump needs no peer-range change. The override was then added defensively, so a later range change could not silently regress below 8.3.0, but it was not load-bearing there. Do not carry a blanket claim from the repo where the fix was first found.
 
 ## Fix B: when the config file itself imports a package that ships raw TypeScript
 
-Fix A is necessary but **not sufficient** when `astro.config.mjs` (or the equivalent) imports, at top level, a package whose `main` or `exports` points at an uncompiled `.ts` file with no compiled JavaScript published.
+Fix A is necessary but **not sufficient** when `astro.config.mjs` (or the equivalent) imports, at top level, a package (for example one that is called as `pagefind()` inside `integrations: []`) whose `main` or `exports` points at an uncompiled `.ts` file with no compiled JavaScript published.
 
 Why it escapes Fix A:
 
-- Node's native ESM loader refuses to type-strip `.ts` files under `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`). No CLI flag lifts that restriction for `node_modules` specifically; `--experimental-strip-types` only toggles stripping in general.
-- Astro's config loader tries a native `import()` first for speed, swallows any failure (`debug("Failed to load config with Node", e)`, invisible without debug logging), and falls back to an internal minimal Vite dev server (`createMinimalViteDevServer.js`, which calls Vite's `createServer()`).
+- Node's native ESM loader refuses to type-strip `.ts` files under `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`). No CLI flag lifts that restriction for `node_modules` specifically; `--experimental-strip-types` only toggles stripping in general (checked with `node --help` and `process.allowedNodeEnvironmentFlags`).
+- Astro's config loader (`astro/dist/core/config/vite-load.js`, function `loadConfigWithVite`) tries a native `import()` first for speed, swallows any failure (`debug("Failed to load config with Node", e)`, invisible without debug logging), and falls back to an internal minimal Vite dev server (`createMinimalViteDevServer.js`, which calls Vite's `createServer()`).
 - That fallback server does the escaping tsconfig walk **before** the user's config has been parsed, so the `vite.tsconfig` option from Fix A cannot reach it.
 
 A repo whose config has no such top-level import always loads through the native fast path and never meets this fallback, which is why the same Fix A can work in one repo and not in its sibling.
