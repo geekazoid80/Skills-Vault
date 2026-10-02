@@ -99,7 +99,7 @@ Honour them even where this brief does NOT restate them. In particular:
 - secrets hygiene: never read or echo a secret file (config.toml / config.ini / .env / config.py).
 ```
 
-Why: a hand-off that omits this produces a session that misses whatever rule the prose did not restate. The recurring, concrete pain is the multi-PAT keychain rule - handed-off sessions ran bare `gh` and failed on the wrong account because the brief never told them to read memory. The receiving session's own fresh-disk read is the control. Full rule: `~/.claude/CLAUDE.md` "Every hand-off carries the read-memory + standing-instructions first precondition" + `~/.claude/memory/feedback_handoff_read_memory_precondition.md`.
+Why: a hand-off that omits this produces a session that misses whatever rule the prose did not restate. The recurring, concrete pain is the multi-PAT keychain rule - handed-off sessions ran bare `gh` and failed on the wrong account because the brief never told them to read memory. The receiving session's own fresh-disk read is the control. Full rule: the "every hand-off carries the read-memory + standing-instructions first precondition" section of your global `~/.claude/CLAUDE.md`, if you keep one.
 
 ## Fencing a Line the Brief Forbids Touching (say what to do if the work runs into it)
 
@@ -116,7 +116,7 @@ Silence forces the receiving session to choose between disobeying the fence and 
 - **Escalating a fenced residual is the CORRECT behaviour, so make it cheap.** Name where the residual goes. A session that widens its own scope past an explicit fence is the worse failure, so do not create pressure toward it by leaving no route back.
 - **Read a returned residual as evidence about your BRIEF, not the session.** A brief that comes back with "I could not do this because you told me not to touch X" was too narrow. Fix the brief's shape next time, not only the artefact.
 
-Sibling to the cross-repo prepared-prompt rule (prepared prompts, never silent fan-out): the same prompt that carries a fence should carry its escape hatch. Full rule + origin (2026-08-22): `~/.claude/memory/feedback_handoff_read_memory_precondition.md` § "A brief that FENCES a line the change must reconcile with can only produce a half-connected result".
+Sibling to the cross-repo prepared-prompt rule (prepared prompts, never silent fan-out): the same prompt that carries a fence should carry its escape hatch. Origin 2026-08-22: a brief that FENCES a line the change must reconcile with can only produce a half-connected result.
 
 ## Adjacent-pattern Scan Instruction (cross-cutting briefs)
 
