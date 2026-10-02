@@ -569,7 +569,7 @@ user to use the sidebar:**
 **What this buys you:** a refusal that would otherwise be reported as "unknown, ask the user" becomes
 either a specific, named cause (a busy parent session, an active Remote Control connection) worth stating
 plainly, or a confirmed elimination of two of the four possibilities, which narrows what remains to a
-queued message or a background task neither `get_session` nor `ListAgents` can see from here — genuinely
+queued message or a background task neither `get_session` nor `ListAgents` can see from here, which is genuinely
 "wait or ask the user" territory, but now for a smaller, honestly-stated remainder rather than the whole
 sentence.
 

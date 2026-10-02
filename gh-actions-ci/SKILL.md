@@ -30,7 +30,7 @@ Do NOT use this skill for:
 - Bash hardening itself, that's `bash-defensive` (the octal trap, `set -Eeuo pipefail`, ShellCheck, Bats).
 - Cross-platform shell portability beyond a single CI gotcha, that's `platform-quirks-escape` (BSD vs GNU sed, macOS bash 3.2, Windows PowerShell).
 - Pre-commit hook setup as an alternative to CI gating, that's `setup-pre-commit`.
-- Secrets storage and rotation in CI, that's `secrets-hygiene` (the canonical patterns) and `multi-pat-direnv` in memory (the multi-PAT direnv workflow specifically).
+- Secrets storage and rotation in CI, that's `secrets-hygiene` (the canonical patterns) and a per-org PAT and direnv setup note kept outside this vault (the multi-PAT direnv workflow specifically).
 - Slash-command / claude-code-hook authoring, that's `author-hook` (different concept despite the shared "hook" word).
 
 ## Workflow YAML hygiene
@@ -149,7 +149,7 @@ to check by hand.
 - `platform-quirks-escape`, CI runners are usually Linux (GNU coreutils), local dev is often macOS (BSD coreutils). `grep -P` is GNU-only; `sed -i` differs; `mapfile` is bash 4+. A script that "worked on the runner" may silently mis-behave on macOS or vice versa. The **`grep -P` trap** from PR #12: a script using `grep -P` returned empty on macOS BSD grep (with `2>/dev/null` hiding the `invalid option -- P` error), making the changelog appear correct in CI but broken locally. Iron rule from that skill: when bash hits platform-quirks, escape to Python.
 - `setup-pre-commit`, actionlint, yamllint, shellcheck as pre-commit hooks catch CI failures before they reach CI. The cost is one local check; the saving is one less red-build cycle.
 - `secrets-hygiene`, workflow secrets (`${{ secrets.X }}`) must never appear in `echo` / `printf` debug output, must be set via repo / org / environment secrets (never committed), and must rotate on a documented schedule.
-- `multi-pat-direnv` (memory), full background on the fine-grained PAT Checks-API gap and the `gh run list` workaround.
+- A Multi-PAT direnv setup memory note, kept outside this vault: full background on the fine-grained PAT Checks-API gap and the `gh run list` workaround.
 - `multi-vendor-network-ops`, N/A here, but the nine-element response contract template is worth borrowing for CI-incident postmortems if a red build causes a release miss.
 - `completion-gate`, before claiming a CI fix "shipped", verify the next post-merge run is green. The fix lives in the workflow YAML, but the proof lives in the next run's status.
 
