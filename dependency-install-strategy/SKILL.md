@@ -1,6 +1,6 @@
 ---
 name: dependency-install-strategy
-description: "Use when about to install a package, library, runtime, or CLI tool, or set up a project's language environment, on any host (workstation, NUC, CI box, container). Triggers include \"pip install\", \"apt install\", \"brew install\", \"npm/pnpm install\", \"missing dependency\", \"ModuleNotFoundError\", \"externally-managed-environment / PEP 668\", \"set up a venv\", \"should I use uv\", \"requirements.txt / pyproject\", \"which python\", \"install X on the NUC\". Decides HOW to install: prefer the system/local package manager for version-flexible deps it carries at an acceptable version; drop to a project-local venv/uv (pinned, auto-activating) only when a specific version is required or the manager does not carry it. Never --break-system-packages a PEP-668 system interpreter as the default. Composes with apt-update-before-install (refresh the index first), the ask-before-install rule (get the go-ahead), secrets-hygiene, and resource-registry (record the resulting env + how to activate it)."
+description: "Use when about to install a package, library, runtime, or CLI tool, or set up a project's language environment, on any host (workstation, NUC, CI box, container). Triggers include \"pip install\", \"apt install\", \"brew install\", \"npm/pnpm install\", \"missing dependency\", \"ModuleNotFoundError\", \"externally-managed-environment / PEP 668\", \"set up a venv\", \"should I use uv\", \"requirements.txt / pyproject\", \"which python\", \"install X on the NUC\". Decides HOW to install: prefer the system/local package manager for version-flexible deps it carries at an acceptable version; drop to a project-local venv/uv (pinned, auto-activating) only when a specific version is required or the manager does not carry it. Never --break-system-packages a PEP-668 system interpreter as the default. Composes with the refresh-the-package-index-first rule, the ask-before-install rule (get the go-ahead), secrets-hygiene, and resource-registry (record the resulting env + how to activate it)."
 ---
 
 # Dependency Install Strategy
@@ -31,7 +31,7 @@ habit.
 1. **Gate: ask + refresh.** Surface the missing dependency and get the go-ahead before installing
    (do not hand the user a paste-and-fix loop). Refresh the package index first on that host
    (`sudo apt-get update`, `brew update`, …). These are the `ask-before-install` and
-   `apt-update-before-install` rules; this skill picks up after them.
+   the refresh-the-package-index-first rule; this skill picks up after it.
 
 2. **Manager-first for version-flexible deps.** If the dependency needs **no specific version** AND the
    host's package manager carries it **at an acceptable version**, install it with the manager (global,
