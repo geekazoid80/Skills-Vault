@@ -1,6 +1,6 @@
 # Asana REST API reference
 
-> **Last refreshed: 2026-07-26. Freshness TTL: 30 days.** Cache-with-TTL, not a scheduled job: when a session
+> **Last refreshed: 2026-10-02. Freshness TTL: 30 days.** Cache-with-TTL, not a scheduled job: when a session
 > **uses** this reference and the date above is older than the TTL, **refresh it first** (re-run the recipe at
 > the end: re-fetch the OpenAPI spec, regenerate the lower half, re-stamp the date), then rely on it. Refresh
 > only on use, when stale.
@@ -394,6 +394,7 @@ _Generated from the Asana OpenAPI spec (openapi 3.0.0, info.version 1.0). Source
 | `POST` | `/projects/{project_gid}/removeCustomFieldSetting` | Remove a custom field from a project |
 | `POST` | `/projects/{project_gid}/removeFollowers` | Remove followers from a project |
 | `POST` | `/projects/{project_gid}/removeMembers` | Remove users from a project |
+| `POST` | `/projects/{project_gid}/rollup` | Roll up subtask dates for a project |
 | `POST` | `/projects/{project_gid}/saveAsTemplate` | Create a project template from a project |
 | `GET` | `/projects/{project_gid}/task_counts` | Get task count of a project |
 | `GET` | `/tasks/{task_gid}/projects` | Get projects a task is in |
@@ -515,6 +516,7 @@ _Generated from the Asana OpenAPI spec (openapi 3.0.0, info.version 1.0). Source
 | `POST` | `/tasks/{task_gid}/removeFollowers` | Remove followers from a task |
 | `POST` | `/tasks/{task_gid}/removeProject` | Remove a project from a task |
 | `POST` | `/tasks/{task_gid}/removeTag` | Remove a tag from a task |
+| `POST` | `/tasks/{task_gid}/rollup` | Roll up subtask dates for a task |
 | `POST` | `/tasks/{task_gid}/setParent` | Set the parent of a task |
 | `GET` | `/tasks/{task_gid}/subtasks` | Get subtasks from a task |
 | `POST` | `/tasks/{task_gid}/subtasks` | Create a subtask |
@@ -705,16 +707,19 @@ This object represents a user's connection to a goal.
 | `project_brief` |  |  |
 | `created_from_template` |  |  |
 | `workspace` |  |  |
+| `custom_type` |  |  |
 
 ### ProjectRequest
 
 | Field | Type | Description |
 |---|---|---|
 | `custom_fields` | object | An object where each key is the GID of a custom field and its corresponding value is either an enum GID, string, number, or object (depen... |
+| `html_custom_fields` | object | An object where each key is the GID of a text custom field and the corresponding value is a rich text HTML string. Only text-type custom ... |
 | `followers` | string | *Create-only*. Comma separated string of users. Followers are a subset of members who have opted in to receive "tasks added" notification... |
 | `owner` | string | The current owner of the project, may be null. |
 | `team` | string | *Deprecated:* The team to share this project with is deprecated. Use `POST /memberships` with `{ parent: project, member: team }` to shar... |
 | `workspace` | string | The `gid` of a workspace. |
+| `custom_type` | string | *Conditional:* You can only set custom_type if project `resource_subtype` is `custom`. GID or globally-unique identifier of a project's c... |
 
 ### ProjectCompact
 
@@ -725,6 +730,7 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `gid` | string | Globally unique identifier of the resource, as a string. _(read-only)_ |
 | `resource_type` | string | The base type of this resource. _(read-only)_ |
 | `name` | string | Name of the project. This is generally a short sentence fragment that fits on a line in the UI for maximum readability. However, it can b... |
+| `resource_subtype` | enum ['default_project', 'custom'] | The subtype of this resource. Different subtypes retain many of the same fields and behavior, but may render differently in Asana or repr... |
 
 ### ProjectBase
 
@@ -733,6 +739,7 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `gid` | string | Globally unique identifier of the resource, as a string. _(read-only)_ |
 | `resource_type` | string | The base type of this resource. _(read-only)_ |
 | `name` | string | Name of the project. This is generally a short sentence fragment that fits on a line in the UI for maximum readability. However, it can b... |
+| `resource_subtype` | enum ['default_project', 'custom'] | The subtype of this resource. Different subtypes retain many of the same fields and behavior, but may render differently in Asana or repr... |
 | `archived` | boolean | True if the project is archived, false if not. Archived projects do not show in the UI by default and may be treated differently for quer... |
 | `color` | enum ['dark-pink', 'dark-green', 'dark-blue', 'dark-red', 'dark-teal', 'dark-brown', 'dark-orange', 'dark-purple', 'dark-warm-gray', 'light-pink', 'light-green', 'light-blue', 'light-red', 'light-teal', 'light-brown', 'light-orange', 'light-purple', 'light-warm-gray', 'none', None] | Color of the project. |
 | `icon` | enum ['list', 'board', 'timeline', 'calendar', 'rocket', 'people', 'graph', 'star', 'bug', 'light_bulb', 'globe', 'gear', 'notebook', 'computer', 'check', 'target', 'html', 'megaphone', 'chat_bubbles', 'briefcase', 'page_layout', 'mountain_flag', 'puzzle', 'presentation', 'line_and_symbols', 'speed_dial', 'ribbon', 'shoe', 'shopping_basket', 'map', 'ticket', 'coins'] | The icon for a project. |
@@ -767,16 +774,16 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `owner` | → UserCompact |  |
 | `workspace` |  |  |
 | `permalink_url` | string | A url that points directly to the object within Asana. _(read-only)_ |
-| `public` | boolean | True if the portfolio is public to its workspace members. |
 | `privacy_setting` | enum ['public_to_domain', 'members_only'] | The privacy setting of the portfolio. *Note: Administrators in your organization may restrict the values of `privacy_setting`.* |
 | `project_templates` | array of ProjectTemplateCompact | Array of project templates that are in the portfolio _(read-only)_ |
+| `custom_type` |  |  |
 
 ### PortfolioRequest
 
 | Field | Type | Description |
 |---|---|---|
 | `workspace` | string | *Create-only*. The workspace or organization that the portfolio belongs to. |
-| `public` | boolean | *Deprecated:* new integrations use `privacy_setting` instead. |
+| `custom_type` | string | *Conditional:* You can only set custom_type if portfolio `resource_subtype` is `custom`. GID or globally-unique identifier of a portfolio... |
 
 ### PortfolioBase
 
@@ -785,11 +792,13 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `gid` | string | Globally unique identifier of the resource, as a string. _(read-only)_ |
 | `resource_type` | string | The base type of this resource. _(read-only)_ |
 | `name` | string | The name of the portfolio. |
+| `resource_subtype` | enum ['default_portfolio', 'custom'] | The subtype of this resource. Different subtypes retain many of the same fields and behavior, but may render differently in Asana or repr... |
 | `archived` | boolean | [Opt In](/docs/inputoutput-options). True if the portfolio is archived, false if not. Archived portfolios do not show in the UI by defaul... |
 | `color` | enum ['dark-pink', 'dark-green', 'dark-blue', 'dark-red', 'dark-teal', 'dark-brown', 'dark-orange', 'dark-purple', 'dark-warm-gray', 'light-pink', 'light-green', 'light-blue', 'light-red', 'light-teal', 'light-brown', 'light-orange', 'light-purple', 'light-warm-gray'] | Color of the portfolio. |
 | `start_on` | string | The day on which work for this portfolio begins, or null if the portfolio has no start date. This takes a date with `YYYY-MM-DD` format. ... |
 | `due_on` | string | The day on which this portfolio is due. This takes a date with format YYYY-MM-DD. |
 | `default_access_level` | enum ['admin', 'editor', 'viewer'] | The default access level when inviting new members to the portfolio |
+| `public` | boolean | Defines whether the portfolio is public to its workspace members. `true` if the portfolio is public to workspace members, `false` if it's... |
 
 ### TaskResponse
 
@@ -802,7 +811,8 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `custom_type_status_option` |  |  |
 | `followers` | array of UserCompact | Array of users following this task. _(read-only)_ |
 | `parent` |  |  |
-| `projects` | array of ProjectCompact | *Create-only.* Array of projects this task is associated with. At task creation time, this array can be used to add the task to many proj... _(read-only)_ |
+| `projects` | array of ProjectCompact | *Create-only.* Array of projects this task is directly associated with. At task creation time, this array can be used to add the task to ... _(read-only)_ |
+| `effective_memberships` | array of EffectiveTaskMembership | <p><strong style={{ color: "#4573D2" }}>Full object requires scope: </strong><code>projects:read</code>, <code>project_sections:read</cod... _(read-only)_ |
 | `tags` | array of TagCompact | Array of tags associated with this task. In order to change tags on an existing task use `addTag` and `removeTag`. _(read-only)_ |
 | `workspace` |  |  |
 | `permalink_url` | string | A url that points directly to the object within Asana. _(read-only)_ |
@@ -831,10 +841,11 @@ A *project* represents a prioritized list of tasks in Asana or a board with colu
 | `html_notes` | string | [Opt In](/docs/inputoutput-options). The notes of the text with formatting as HTML. |
 | `hearted` | boolean | *Deprecated - please use liked instead* True if the task is hearted by the authorized user, false if not. _(read-only)_ |
 | `hearts` | array of Like | *Deprecated - please use likes instead* Array of likes for users who have hearted this task. _(read-only)_ |
+| `has_subtasks_date_mismatch` | boolean | [Opt In](/docs/inputoutput-options). True when one or more descendant subtasks have dates outside the task's own date range. This field r... _(read-only)_ |
 | `is_rendered_as_separator` | boolean | [Opt In](/docs/inputoutput-options). In some contexts tasks can be rendered as a visual separator; for instance, subtasks can appear simi... _(read-only)_ |
 | `liked` | boolean | True if the task is liked by the authorized user, false if not. |
 | `likes` | array of Like | Array of likes for users who have liked this task. _(read-only)_ |
-| `memberships` | array of object | <p><strong style={{ color: "#4573D2" }}>Full object requires scope: </strong><code>projects:read</code>, <code>project_sections:read</cod... _(read-only)_ |
+| `memberships` | array of TaskMembership | <p><strong style={{ color: "#4573D2" }}>Full object requires scope: </strong><code>projects:read</code>, <code>project_sections:read</cod... _(read-only)_ |
 | `modified_at` | string | The time at which this task was last modified.  The following conditions will change `modified_at`:  - story is created on a task - story... _(read-only)_ |
 | `notes` | string | Free-form textual information associated with the task (i.e. its description). |
 | `num_hearts` | integer | *Deprecated - please use likes instead* The number of users who have hearted this task. _(read-only)_ |
@@ -1040,8 +1051,6 @@ A *user* object represents an account in Asana that can be given access to vario
 | `followers` | array of UserCompact | Array of users following this tag. _(read-only)_ |
 | `workspace` | → WorkspaceCompact |  |
 | `permalink_url` | string | A url that points directly to the object within Asana. _(read-only)_ |
-
----
 
 ## How to refresh (cache-with-TTL, on use when stale)
 
