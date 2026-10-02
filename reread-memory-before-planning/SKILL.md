@@ -227,16 +227,16 @@ This is the gap that the 2026-05-24 user-caught error was symptomatic of. It fee
 
 RIGHT, re-read all four classes in parallel, invoke `plan-time-tooling`, THEN scope:
 ```
-# Class 1: global memory in parallel
+# Class 1: global memory in parallel (file names are illustrative: use what MEMORY.md links)
 Read(~/.claude/memory/MEMORY.md)
-Read(~/.claude/memory/feedback_secrets_hygiene.md)
-Read(~/.claude/memory/feedback_multi_pat_direnv.md)
-Read(~/.claude/memory/git_branch_worktree_and_merge_traps.md)
+Read(~/.claude/memory/<linked_file_a>.md)
+Read(~/.claude/memory/<linked_file_b>.md)
+Read(~/.claude/memory/<linked_file_c>.md)
 ... (every file MEMORY.md links to)
 
-# Class 2: project memory in parallel (skip-if-empty)
+# Class 2: project memory in parallel (skip-if-empty; names again illustrative)
 Read(~/.claude/projects/<encoded>/memory/MEMORY.md)
-Read(~/.claude/projects/<encoded>/memory/feedback_utc_timestamps.md)
+Read(~/.claude/projects/<encoded>/memory/<linked_file_d>.md)
 ... (every file project MEMORY.md links to)
 
 # Class 3: project + module AGENTS / CLAUDE

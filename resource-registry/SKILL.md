@@ -54,7 +54,8 @@ their place for some resource types:
   export, which sync job, which repo to re-pull). The access command reaches the file; the refresh note
   keeps it from silently rotting.
 - **Last verified** (date): stamp when the ID / access was last confirmed to resolve, so a reader can
-  judge staleness at a glance. Sibling to `verify-now-not-next-session`.
+  judge staleness at a glance. Confirm it in the session that records the entry rather than leaving the
+  check for a later one.
 
 ## On resume: refresh, do not guess
 
