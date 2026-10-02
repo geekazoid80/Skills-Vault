@@ -2,7 +2,7 @@
 name: macos-office-docs
 description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.2
+  version: 1.0.3
 ---
 
 # macOS Office Docs
@@ -55,9 +55,9 @@ end timeout
 APPLESCRIPT
 ```
 
-Word may already be running, so address only the document you opened and close only that one. Do not name an AppleScript variable `before` or `after`; both are reserved words and fail with a `-2741` syntax error. The 2026-10-02 probe confirmed the recipe but did not re-test the two traps below for Word; the 2026-08-09 run found both held.
+Word may already be running, so address only the document you opened and close only that one. Do not name an AppleScript variable `before` or `after`; both are reserved words and fail with a `-2741` syntax error. **Word does not fail the way trap 1 below describes.** Re-tested on 2026-10-02 with a throwaway document. Saving the PDF into an agent scratchpad under `/private/tmp/claude-501/...` worked (a valid PDF). Saving to a plain `/private/tmp/<name>.pdf` did not return quietly with no file: the call ran into the AppleEvent timeout (`-1712`) after 90 seconds, produced no file, and left the document open with `close` refused (`-1708`), including after a retry. That is consistent with Word waiting on a file-access dialog that only a person at the screen can answer, though the dialog itself was not seen. It is probably what the older "Word hangs on a permission dialog" folklore was describing. So in Word a wrong output path is not a cheap probe: write to `~/Downloads`, do not experiment with other locations, and when a call times out look at the Word window before retrying. PowerPoint's silent no-file behaviour was not re-tested in that run.
 
-### The two traps, both silent
+### The two traps (both silent in PowerPoint; see the Word note above)
 
 1. **The Office sandbox refuses writes outside the user's standard folders and returns NO error and NO file.** Saving into `/private/tmp/...` (including an agent scratchpad under it) gives a clean `osascript` run, exit 0, empty output, and no PDF anywhere. It is not a permission error you can catch. **Write to `~/Downloads` (or `~/Documents`, `~/Desktop`) and move the file afterwards.** Reading an input from `/private/tmp` is fine; only the write is blocked. Isolate it by changing only the output path. For a live operator, reuse the SAME output path across iterations, since each new location can prompt for access.
 2. **The default AppleEvent timeout is 120 seconds and an image-heavy deck exceeds it.** The result is `execution error: Microsoft PowerPoint got an error: AppleEvent timed out. (-1712)`. That is a client-side timeout, NOT a failure: the app had opened the file and kept working. Confirm with `tell application "Microsoft PowerPoint" to return name of every presentation` before retrying, and wrap everything in `with timeout of 540 seconds`.
@@ -113,7 +113,8 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Rezipping with a hand-picked file list that omits a part, or skipping the `unzip -l` count against the original.
 - Overwriting a Box-synced file without checking whether Word has it open.
 - `rm` on a synced file instead of `mv` to the Trash.
+- Retrying a timed-out Word save, or trying another output folder, without looking at the Word window first; a pending access dialog wedges the document.
 
 ## Bottom line
 
-Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. The Word recipe is the same shape, with its own dictionary terms.
+Render with Office itself, write the PDF into `~/Downloads` and move it, and wrap the call in a long timeout; treat `-1712` as a slow job, not a failure. Edit at the XML level (or with `python-docx` for content) and never save a deck you must preserve through `python-pptx`; confirm the part count against the original. Close Word before writing into a synced folder. The Word recipe is the same shape, with its own dictionary terms and a different failure on a bad output path (a hang, not a silent no-file).
