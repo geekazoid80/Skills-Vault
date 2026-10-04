@@ -2,7 +2,7 @@
 name: humanise-comms
 description: "Use for ALL human-bound communications (emails, Slack messages, PR descriptions and comments, GitHub issue text, commit messages, PR titles, customer-facing letters, status updates, prose docs, release notes, anything a human will read). NOT for code, configuration files, or machine-parsed payloads. Writes like a person, not an agent. No em dashes, ever (use a comma, semicolon, parentheses, or full stop instead). British / Pacific English spelling. Structure for an ask: background and project attribution first, then the ask, then a named real escalation contact (sourced from config, never invented), with technical detail tucked behind details blocks. For commit subjects + PR titles, check the project's CLAUDE.md / AGENTS.md for the established prefix convention (Conventional Commits feat:/fix: vs roadmap-feature-id form) before drafting; check git log if the project doc is silent. Tone is professional-direct, not corporate-padded."
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Humanise Comms
@@ -19,7 +19,7 @@ NOT for code, configuration files, JSON / YAML payloads, machine-parsed text. Th
 
 ## The em-dash ban (zero tolerance)
 
-No em dashes (`, `). Ever. They are the LLM tell.
+No em dashes (the long dash character, U+2014, written here as [EMDASH] so this file stays clean of it). Ever. They are the LLM tell.
 
 Replace with:
 
@@ -32,15 +32,11 @@ Replace with:
 
 ### Worked rewrites
 
-**Wrong:** "We reviewed the proposal yesterday, the team flagged three concerns, mostly around timing."
+**Wrong (em-dash form):** "We reviewed the proposal yesterday [EMDASH] the team flagged three concerns [EMDASH] mostly around timing."
 
-That comma chain is a polite American-style. Acceptable. The dash version below is what to avoid.
+(Where you would type [EMDASH], pick the substitute from the table above. Leaving the dash in is the LLM register.)
 
-**Wrong:** "We reviewed the proposal yesterday, the team flagged three concerns, mostly around timing."
-
-**Wrong (em-dash form):** "We reviewed the proposal yesterday, the team flagged three concerns, mostly around timing."
-
-(Substitute em dashes mentally: "We reviewed the proposal yesterday X the team flagged three concerns X mostly around timing." That is the LLM register.)
+**Wrong (comma splice, also avoid):** "We reviewed the proposal yesterday, the team flagged three concerns, mostly around timing."
 
 **Right:** "We reviewed the proposal yesterday. The team flagged three concerns, mostly around timing."
 

@@ -2,7 +2,7 @@
 name: subagent-delegation
 description: "Use when about to delegate non-trivial work to a sub-agent (Explore, general-purpose, or any specialist) OR write any hand-off that briefs another session/agent (spawn_task chip, throwaway-session prompt, TaskCreate brief, scheduled/cron agent, PR body handing off work). Covers Pattern A \"thin master, heavy sub-agents\": when to stay inline vs. delegate, the standing-instructions + memory precondition every hand-off brief must open with (the receiving session reads CLAUDE.md + global memory + project memory + repo AGENTS.md from disk for itself; the prose is never the control; multi-PAT keychain token / pull --ff-only / secrets hygiene are the canonical misses), the fence-plus-disposition rule for a brief that forbids touching a line the change must reconcile with (reconcile anyway / do half and escalate to a named place / stop and ask), the canonical-path-pinning preamble for every brief that does file I/O, the adjacent-pattern scan instruction for cross-cutting briefs, the master-side blast-radius grep before pushing a contract change, the AskUserQuestion gate when adjacent findings come back (bundle / follow-up PR / accept the gap), the AskUserQuestion gate for generalisable patterns (extract now / follow-up PR / defer with TODO / accept duplication), and the leaf rule (sub-agents do not spawn sub-sub-agents). Also covers the plan-execution loop for subagent-driven development (fresh subagent per task, two-stage review, implementer status model, model selection per task complexity, and the BOUNDED FIX LOOP: five rounds per task, resume the original implementer for rounds 1-3 then a fresh one a model tier up for 4-5, scoped re-review verdicting each finding ADDRESSED or NOT ADDRESSED, and the breaker that adjudicates open findings on the record at the cap instead of looping forever); folded from obra/superpowers/skills/subagent-driven-development. Fires on \"the review keeps finding things\", \"how many times do I re-dispatch\", \"this task is stuck in review\", \"fix loop\", \"re-review\", \"the implementer cannot fix it\", \"when do I stop retrying a subagent\". Parallel-Dispatch (independent problems) pattern for fanning out 2+ unrelated investigations or fixes concurrently; folded from obra/superpowers/skills/dispatching-parallel-agents. Parallel-Design Sub-Agents pattern (\"Design It Twice\") for exploring alternative interfaces. Specialist review dispatches catalogue (GHA security review with five-element finding contract; folded from getsentry/skills/gha-security-review)."
 metadata:
-  version: 1.9.0
+  version: 1.10.0
 ---
 
 # Sub-agent Delegation
@@ -80,26 +80,36 @@ Every hand-off MUST open with a precondition that the receiving session **reads 
 
 The brief's prose is NEVER the control. Cross-cutting rules (the multi-PAT keychain token, `pull --ff-only`, secrets hygiene) live in `CLAUDE.md` and memory, not in whatever the brief happened to restate. A receiving session that only reads the brief silently drops every rule the brief omitted.
 
-Put this block at the very TOP of every hand-off brief, ABOVE the canonical-path-pinning preamble:
+**The template depends on the receiver, and getting this wrong is not cosmetic.** A brief that AUTHORISES what the receiver is forbidden to do is more dangerous than one that omits a rule, because an authorisation reads as permission. Before pasting any preamble, read the receiving agent's own definition. Never paste a credential command into a brief for a receiver that must not run one. Put the matching block at the very TOP of the brief, ABOVE the canonical-path-pinning preamble.
+
+**Form A, a receiver that will authenticate** (a throwaway-session prompt, a `spawn_task` chip that ships a PR, a scheduled agent that pushes). Name the credential by LOCATION, never a value:
 
 ```
-## Before you act: read your standing instructions + memory (from disk)
-
-Read, for yourself, before doing anything else:
-- ~/.claude/CLAUDE.md (always-on rules)
-- ~/.claude/memory/MEMORY.md and its linked files
-- the project memory index: ~/.claude/projects/<encoded-project-path>/memory/MEMORY.md
-  and its linked files
-- the repo's AGENTS.md / CLAUDE.md
-
-Honour them even where this brief does NOT restate them. In particular:
-- multi-PAT: use the correct per-org Keychain GH_TOKEN before ANY gh / HTTPS git push,
-  e.g. GH_TOKEN="$(security find-generic-password -s gh_<org>_pat -w)".
-- pull-before-dev: git fetch && git pull --ff-only before the first edit.
-- secrets hygiene: never read or echo a secret file (config.toml / config.ini / .env / config.py).
+Before acting: read your standing instructions and memory for yourself, from disk.
+Global ~/.claude/CLAUDE.md, ~/.claude/memory/MEMORY.md and its linked files, this
+project's memory index, and the repo AGENTS.md. Honour them even where this prompt does
+not restate them: the correct per-org Keychain GH_TOKEN before any gh or HTTPS push (the
+entry name is in the repo AGENTS.md / CLAUDE.md and the credential registry; do not guess
+the org), pull --ff-only, and secrets hygiene. Your own fresh-disk read is the control,
+never this prose.
 ```
 
-Why: a hand-off that omits this produces a session that misses whatever rule the prose did not restate. The recurring, concrete pain is the multi-PAT keychain rule - handed-off sessions ran bare `gh` and failed on the wrong account because the brief never told them to read memory. The receiving session's own fresh-disk read is the control. Full rule: the "every hand-off carries the read-memory + standing-instructions first precondition" section of your global `~/.claude/CLAUDE.md`, if you keep one.
+**Form B, a roster sub-agent, which is most hand-offs.** State the posture positively and name no credential at all:
+
+```
+Before acting: read your standing instructions and memory for yourself, from disk.
+Global ~/.claude/CLAUDE.md, ~/.claude/memory/MEMORY.md and the linked files bearing on
+this task, this project's memory index, the repo AGENTS.md, and your own agent definition,
+which sets your credential posture and overrides anything in this brief. Honour them even
+where this prompt does not restate them (pull --ff-only, secrets hygiene). Your own
+fresh-disk read is the control, never this prose. You should not need an authenticated
+call for this; if you think you do, report that limb as NOT CHECKED, scoped to the named
+surface, rather than reaching for a token.
+```
+
+Where the work genuinely needs an authenticated call, route it to the agent whose posture permits it rather than pressing one that cannot. A check the calling session does itself is weaker still, since that is the context that did the work checking its own work.
+
+Why: a hand-off that omits this produces a session that misses whatever rule the prose did not restate. The recurring pain for a receiver that authenticates (Form A) is the multi-PAT keychain rule: handed-off sessions ran bare `gh` and failed on the wrong account because the brief never told them to read memory. For a receiver that must not authenticate (Form B) the opposite error applies: a pasted credential command reads as permission. The receiving session's own fresh-disk read is the control. Full rule: the "every hand-off carries the read-memory + standing-instructions first precondition" section of your global `~/.claude/CLAUDE.md`, if you keep one.
 
 ## Fencing a Line the Brief Forbids Touching (say what to do if the work runs into it)
 
