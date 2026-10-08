@@ -288,7 +288,9 @@ test. **A row passes when it lands within `{0, +1}` of `wc -l`.** An agent quoti
 number is right; one quoting the last line that holds content is also right; they differ by one and neither
 is a defect. Widening to a band gives up nothing, because no fabricated row can reach it at all: the file
 it names does not exist to be measured. **That is why the FILENAME half does the heavy lifting here**, and
-the counts corroborate it rather than carrying it.
+the counts corroborate it rather than carrying it. One more case sits just outside the band: a file whose
+final line is blank, where a reader quoting the last non-blank line lands on `wc -l` minus 1. Check the file's
+last line before reading a -1 as a miss.
 
 **A ledger that mixes the two conventions row by row is normal, and is not by itself a signal.** Expect
 most rows on one convention and a few on the other from the same agent in one walk, and expect two agents
