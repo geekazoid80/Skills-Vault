@@ -361,7 +361,9 @@ assurance, and because it is indistinguishable from a real one nobody re-checks 
 - **A self-authored list is not evidence.** Writing filenames into a file and diffing them against a
   directory listing audits your memory, not your reads. It passes cleanly while being entirely wrong.
 - **State the denominator and check it.** "All of them" conceals an unread remainder; "59 of 59, and the
-  directory holds 59" does not.
+  directory holds 59" does not. Name the scope the count was taken over as well (which directory, which
+  ref, which filter): a count is only as wide as the surface it came from, and "none found" over one path
+  says nothing about the rest.
 - **A paged file quotes its line count.** A Read with a limit silently returns a subset that looks complete,
   so say how many pages it took and to what total.
 - **A partial read reported as complete is a false statement**, not merely an incomplete task. Rank it that
