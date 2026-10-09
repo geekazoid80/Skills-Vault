@@ -2,7 +2,7 @@
 name: merged-skills-registry
 description: Use when checking whether upstream third-party skills have new content to fold into local custom skills, when adding a new merge entry to the registry, or when running an audit of folded skills. The registry lists every third-party skill whose content has been operationally merged into a self-authored vault skill, with the upstream URL and the local target. Audits diff upstream against local and surface non-trivial deltas for triage. Trigger phrases include "check upstream for skill updates", "is the X skill still up to date", "audit merged skills", "time to refresh upstream sources", "fold new upstream content into Y".
 metadata:
-  version: 1.83.0
+  version: 1.84.0
 ---
 
 # Merged Skills Registry
