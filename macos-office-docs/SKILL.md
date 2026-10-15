@@ -2,7 +2,7 @@
 name: macos-office-docs
 description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.5
+  version: 1.0.6
 ---
 
 # macOS Office Docs
@@ -103,7 +103,7 @@ For a pptx use `ppt` in place of `word`. Check with `unzip -t`.
 
 ### Editing a docx beside its author (direct OOXML, no Word needed)
 
-Use this when `python-docx` is not installed, the document carries Track Changes or hundreds of tracked insertions, or a person is saving it while you work. Proven on a 9 MB, 200-page proposal edited in several rounds while its author kept working in Word.
+Use this when `python-docx` is not installed, the document carries Track Changes or hundreds of tracked insertions, or a person is saving it while you work. Learnt 2026-10-15 on a 9 MB, 200-page proposal edited in several rounds while its author kept working in Word, using Word for Mac, `python3` with `lxml` (`python-docx` not installed) and `pandoc`; re-check the points on a different toolchain.
 
 - **Snapshot, edit the snapshot, byte-compare, then write.** Copy the live file, edit the copy, and immediately before writing confirm the live file is still byte-identical to the copy you started from (`cmp`) and that no `~$` lock file exists. If it changed, re-read and redo; otherwise the author's next save silently wins. Make a backup first and say that it predates their later edits.
 - **Word renames embedded media on every save** (`image12.png` becomes `image69.png`). Never find an image by file name: follow the drawing's `wp:docPr` and `a:blip r:embed` to the relationship, then to the part.
