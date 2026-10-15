@@ -1,8 +1,8 @@
 ---
 name: macos-office-docs
-description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
+description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.4
+  version: 1.0.5
 ---
 
 # macOS Office Docs
@@ -101,6 +101,19 @@ For a pptx use `ppt` in place of `word`. Check with `unzip -t`.
 - **A file open in Word during your write** produces a Box conflict copy `name (user).docx`, and the open Word session can save the OLD content back over your write. Symptoms: your change is missing on re-read and a twin file appears. Tell them apart by content (grep for the change), keep the correct one, and open the FRESH synced copy afterwards, never a stale Word window. Ask the operator to close Word before you write.
 - **Deleting a synced file** (a stale conflict copy): `mv` it to `~/.Trash/` so it is recoverable (Box keeps its own trash too), never `rm`. Re-confirm the delete with the operator at the time.
 
+### Editing a docx beside its author (direct OOXML, no Word needed)
+
+Use this when `python-docx` is not installed, the document carries Track Changes or hundreds of tracked insertions, or a person is saving it while you work. Proven on a 9 MB, 200-page proposal edited in several rounds while its author kept working in Word.
+
+- **Snapshot, edit the snapshot, byte-compare, then write.** Copy the live file, edit the copy, and immediately before writing confirm the live file is still byte-identical to the copy you started from (`cmp`) and that no `~$` lock file exists. If it changed, re-read and redo; otherwise the author's next save silently wins. Make a backup first and say that it predates their later edits.
+- **Word renames embedded media on every save** (`image12.png` becomes `image69.png`). Never find an image by file name: follow the drawing's `wp:docPr` and `a:blip r:embed` to the relationship, then to the part.
+- **Text is split across runs, and deleted text lives in `w:delText`.** Replace across the `w:t` elements of one paragraph (put the replacement in the first affected run and trim the rest), skip anything inside `w:del`, and keep run properties. A replacement confined to one run silently misses.
+- **New paragraphs:** deep-copy a neighbouring paragraph's `w:pPr`, drop its `w:numPr` and any `w:rPr/w:ins` or `w:del` markers, then add runs. **Do not restructure a table that carries `w:tblGridChange` or tracked rows;** edit cell text only.
+- **Insert an image** with a new media part, a relationship id in `word/_rels/document.xml.rels`, a `wp:inline` drawing with a unique `wp:docPr id`, and a width no larger than the text width.
+- **Direct edits are untracked even when Track Changes is on.** Say so in the hand-off.
+- **Prove the change:** `unzip -t` the output, parse every edited part, then convert old and new with `pandoc -t plain` and diff them. Only the intended lines may differ.
+- **Spreadsheets:** `sharedStrings` are shared between cells, so write an inline string (`t="inlineStr"`) on the one cell and leave the shared string alone. Edit the sheet XML rather than saving through `openpyxl`, which drops cached formula values and can drop images. A Box file marked read-only (`-r--------`) is a cue to write a new copy beside it, not to `chmod` it.
+
 ### House style: scanning for em dashes
 
 If the house style bans em dashes, scan for U+2014 with a literal glyph match or a Python codepoint check (`chr(0x2014) in line`), never a PCRE byte-escape such as `\xe2\x80\x94`. Some `grep` builds (ugrep) silently fail to match a byte-escape and the scan false-passes. Replace a `Label`, dash, `value` pairing with a colon and prose em dashes with a comma or semicolon. On terse slides a plain-hyphen range such as `3-5 yrs` is fine.
@@ -113,6 +126,9 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Rezipping with a hand-picked file list that omits a part, or skipping the `unzip -l` count against the original.
 - Overwriting a Box-synced file without checking whether Word has it open.
 - `rm` on a synced file instead of `mv` to the Trash.
+- Writing to a document without a fresh byte-compare against the snapshot you edited.
+- Finding a replaced image by its file name after Word has saved the document.
+- Saving a workbook through a library when only a few cells needed to change.
 - Retrying a timed-out Word save, or trying another output folder, before checking whether the first save is still running; a busy Word refuses `close` (`-1708`) and the file can appear minutes later.
 
 ## Bottom line
