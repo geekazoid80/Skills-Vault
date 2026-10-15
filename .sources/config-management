@@ -1,0 +1,1 @@
+https://github.com/vahagn-madatyan/netsec-skills-suite/tree/main/skills/config-management (Apache-2.0, sole source) -> SKILL.md + references/drift-detection.md + references/cli-reference.md re-authored into config-management/ (persona, safety-tier and MCP-dependency metadata removed; secrets handling added; US to UK spelling; dash and emoji purge; cross-references repointed)

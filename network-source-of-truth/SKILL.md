@@ -83,7 +83,7 @@ Discrepancy taxonomy (severity order CRITICAL > HIGH > MEDIUM > LOW): IP_DRIFT (
 - `aws-cloud-ops`, `azure-cloud-ops`, `gcp-cloud-ops`, `aws-networking-audit`: cloud-side inventory to reconcile a hybrid SoT against.
 - `secrets-hygiene`: SoT MCP servers authenticate with API tokens (NETBOX, NAUTOBOT_TOKEN, INFRAHUB_API_TOKEN); handle them per the hygiene discipline, never inline in code.
 - `systematic-debugging`: when a reconciliation finding is itself the symptom of a deeper fault, diagnose root cause before remediating.
-- ServiceNow change/incident workflow and network-topology-discovery: critical reconciliation findings route to change tickets, and CDP/LLDP topology overlaps with discovery work; both are forthcoming vault skills, cross-referenced once they land.
+- `network-topology-discovery`: builds the observed CDP/LLDP, MAC, ARP and routing map from the devices themselves; feed its output into the reconciliation here rather than rediscovering links by hand. Critical reconciliation findings still route to change tickets through your own ticketing process; no vault skill covers a specific ticketing system.
 
 ## Red flags
 
