@@ -61,7 +61,7 @@ Every request resolves to one of these, which determines the reference to load:
 ## Cross-references
 
 - `aws-networking-audit`: read-only AWS VPC configuration audit. This skill designs the AWS network; that audits the running one and owns AWS networking depth. Its `references/design-and-cost.md` is the shared home for AWS VPC design and networking cost.
-- Forward placeholders (landing in this same cloud-network family): `azure-networking-audit` and `gcp-networking-audit`, the read-only Azure VNet / GCP VPC configuration-audit siblings of `aws-networking-audit`. They become live cross-refs once adopted.
+- `azure-networking-audit` and `gcp-networking-audit`: the read-only Azure VNet and GCP VPC configuration audits, siblings of `aws-networking-audit`. Design here, audit the running network there.
 - `cloud-platform-selection`: cross-cloud strategy and which-cloud selection. Pair when a network design raises a strategic question (should this workload be on this cloud at all, multi-cloud egress-cost analysis, lock-in).
 - `aws-cloud-ops` / `azure-cloud-ops` / `gcp-cloud-ops`: the rest of each provider's operational surface; they cross-refer here for cloud-network depth.
 - `dns-network-ops` (+ `route53-dns-ops` / `azure-dns-ops` / `cloudflare-dns-ops`): cloud DNS design and operations, referenced here in prose for split-horizon and private resolution, not duplicated.

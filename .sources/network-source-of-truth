@@ -51,3 +51,6 @@ Reconciliation live-state boundary:
   or Infrahub).
 
 Vault count: 96 -> 97
+
+https://github.com/vahagn-madatyan/netsec-skills-suite/tree/main/skills/source-of-truth-audit (Apache-2.0) -> references/reconciliation-workflow.md: entity-matching fallback keys, result categories and the four-dimension data-quality scoring folded into network-source-of-truth/references/reconciliation.md (Chunk C vahagn leftovers PR 2, 2026-10-15); the rest of that skill duplicated the existing method and was not adopted
+Update 2026-10-15: network-topology-discovery has since landed (Chunk C vahagn leftovers PR 1); the ServiceNow change workflow stays unadopted (the reconciliation reference still describes ServiceNow ticketing).
