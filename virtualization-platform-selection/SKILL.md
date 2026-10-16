@@ -21,8 +21,8 @@ Every mainstream hypervisor solves the same problems (CPU and memory isolation, 
 | Signal | Platform | Skill |
 |---|---|---|
 | Proxmox, PVE, qm, pct, pvesh, vzdump, PBS | Proxmox VE | `proxmox-ops` |
-| KVM, QEMU, libvirt, virsh, virt-install | KVM with libvirt | no dedicated skill yet; use this skill for comparison and `linux-host-ops` for the host |
-| vSphere, ESXi, vCenter, PowerCLI, vMotion, vSAN | VMware vSphere | no dedicated skill yet; use this skill for comparison and migration |
+| KVM, QEMU, libvirt, virsh, virt-install | KVM with libvirt | `kvm-libvirt-ops` |
+| vSphere, ESXi, vCenter, PowerCLI, vMotion, vSAN | VMware vSphere | `vmware-vsphere-ops` |
 | Hyper-V, Windows failover clustering | Microsoft Hyper-V | comparison only here |
 | Nutanix, AHV, Prism | Nutanix AHV | comparison only here |
 | XenServer, XCP-ng, xe | XenServer, XCP-ng | comparison only here |
@@ -156,7 +156,7 @@ Verify application behaviour, not just boot. Keep the source guest powered off a
 
 ## Boundaries
 
-- Operating Proxmox VE day to day: `proxmox-ops`.
+- Operating a platform day to day: `proxmox-ops`, `kvm-libvirt-ops`, `vmware-vsphere-ops`.
 - Host-level Linux work (systemd, packages, LVM, backups): `linux-host-ops`, `linux-host-bringup`.
 - Containers and Kubernetes: `container-runtime-selection`, `kubernetes-ops`.
 - Cloud versus on-premises placement and cloud migration strategy: `cloud-platform-selection`; cloud VM operations: the cloud-ops skills.
