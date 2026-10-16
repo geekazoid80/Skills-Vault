@@ -174,7 +174,7 @@ Cross-reference `completion-gate` Layer 3 for the post-checks discipline (no cla
 
 **Phased restoration**: for multi-layer network incidents, restore in order: core infrastructure then distribution layer then access layer then end-to-end verification. Verify each phase before proceeding. Do not restore all layers simultaneously; cascading failures during recovery are worse than a phased approach.
 
-**Back-out plan execution**: if the fix causes new issues, execute the pre-defined rollback. Every remediation action should have a documented rollback method before execution. Use `change-verification` (when adopted) for the rollback-readiness check.
+**Back-out plan execution**: if the fix causes new issues, execute the pre-defined rollback. Every remediation action should have a documented rollback method before execution. Use `change-verification` for the rollback-readiness check.
 
 **Enhanced monitoring period**: maintain heightened monitoring after resolution:
 - **P1**: 24 hours
