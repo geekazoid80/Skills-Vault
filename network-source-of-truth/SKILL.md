@@ -1,6 +1,6 @@
 ---
 name: network-source-of-truth
-description: "Use for network source-of-truth (SoT) operations: querying and reconciling NetBox, Nautobot, and OpsMill Infrahub against live network state. Owns SoT platform selection and the intent-vs-reality reconciliation methodology, and routes to per-platform references for tool depth. Triggers include \"source of truth\", \"network SoT\", \"NetBox\", \"Nautobot\", \"Infrahub\", \"OpsMill\", \"IPAM\", \"DCIM\", \"IP address management\", \"prefix lookup\", \"subnet allocation\", \"VRF\", \"tenant\", \"site IP summary\", \"device inventory\", \"config drift\", \"drift detection\", \"reconciliation\", \"reconcile NetBox\", \"reconcile source of truth\", \"intended state vs actual state\", \"undocumented link\", \"cable mismatch\", \"VLAN mismatch\", \"IP drift\", \"missing interface\", \"MTU mismatch\", \"GraphQL infrastructure query\", \"versioned infrastructure branches\", \"schema-driven infrastructure\", \"audit network documentation\", \"IPAM audit\", \"is my documentation accurate\", \"does NetBox match reality\". References: netbox.md, nautobot.md, infrahub.md, reconciliation.md. For multi-vendor live-state collection see pyats-network-automation; for cloud resource inventory see aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops."
+description: "Use for network source-of-truth (SoT) operations: querying and reconciling NetBox, Nautobot, and OpsMill Infrahub against live network state. Owns SoT platform selection and the intent-vs-reality reconciliation methodology, and routes to per-platform references for tool depth. Triggers include \"source of truth\", \"network SoT\", \"NetBox\", \"Nautobot\", \"Infrahub\", \"OpsMill\", \"IPAM\", \"DCIM\", \"IP address management\", \"prefix lookup\", \"subnet allocation\", \"VRF\", \"tenant\", \"site IP summary\", \"device inventory\", \"config drift\", \"drift detection\", \"reconciliation\", \"reconcile NetBox\", \"reconcile source of truth\", \"intended state vs actual state\", \"undocumented link\", \"cable mismatch\", \"VLAN mismatch\", \"IP drift\", \"missing interface\", \"MTU mismatch\", \"GraphQL infrastructure query\", \"versioned infrastructure branches\", \"schema-driven infrastructure\", \"audit network documentation\", \"IPAM audit\" (for subnet utilisation, duplicate IPs and DNS consistency, see ipam-dns-audit), \"is my documentation accurate\", \"does NetBox match reality\". References: netbox.md, nautobot.md, infrahub.md, reconciliation.md. For multi-vendor live-state collection see pyats-network-automation; for cloud resource inventory see aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops."
 license: Apache-2.0
 metadata:
   version: 1.0.0
@@ -57,7 +57,7 @@ Load the reference that matches the request. Each is a standalone deep-dive.
 | NetBox | Golden rule, MCP tools, object-type model, changelog audit, when to use | `references/netbox.md` |
 | Nautobot | Read-only IPAM tools, prefix/IP/VRF/tenant filtering, IPAM workflows | `references/nautobot.md` |
 | Infrahub | Schema-driven model, GraphQL queries, versioned branches, 10 MCP tools, workflows | `references/infrahub.md` |
-| Reconciliation | Intent-vs-reality methodology, discrepancy taxonomy, diff engine, ticketing, fleet reporting | `references/reconciliation.md` |
+| Reconciliation | Intent-vs-reality methodology, discrepancy taxonomy, diff engine, entity matching and data-quality scoring, ticketing, fleet reporting | `references/reconciliation.md` |
 
 ## Reconciliation in one screen
 
@@ -69,7 +69,7 @@ Collect SoT intent (devices, interfaces, IPs, cables, VLANs)
   -> Diff per type -> severity-sorted report -> ticket criticals -> visual drift summary
 ```
 
-Discrepancy taxonomy (severity order CRITICAL > HIGH > MEDIUM > LOW): IP_DRIFT (critical), MISSING_INTERFACE / UNDOCUMENTED_LINK / CABLE_MISMATCH (high), VLAN_MISMATCH / STATUS_MISMATCH (medium), MTU_MISMATCH (low). Full diff logic, report layout, ServiceNow ticketing, and fleet-wide rollup are in `references/reconciliation.md`.
+Discrepancy taxonomy (severity order CRITICAL > HIGH > MEDIUM > LOW): IP_DRIFT (critical), MISSING_INTERFACE / UNDOCUMENTED_LINK / CABLE_MISMATCH (high), VLAN_MISMATCH / STATUS_MISMATCH (medium), MTU_MISMATCH (low). Full diff logic, entity matching, the four-dimension data-quality score, report layout, ServiceNow ticketing, and fleet-wide rollup are in `references/reconciliation.md`. For the IP-address and DNS slice of the same reconciliation (utilisation, duplicate IPs, forward and reverse consistency), use `ipam-dns-audit`.
 
 **Golden rule:** discrepancies are reported and ticketed, NEVER auto-corrected without explicit human approval. The SoT is the intended state; deciding whether the device or the SoT is wrong is a human call.
 

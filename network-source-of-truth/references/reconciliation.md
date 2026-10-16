@@ -105,6 +105,42 @@ Totals              2     4       3    5
 Incidents created: 6
 ```
 
+## Entity matching and data-quality scoring
+
+The diff engine needs a way to decide that a SoT record and a live device are the same thing, and a way to say how trustworthy the SoT is overall. Matching and scoring are described here once.
+
+### Matching entities
+
+Normalise both sides before comparing: lower-case, strip the domain suffix, trim whitespace (trailing spaces in SNMP `sysName` are common). Then match on the first key that resolves unambiguously:
+
+| Priority | Key | SoT side | Live side | Note |
+|---|---|---|---|---|
+| 1 | Hostname | device name | SNMP `sysName.0` | Primary, after normalisation |
+| 2 | Serial number | device serial | `show inventory`, `entPhysicalSerialNum` | Best for hardware identity |
+| 3 | Management IP | primary IP | discovery source IP | Reliable if the management IP is stable |
+| 4 | MAC address | management interface MAC | ARP or `ifPhysAddress` | Last resort; it can change on virtual chassis |
+
+Rate gaps by consequence: a live-only device on a production network is Critical (it cannot be managed or automated); a SoT-only record still marked active is High (it misleads automation) and one marked decommissioned is Low; a hostname or management-IP mismatch is High, serial, model or firmware Medium, and description or rack position Low. Classify each result as **matched**, **SoT-only** (stale, or not reached by discovery: re-verify before calling it stale), **live-only** (an undocumented asset: the highest integrity risk, because it cannot be managed or automated) or **ambiguous** (several candidate matches, needs a human).
+
+### Scoring the SoT
+
+Four dimensions, each scoped to the devices you defined as in-scope:
+
+- **Coverage:** `matched devices / total live devices * 100`. Under 90% means the SoT has blind spots that automation will inherit.
+- **Accuracy:** `fields matching live / discoverable populated fields * 100`. Only fields with a live equivalent count (hostname, model, serial, interface state, IP assignment); rack position, notes and tags are not scoreable. Under 80% (Critical) points to systematic update failures.
+- **Cable-record coverage:** the share of LLDP/CDP neighbours that have a matching SoT cable record (80% or more is good, under 60% critical).
+- **Completeness:** `populated required fields / required fields * 100`, using a per-role field list (a core router needs a loopback and BGP ASN, an access switch needs its access VLANs).
+- **Freshness:** average days since `last_updated` across in-scope records. A recent bulk import resets every timestamp, so flag it and leave freshness out of the composite for one cycle.
+
+| Dimension | Good | Warning | Critical |
+|---|---|---|---|
+| Coverage | 95% or more | 90 to 95% | under 90% |
+| Accuracy | 90% or more | 80 to 90% | under 80% |
+| Completeness | 85% or more | 70 to 85% | under 70% |
+| Freshness (average days) | under 30 | 30 to 90 | over 90 |
+
+A composite for trending can weight them (for example coverage 30%, accuracy 30%, completeness 25%, freshness 15%). Convert freshness to a 0 to 100 scale first: 0 days = 100, 30 days = 80, 90 days = 50, 180 days or more = 0. Read the composite as good at 85 or more, warning from 70 to 85, critical under 70. The weights are a convention, not a standard: state them in the report, keep them fixed between cycles, and trend the four dimensions as well as the composite, alerting when any falls below its warning level or the composite drops by more than 5 points between cycles.
+
 ## When to reconcile
 
 - **Scheduled**: a weekly or monthly baseline sweep.
@@ -117,5 +153,5 @@ Incidents created: 6
 
 - **Intent side**: query the SoT platform per its reference in this skill: `netbox.md`, `nautobot.md`, or `infrahub.md`.
 - **Live state**: collect device reality via the `pyats-network-automation` vault skill (CDP/LLDP neighbours, `show`-command output).
-- **Topology**: the CDP/LLDP neighbour data driving `UNDOCUMENTED_LINK` and `CABLE_MISMATCH` is also relevant to `network-topology-discovery` if that skill is present.
+- **Topology**: the CDP/LLDP neighbour data driving `UNDOCUMENTED_LINK` and `CABLE_MISMATCH` is also what `network-topology-discovery` produces from the devices themselves; run it first when the SoT has no cable records to compare with.
 - **Tickets**: CRITICAL and HIGH findings route into the ServiceNow change and incident workflow; a human owns the fix-or-update-SoT decision.
