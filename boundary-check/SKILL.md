@@ -92,7 +92,7 @@ Where the standing-instruction store is under version control, you do not have t
 the store:
 
 ```
-git -C <store> log --since="<session start>" --format="%h %ad %s" --date=format:"%H:%M"
+git -C <store> log --since="<session start, WITH its zone>" --format="%h %ad %s" --date=format:"%H:%M"
 git -C <store> status --short
 git -C <store> log -1 --format=%ad -- <standing files>
 ```
@@ -109,6 +109,14 @@ Rules:
   case entirely.
 - **When the delta is non-empty, read those files and say what changed.** Naming the commits that landed is
   the evidence; "I checked and it was fine" is not.
+- **The `--since` anchor must carry its time zone.** Git reads a bare timestamp (`--since="2026-09-02T01:58:00"`)
+  as LOCAL wall-clock. A session that captured its start as UTC (from `date -u`, an API field or a
+  scheduler's last-run time) and pastes it into the placeholder without its `Z` opens the window early by the
+  host's UTC offset, so on a UTC+8 host the same store answered 60 commits where 12 were meant. It fails
+  toward a LARGER result, which reads as thoroughness rather than as a fault. Write the instant with an
+  explicit `Z` or an offset (`2026-09-02T01:58:00Z`), or use a relative form such as `--since="45 minutes ago"`.
+  To prove a window is the one you meant, run it both ways, as written and with the explicit `Z`, and
+  compare the counts before relaying either.
 
 What this buys you is a **delta instead of an all-or-nothing choice**: read what actually moved, and say so,
 rather than re-reading everything or nothing. What it does not buy you is a way out of the walk. **The delta
@@ -534,18 +542,21 @@ proper handoff; if it can be neither, it BLOCKS standdown - surface it and resol
 unwritten prose, no unrecorded chunk, no vague pending. Then STOP
 (park means stop; do not push/merge/start-next after).
 
-### Park versus archive, first: only one of them cleans up the worktree for you
+### Park versus archive, first: neither of them cleans up the worktree for you
 
 "Park" in this skill means pause the work; the session itself stays open and nobody has told the harness
 to end it. If the actual boundary is ending the session (the user said "archive this", the workstream is
-genuinely done), call the harness's own session-archive tool instead of the manual removal below. That
-tool stops the session's process and, per its own description, cleans up a session's own natively-created
-worktree by default, so a manual removal first is redundant. Doing the manual removal INSTEAD of calling
-the archive tool does not end the session, so it stays alive and the harness re-provisions it a fresh
-worktree on its next turn, which repeats on every subsequent "archive this": measured directly, four
-consecutive rounds of exactly that substitution in one session. The rest of this section is for the
-genuine park case, or for a worktree the native archive flow was never going to see in the first place
-(one this session resumed into, or made by hand).
+genuinely done), call the harness's own session-archive tool; do not use the manual removal below as a
+substitute for it. That tool stops the session's process. Its own description also says it cleans up the
+session's worktree by default, but that is a claim and the measurement says otherwise: worktrees of
+archived sessions are found still on disk, and the operator ruled the question closed (archiving does not
+remove a worktree, so check `git worktree list`). Doing the manual removal INSTEAD of calling the archive
+tool does not end the session, so it stays alive and the harness re-provisions it a fresh worktree on its
+next turn, which repeats on every subsequent "archive this": measured directly, four consecutive rounds of
+exactly that substitution in one session. So on an archive, expect the worktree to be left behind: name its
+path in the hand-off, or remove it as described below immediately before the archive call (that exact
+order has not been measured, so check `git worktree list` where you can). Never remove it instead of
+archiving.
 
 ### When `archive_session` refuses citing "live work", diagnose before waiting
 
@@ -588,11 +599,11 @@ surfaced and `get_session` produced in a single call, which is the point: check 
 
 ### Clear your own worktree, as the last tool call
 
-If this session has been working in its own worktree AND the boundary is a park rather than an archive,
-disposing of it is part of the park, and it is the one step that comes after everything else.
+If this session has been working in its own worktree, disposing of it is part of the park (and of an
+archive, which does not do it for you), and it is the one step that comes after everything else.
 
-**Nothing else clears it, in the park case.** A native exit / archive helper typically only knows about
-worktrees IT created for THIS session, so a session that resumed into an existing one, or made one by
+**Nothing else clears it.** Archiving does not remove a worktree. A native exit helper typically only knows
+about worktrees IT created for THIS session, so a session that resumed into an existing one, or made one by
 hand, gets a clean no-op and the directory stays; parking without ever archiving falls into the same gap,
 since nothing archive-shaped runs at all. What accumulates is full second copies of a repository that
 nobody is watching, found only by someone enumerating the filesystem, and the reason nobody enumerates is
