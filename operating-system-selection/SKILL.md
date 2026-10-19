@@ -38,7 +38,8 @@ Capabilities, defaults and support status are version-bound. Never state an end-
 | Hyper-V, VHDX, live migration, Hyper-V Replica | Hyper-V | `hyper-v-ops`; hypervisor choice is in `virtualization-platform-selection` |
 | Failover cluster, quorum, CSV, Cluster-Aware Updating | Windows failover clustering | `windows-failover-clustering-ops` |
 | WSL, WSL 2, `.wslconfig` | Windows Subsystem for Linux | `wsl-ops` |
-| macOS, MDM, Platform SSO | macOS | no dedicated skill yet |
+| macOS, launchd, FileVault, Gatekeeper, Time Machine, macOS 27 | macOS | `macos-ops` |
+| MDM, ADE, DDM, supervised, bootstrap token, Platform SSO | macOS management | `macos-mdm-ops` |
 | Ubuntu, Debian | Debian family | no dedicated skill yet; generic Linux in `linux-host-ops` and `linux-host-bringup` |
 | RHEL, Rocky Linux, AlmaLinux | RHEL family | no dedicated skill yet; generic Linux in `linux-host-ops` |
 | SLES, SUSE, Btrfs and Snapper | SUSE family | no dedicated skill yet; generic Linux in `linux-host-ops` |

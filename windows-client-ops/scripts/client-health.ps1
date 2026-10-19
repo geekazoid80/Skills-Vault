@@ -5,7 +5,7 @@
 .DESCRIPTION
     READ ONLY: this script only reads state and changes nothing. Covers build, hardware, memory, processor, volumes, disk health, top processes and battery.
     Compatible with Windows PowerShell 5.1 and PowerShell 7 on Windows. Run elevated for complete results.
-    Exit codes: 0 no findings, 1 warnings only, 2 critical findings or the check itself failed.
+    Exit codes: 0 no findings, 1 warnings only (this includes any check that could not run), 2 critical findings.
     A query that fails or returns nothing is reported as a warning, never as a pass.
 
     Not run against a live Windows system in this vault: it is parse-checked and exercised against mocked
