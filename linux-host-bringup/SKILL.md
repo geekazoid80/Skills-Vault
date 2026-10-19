@@ -215,6 +215,7 @@ For a hardening or troubleshooting review, provide:
 
 ## Cross-references
 
+- `ubuntu-ops`, `debian-ops`: which Debian-family release to commission and how long it is supported; distribution-specific tooling after the host is up.
 - `systematic-debugging`: when the host won't boot, the cron didn't fire, the service crashes, or the firewall is dropping packets. Phase 1 evidence-gathering at every component boundary maps onto this skill's phases (DNS, TLS, web server, app, system).
 - `plan-time-tooling`: an LXC bring-up or first deploy of a new module is a mandatory `engineering:deploy-checklist` trigger. Run it BEFORE the implementation sub-agent is briefed; output goes to `docs/runbooks/<host>.md`.
 - `secrets-hygiene`: SSH keys, ACME account material, and any per-deployment credentials live in gitignored files plus the secret store. Real key material never lands in tracked artefacts.

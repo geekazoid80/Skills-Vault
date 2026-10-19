@@ -40,7 +40,8 @@ Capabilities, defaults and support status are version-bound. Never state an end-
 | WSL, WSL 2, `.wslconfig` | Windows Subsystem for Linux | `wsl-ops` |
 | macOS, launchd, FileVault, Gatekeeper, Time Machine, macOS 27 | macOS | `macos-ops` |
 | MDM, ADE, DDM, supervised, bootstrap token, Platform SSO | macOS management | `macos-mdm-ops` |
-| Ubuntu, Debian | Debian family | no dedicated skill yet; generic Linux in `linux-host-ops` and `linux-host-bringup` |
+| Ubuntu | Debian family | `ubuntu-ops`; generic Linux in `linux-host-ops` and `linux-host-bringup` |
+| Debian | Debian family | `debian-ops`; generic Linux in `linux-host-ops` and `linux-host-bringup` |
 | RHEL, Rocky Linux, AlmaLinux | RHEL family | no dedicated skill yet; generic Linux in `linux-host-ops` |
 | SLES, SUSE, Btrfs and Snapper | SUSE family | no dedicated skill yet; generic Linux in `linux-host-ops` |
 | Any Linux host (systemd, journald, packages, LVM, backups) | Generic Linux | `linux-host-ops`, `linux-host-bringup` |
