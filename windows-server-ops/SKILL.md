@@ -114,7 +114,7 @@ Baselines (CIS, Microsoft security baselines) belong to `compliance-benchmark-au
 - `references/diagnostics.md`: event logs and IDs, counters, workflows, packet capture, WinRM, stop-error analysis.
 - `references/editions-and-licensing.md`: edition roster, feature gates, licensing and upgrade paths.
 - `references/version-notes.md`: lifecycle dates (dated and sourced) and what changed in 2016, 2019, 2022 and 2025.
-- `scripts/server-health.ps1`, `performance-baseline.ps1`, `event-log-summary.ps1`, `storage-health.ps1`, `network-diagnostics.ps1`, `security-audit.ps1`, `update-and-backup-status.ps1`, `version-checks.ps1`: read-only checks. Exit codes: 0 none, 1 warnings, 2 critical or the check itself failed; a query that fails or returns nothing is a warning, never a pass.
+- `scripts/server-health.ps1`, `performance-baseline.ps1`, `event-log-summary.ps1`, `storage-health.ps1`, `network-diagnostics.ps1`, `security-audit.ps1`, `update-and-backup-status.ps1`, `version-checks.ps1`: read-only checks. Exit codes: 0 no findings, 1 warnings (this includes any check that could not run, and a query that fails or returns nothing), 2 critical findings. A check that could not run is therefore never a clean pass.
 
 The scripts only read state and are compatible with Windows PowerShell 5.1 and PowerShell 7. They are parse-checked, and each was run against mocked cmdlets in an empty-result world and a throwing world (none exits 0) plus selected healthy and unhealthy worlds, but none has been run on a live Windows system and the property names are unconfirmed against a real session. Run them on a non-critical server first.
 

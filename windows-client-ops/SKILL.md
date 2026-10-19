@@ -1,6 +1,6 @@
 ---
 name: windows-client-ops
-description: "Use for day-to-day Windows 10 and Windows 11 desktop administration and troubleshooting: Intune and MDM enrolment (Autopilot), update rings and Windows Update for Business, Delivery Optimisation, BitLocker deployment and recovery keys, Windows Hello, Defender and attack surface reduction settings, SFC and DISM repair, driver and GPU problems, Reliability Monitor, storage cleanup analysis, winget and MSIX, edition and LTSC questions, Windows 10 end of support and ESU, and Windows 11 readiness. Triggers include \"Windows 11\", \"Windows 10 end of support\", \"ESU\", \"Autopilot\", \"Intune compliance\", \"Windows Update for Business\", \"BitLocker recovery key\", \"TPM 2.0 requirement\", \"SFC DISM\", \"driver problem code 43\", \"event 4101\", \"winget\", \"LTSC\", \"Windows 11 24H2 end of support\". NOT for Windows Server (windows-server-ops), NOT for Defender for Endpoint tenant configuration or EDR (defender-for-endpoint, endpoint-detection-response), NOT for patch tooling products (action1-patch-management), NOT for macOS (no dedicated skill yet), NOT for choosing an operating system (operating-system-selection)."
+description: "Use for day-to-day Windows 10 and Windows 11 desktop administration and troubleshooting: Intune and MDM enrolment (Autopilot), update rings and Windows Update for Business, Delivery Optimisation, BitLocker deployment and recovery keys, Windows Hello, Defender and attack surface reduction settings, SFC and DISM repair, driver and GPU problems, Reliability Monitor, storage cleanup analysis, winget and MSIX, edition and LTSC questions, Windows 10 end of support and ESU, and Windows 11 readiness. Triggers include \"Windows 11\", \"Windows 10 end of support\", \"ESU\", \"Autopilot\", \"Intune compliance\", \"Windows Update for Business\", \"BitLocker recovery key\", \"TPM 2.0 requirement\", \"SFC DISM\", \"driver problem code 43\", \"event 4101\", \"winget\", \"LTSC\", \"Windows 11 24H2 end of support\". NOT for Windows Server (windows-server-ops), NOT for Defender for Endpoint tenant configuration or EDR (defender-for-endpoint, endpoint-detection-response), NOT for patch tooling products (action1-patch-management), NOT for macOS (macos-ops, macos-mdm-ops), NOT for choosing an operating system (operating-system-selection)."
 license: MIT
 metadata:
   version: 1.0.0
@@ -112,7 +112,7 @@ Microsoft Defender Antivirus provides real-time and cloud-delivered protection a
 - `references/diagnostics.md`: system file repair, Reliability Monitor, drivers, startup and performance, storage, power.
 - `references/editions-and-licensing.md`: editions, stable feature differences, hardware requirements and upgrade paths.
 - `references/version-notes.md`: dated Windows 10 and 11 lifecycle tables and version notes.
-- `scripts/client-health.ps1`, `update-compliance.ps1`, `security-posture.ps1`, `network-diagnostics.ps1`, `driver-health.ps1`, `app-inventory.ps1`, `disk-space-analysis.ps1`, `windows11-readiness.ps1`: read-only checks. Exit codes: 0 none, 1 warnings, 2 critical or the check itself failed; a query that fails or returns nothing is a warning, never a pass.
+- `scripts/client-health.ps1`, `update-compliance.ps1`, `security-posture.ps1`, `network-diagnostics.ps1`, `driver-health.ps1`, `app-inventory.ps1`, `disk-space-analysis.ps1`, `windows11-readiness.ps1`: read-only checks. Exit codes: 0 no findings, 1 warnings (this includes any check that could not run, and a query that fails or returns nothing), 2 critical findings. A check that could not run is therefore never a clean pass.
 
 The scripts only read state (the disk script only analyses; nothing is cleaned) and work on Windows PowerShell 5.1 and PowerShell 7. They are parse-checked and exercised against mocked cmdlets, including an empty-result world and a throwing world where none exits 0, but none has been run on a live Windows system. Run them on a test device first.
 
@@ -121,7 +121,7 @@ The scripts only read state (the disk script only analyses; nothing is cleaned) 
 - Windows Server: `windows-server-ops`. AD, GPO design and DNS: `ad-ds`, `windows-dns-ops`.
 - Defender tenant policy and EDR: `defender-for-endpoint`, `endpoint-detection-response`; patch tooling: `action1-patch-management`.
 - Benchmarks and baselines: `compliance-benchmark-audit`.
-- WSL: `wsl-ops`. macOS: no dedicated skill yet.
+- WSL: `wsl-ops`. macOS: `macos-ops` and `macos-mdm-ops`.
 - OS choice and lifecycle planning: `operating-system-selection`.
 - PowerShell module issues: `powershell-module-compat`. Credentials: `secrets-hygiene`.
 

@@ -5,7 +5,7 @@
 .DESCRIPTION
     READ ONLY: this script only reads state and changes nothing. Checks 64-bit, cores, clock, RAM, boot disk size and style, Secure Boot and TPM 2.0. It does not check the approved CPU list.
     Compatible with Windows PowerShell 5.1 and PowerShell 7 on Windows. Run elevated for complete results.
-    Exit codes: 0 no findings, 1 warnings only, 2 critical findings or the check itself failed.
+    Exit codes: 0 no findings, 1 warnings only (this includes any check that could not run), 2 critical findings.
     A query that fails or returns nothing is reported as a warning, never as a pass.
 
     Not run against a live Windows system in this vault: it is parse-checked and exercised against mocked
