@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# reap-worktrees.sh — safe, re-runnable cleanup of merged local branches and
+# reap-worktrees.sh: safe, re-runnable cleanup of merged local branches and
 # dead worktree admin entries for a Claude-Code-managed repo.
 #
 # What it does NOT do (by design, this is the whole safety story):
@@ -11,13 +11,13 @@
 #     `git branch -d` (which itself refuses anything not truly merged).
 #
 # Two buckets:
-#   1. MERGED   — local branches whose tip is an ancestor of origin/main.
+#   1. MERGED:    local branches whose tip is an ancestor of origin/main.
 #                 Safe to `-d`. Reaped on --apply.
-#   2. GONE     — local branches whose upstream is [gone] but tip is NOT an
+#   2. GONE:      local branches whose upstream is [gone] but tip is NOT an
 #                 ancestor of origin/main. These are almost always squash-merged
 #                 (PR landed, remote branch deleted, squash rewrote the SHA so
 #                 ancestry can't see it). They need `-D` (force), so they are
-#                 only ever LISTED here — never auto-deleted — and you confirm
+#                 only ever LISTED here, never auto-deleted, and you confirm
 #                 per branch. Pass --apply-gone to force-delete them too, once
 #                 you have eyeballed the list.
 #
@@ -53,7 +53,7 @@ echo "fetching origin --prune ..."
 git fetch --prune origin >/dev/null 2>&1 || echo "  (fetch failed; results reflect last-known remote state)"
 echo
 
-# Branches currently checked out in ANY worktree — these are off-limits.
+# Branches currently checked out in ANY worktree; these are off-limits.
 # (git itself also refuses to delete a checked-out branch, so this is belt-and-braces.)
 # Built portably for macOS bash 3.2 (no mapfile).
 CHECKED_OUT=()

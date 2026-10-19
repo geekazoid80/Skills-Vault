@@ -117,7 +117,7 @@ bridging one QinQ-encapsulated attachment circuit (outer S-tag, inner C-tag) to 
 circuit inside a `vlan-bundle` EVPN instance.
 
 **The trap.** A single-tag access-facing service-instance defaults, by habit, to popping its one tag so the
-frame is untagged internally — the normal pattern for a plain access port:
+frame is untagged internally, the normal pattern for a plain access port:
 
 ```
 service instance 200 ethernet
@@ -125,7 +125,7 @@ service instance 200 ethernet
  rewrite ingress tag pop 1 symmetric   ! wrong here: strips the tag this EVI needs to keep
 ```
 
-But the QinQ leg it bridges to only pops its OUTER tag, by necessity — that is the only way to preserve the
+But the QinQ leg it bridges to only pops its OUTER tag, by necessity; that is the only way to preserve the
 inner C-tag as the frame's meaningful identity:
 
 ```
@@ -138,7 +138,7 @@ Inside a `vlan-bundle` EVI, both legs must agree on the internal tag state for t
 correctly between them. If the QinQ leg's internal representation still carries the C-tag but the
 single-tag leg strips its tag to fully untagged, the two legs disagree about what they are bridging.
 
-**The fix:** the single-tag leg must NOT pop its tag either — remove the `rewrite ingress tag` line
+**The fix:** the single-tag leg must NOT pop its tag either: remove the `rewrite ingress tag` line
 entirely (no rewrite command at all is the "leave the tag alone" instruction on this platform), so the
 C-tag survives internally on both legs as the shared identity the `vlan-bundle` is built around:
 
@@ -155,7 +155,7 @@ internal tag state on the new leg, rather than defaulting to the plain-access-po
 ## Confirmed practice: config confirms *intent*, live MAC learning confirms the service works
 
 Confirmed live 2026-09-19, same session. Reading `running-config` (live or from an offline backup/capture
-store) only confirms the bridge-domain and its attachment circuits are configured as intended — it says
+store) only confirms the bridge-domain and its attachment circuits are configured as intended; it says
 nothing about whether the service is actually passing traffic. Treat "config matches the design" and "the
 service works" as two separate claims; do not let a report or change record blur them into one "confirmed."
 
@@ -167,7 +167,7 @@ show l2vpn evpn mac evi <n>                ! or equivalent EVPN MAC/route table 
 ```
 
 Look for: a **locally learned** (not EVPN-remote) MAC on each PE's own attachment circuit, with an age well
-under that bridge-domain's aging timer — a fresh, actively-refreshing age is what distinguishes real
+under that bridge-domain's aging timer; a fresh, actively-refreshing age is what distinguishes real
 ongoing traffic from a stale one-off ARP/flood entry. On a multi-PE EVPN bridge-domain, also expect to see
 the SAME MAC(s) show up as EVPN-remote entries on the other PE(s), confirming the cross-connect over the
 EVPN core is actually forwarding, not just configured.
