@@ -121,7 +121,7 @@ The scripts only read state (the disk script only analyses; nothing is cleaned) 
 - Windows Server: `windows-server-ops`. AD, GPO design and DNS: `ad-ds`, `windows-dns-ops`.
 - Defender tenant policy and EDR: `defender-for-endpoint`, `endpoint-detection-response`; patch tooling: `action1-patch-management`.
 - Benchmarks and baselines: `compliance-benchmark-audit`.
-- WSL: no dedicated skill yet; macOS: no dedicated skill yet.
+- WSL: `wsl-ops`. macOS: no dedicated skill yet.
 - OS choice and lifecycle planning: `operating-system-selection`.
 - PowerShell module issues: `powershell-module-compat`. Credentials: `secrets-hygiene`.
 

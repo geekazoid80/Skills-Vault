@@ -122,7 +122,7 @@ The scripts only read state and are compatible with Windows PowerShell 5.1 and P
 
 - AD DS, GPO design, certificate services, federation and DNS: `ad-ds`, `ad-cs`, `ad-fs`, `windows-dns-ops`.
 - Windows desktops and Intune: `windows-client-ops`.
-- Hyper-V, failover clustering, WSL: no dedicated skill yet; they follow in a later release of this family.
+- Hyper-V, failover clustering and WSL: `hyper-v-ops`, `windows-failover-clustering-ops`, `wsl-ops`.
 - OS selection and lifecycle planning: `operating-system-selection`.
 - Defender, EDR and patch tooling: `defender-for-endpoint`, `endpoint-detection-response`, `action1-patch-management`.
 - Benchmarks and baselines: `compliance-benchmark-audit`; CVE handling: `vulnerability-management`.
