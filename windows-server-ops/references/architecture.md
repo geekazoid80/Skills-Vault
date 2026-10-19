@@ -48,7 +48,7 @@ Application, file system (NTFS, ReFS), volume manager (Storage Spaces, dynamic v
 | Repair | `chkdsk` (offline for deep repair) | Online, using redundant copies on resilient Storage Spaces |
 | Preferred for | Boot, general application volumes, features such as EFS and disk quotas | Hyper-V and Storage Spaces Direct volumes, integrity workloads |
 
-**Storage Spaces** pools disks into virtual disks with simple, mirror or parity resiliency. **Storage Spaces Direct** extends that across cluster nodes with local drives (Datacenter edition; clustering has no dedicated skill yet). Windows Server 2025 optimises the NVMe path (Microsoft reports higher IOPS and lower CPU use; measure on your hardware).
+**Storage Spaces** pools disks into virtual disks with simple, mirror or parity resiliency. **Storage Spaces Direct** extends that across cluster nodes with local drives (Datacenter edition; clustering is in `windows-failover-clustering-ops`). Windows Server 2025 optimises the NVMe path (Microsoft reports higher IOPS and lower CPU use; measure on your hardware).
 
 ## Networking stack
 

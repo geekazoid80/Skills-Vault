@@ -1,6 +1,6 @@
 ---
 name: debian-ops
-description: "Use for Debian-specific administration on 11 (bullseye), 12 (bookworm) and 13 (trixie): the release and support model (stable, oldstable, LTS, ELTS, point releases), apt sources in the deb822 format, archive components and the security pocket, backports and pinning, security tracking with debian-security-support, debsecan and unattended-upgrades, needrestart, release-to-release upgrades and their per-release gotchas, the tmpfs /tmp and sysctl.conf changes in 13, and preseed. Triggers include \"Debian\", \"trixie\", \"bookworm\", \"bullseye\", \"Debian 13\", \"Debian LTS\", \"Debian ELTS\", \"oldstable\", \"backports\", \"sources.list\", \"deb822\", \"non-free-firmware\", \"debsecan\", \"check-support-status\", \"apt full-upgrade\", \"preseed\", \"upgrade Debian 12 to 13\". NOT for Ubuntu (ubuntu-ops), NOT for RHEL-family or SUSE hosts (see operating-system-selection for the platform skill), NOT for generic Linux operation such as systemd units, journalctl, LVM and backups (linux-host-ops), NOT for first-boot commissioning (linux-host-bringup), NOT for Proxmox VE hosts (proxmox-ops), NOT for choosing a distribution (operating-system-selection)."
+description: "Use for Debian-specific administration on 11 (bullseye), 12 (bookworm) and 13 (trixie): the release and support model (stable, oldstable, LTS, ELTS, point releases), apt sources in the deb822 format, archive components and the security pocket, backports and pinning, security tracking with debian-security-support, debsecan and unattended-upgrades, needrestart, release-to-release upgrades and their per-release gotchas, the tmpfs /tmp and sysctl.conf changes in 13, and preseed. Triggers include \"Debian\", \"trixie\", \"bookworm\", \"bullseye\", \"Debian 13\", \"Debian LTS\", \"Debian ELTS\", \"oldstable\", \"backports\", \"sources.list\", \"deb822\", \"non-free-firmware\", \"debsecan\", \"check-support-status\", \"apt full-upgrade\", \"preseed\", \"upgrade Debian 12 to 13\". NOT for Ubuntu (ubuntu-ops), NOT for RHEL-family hosts (rhel-family-ops), NOT for SUSE (sles-ops), NOT for generic Linux operation such as systemd units, journalctl, LVM and backups (linux-host-ops), NOT for first-boot commissioning (linux-host-bringup), NOT for Proxmox VE hosts (proxmox-ops), NOT for choosing a distribution (operating-system-selection)."
 license: MIT
 metadata:
   version: 1.0.0
@@ -113,7 +113,7 @@ The scripts are POSIX `sh` (the default `/bin/sh` on Debian is dash), read state
 
 ## Boundaries
 
-- Ubuntu: `ubuntu-ops`. RHEL-family and SUSE hosts: `operating-system-selection` routes to the platform skill.
+- Ubuntu: `ubuntu-ops`. RHEL, Rocky, AlmaLinux: `rhel-family-ops`. SUSE: `sles-ops`.
 - Generic Linux operation: `linux-host-ops`; first-boot commissioning: `linux-host-bringup`.
 - Proxmox VE, which is built on Debian: `proxmox-ops`.
 - Containers on Debian: `podman-ops`, `docker-ops`, `container-security`.

@@ -1,6 +1,6 @@
 ---
 name: ubuntu-ops
-description: "Use for Ubuntu-specific administration on 22.04, 24.04 and 26.04 LTS (and 20.04 under Ubuntu Pro): the support lifecycle and which release to run, apt and the deb822 sources format, snap, Netplan and cloud-init, UFW, AppArmor (including the unprivileged user namespace restriction), Ubuntu Pro with ESM, Livepatch and USG, unattended-upgrades and needrestart, chrony versus systemd-timesyncd, sudo-rs and the other 26.04 defaults, do-release-upgrade, and autoinstall. Triggers include \"Ubuntu\", \"Ubuntu 26.04\", \"Resolute Raccoon\", \"Noble\", \"apt\", \"deb822\", \"snap\", \"Netplan\", \"cloud-init\", \"UFW\", \"AppArmor\", \"aa-status\", \"Ubuntu Pro\", \"ESM\", \"Livepatch\", \"pro attach\", \"unattended-upgrades\", \"needrestart\", \"do-release-upgrade\", \"autoinstall\", \"Ubuntu end of life\". NOT for Debian (debian-ops), NOT for RHEL-family or SUSE hosts (see operating-system-selection for the platform skill), NOT for generic Linux operation such as systemd units, journalctl, LVM and backups (linux-host-ops), NOT for first-boot commissioning (linux-host-bringup), NOT for choosing a distribution (operating-system-selection)."
+description: "Use for Ubuntu-specific administration on 22.04, 24.04 and 26.04 LTS (and 20.04 under Ubuntu Pro): the support lifecycle and which release to run, apt and the deb822 sources format, snap, Netplan and cloud-init, UFW, AppArmor (including the unprivileged user namespace restriction), Ubuntu Pro with ESM, Livepatch and USG, unattended-upgrades and needrestart, chrony versus systemd-timesyncd, sudo-rs and the other 26.04 defaults, do-release-upgrade, and autoinstall. Triggers include \"Ubuntu\", \"Ubuntu 26.04\", \"Resolute Raccoon\", \"Noble\", \"apt\", \"deb822\", \"snap\", \"Netplan\", \"cloud-init\", \"UFW\", \"AppArmor\", \"aa-status\", \"Ubuntu Pro\", \"ESM\", \"Livepatch\", \"pro attach\", \"unattended-upgrades\", \"needrestart\", \"do-release-upgrade\", \"autoinstall\", \"Ubuntu end of life\". NOT for Debian (debian-ops), NOT for RHEL-family hosts (rhel-family-ops), NOT for SUSE (sles-ops), NOT for generic Linux operation such as systemd units, journalctl, LVM and backups (linux-host-ops), NOT for first-boot commissioning (linux-host-bringup), NOT for choosing a distribution (operating-system-selection)."
 license: MIT
 metadata:
   version: 1.0.0
@@ -119,7 +119,7 @@ The scripts are POSIX `sh` (the default `/bin/sh` on Ubuntu is dash), read state
 
 ## Boundaries
 
-- Debian itself: `debian-ops`. RHEL-family and SUSE hosts: `operating-system-selection` routes to the platform skill.
+- Debian itself: `debian-ops`. RHEL, Rocky, AlmaLinux: `rhel-family-ops`. SUSE: `sles-ops`.
 - Generic Linux operation: `linux-host-ops`; first-boot commissioning: `linux-host-bringup`.
 - Containers on Ubuntu: `podman-ops`, `docker-ops`, `container-security`; Kubernetes: `kubernetes-ops`.
 - Vulnerability handling and benchmarks: `vulnerability-management`, `compliance-benchmark-audit`.
