@@ -1,8 +1,8 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. Also owns worktree DISPOSAL at session close, and the distinction between PARKING a session (paused, still open) and ARCHIVING one (actually ended via the harness's own session-archive tool). Triggers include "clear the worktree", "remove the worktree", "worktree cleanup", "leftover worktrees", "worktree residue", "who cleans up the worktree", "does archiving remove the worktree", "does archive_session clean up the worktree", "worktree remove refused", "contains modified or untracked files", "archive this", "park vs archive", "session recycled a new worktree", "archive did not stop the session", "worktree keeps coming back". A worktree a session created or resumed by hand, outside the native flow, is not disposed of by anything automatically; the owning session clears its OWN as the LAST tool call, never a peer's, without --force, pinning any local-only commit to refs/archive first. Calling the harness's own session-archive tool on a session's OWN natively-created worktree does clean it up by default per that tool's own description, so that case needs no manual removal at all; manually removing a worktree is not the same act as archiving the session and does not stop it, so doing that instead of calling the archive tool on "archive this" reliably loops (the session stays alive and gets a fresh worktree on its next turn). Also covers a build, typecheck or bundler that fails ONLY inside a worktree with a misleading config or dependency error ("Tsconfig not found", "plugin threw" from a Vite or rolldown resolve step, a nested tsconfig that cannot extend a package), because the tool's project-root walk escaped the worktree into the outer checkout, whose .git is a directory where the worktree's is a file; triggers include "builds in the main clone but not in the worktree", "works on a fresh clone but not a worktree", "Tsconfig not found astro". NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination); NOT for sweeping OTHER sessions' leftovers, which is a separate and expensive audit. Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, clear-your-own-at-close, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
+description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. Also owns worktree DISPOSAL at session close, and the distinction between PARKING a session (paused, still open) and ARCHIVING one (actually ended via the harness's own session-archive tool). Triggers include "clear the worktree", "remove the worktree", "worktree cleanup", "leftover worktrees", "worktree residue", "who cleans up the worktree", "does archiving remove the worktree", "does archive_session clean up the worktree", "worktree remove refused", "contains modified or untracked files", "archive this", "park vs archive", "session recycled a new worktree", "archive did not stop the session", "worktree keeps coming back". A worktree a session created or resumed by hand, outside the native flow, is not disposed of by anything automatically; the owning session clears its OWN as the LAST tool call, never a peer's, without --force, pinning any local-only commit to refs/archive first. Calling the harness's own session-archive tool ends the session but does NOT remove its worktree, whatever that tool's own description says (measured, worktrees of archived sessions are found still on disk), so archiving is not disposal; manually removing a worktree is not the same act as archiving the session and does not stop it, so doing that instead of calling the archive tool on "archive this" reliably loops (the session stays alive and gets a fresh worktree on its next turn). Also covers a build, typecheck or bundler that fails ONLY inside a worktree with a misleading config or dependency error ("Tsconfig not found", "plugin threw" from a Vite or rolldown resolve step, a nested tsconfig that cannot extend a package), because the tool's project-root walk escaped the worktree into the outer checkout, whose .git is a directory where the worktree's is a file; triggers include "builds in the main clone but not in the worktree", "works on a fresh clone but not a worktree", "Tsconfig not found astro". NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination); NOT for sweeping OTHER sessions' leftovers, which is a separate and expensive audit. Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, clear-your-own-at-close, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
 metadata:
-  version: 1.4.0
+  version: 1.4.1
 ---
 
 # Using Git Worktrees
@@ -141,19 +141,24 @@ A linked worktree's `.git` is a **file** (`gitdir: <main>/.git/worktrees/<name>`
 3. **A clean pass does not prove you are unaffected.** If the outer checkout already has `node_modules`, the worktree build succeeds with the mechanism fully present, and it will bite on CI, a fresh clone, or a peer whose outer checkout is not installed. To know whether the escape was exercised, reproduce in a scratch clone with a nested worktree.
 4. **The stronger fix removes the need for a second install:** pin the tool's own root or tsconfig option so it never auto-discovers. For Vite that is the top-level `tsconfig` option (Vite 8.3.0 and later). It is necessary-but-not-sufficient when the config file itself imports a package that ships raw `.ts`; that case, the per-repo test for which half is load-bearing, and a Yarn Berry `.gitignore` trap are in `references/build-tool-root-walk-escape.md`.
 
-## Park versus archive, and only one of them cleans up the worktree
+## Park versus archive, and neither of them cleans up the worktree
 
 These are two different closes, and treating them as the same thing is what causes a worktree to either
-leak or get pulled out from under a session that is still going to be used.
+leak or get pulled out from under a session that is still going to be used. Neither one removes the
+worktree for you.
 
 **Park: the work is paused, the session stays open.** Nobody has told the harness to end it; the same
 conversation may receive another instruction later and carry on. No session-archive tool is involved.
 
 **Archive: the session is actually ended**, through the harness's own session-management tool (in Claude
-Code, `archive_session`, called with the session's own id). Per that tool's own description, archiving
-stops the session's process **and cleans up its worktree by default**, for a worktree the session's own
-native flow created. So for a session's own natively-created worktree, calling the archive tool is
-sufficient on its own; a manual removal beforehand is redundant.
+Code, `archive_session`, called with the session's own id). Archiving stops the session's process. That
+tool's own description also says it cleans up the session's worktree by default, **and that claim is
+wrong: archiving does not remove a worktree.** A tool description is a claim, not a measurement. Measured
+across an estate, worktrees whose only owning sessions were archived were still on disk (three found by
+hand, then eight across seven repositories in one weekly residue audit), so the archive cannot be what
+removes them. The question of a narrower carve-out, whether the archive cleans what the harness itself
+created, was put to the operator, who ruled it retired: archiving does not clean a worktree, so always
+check `git worktree list`, and no provenance record will be built to reopen it.
 
 **Manually removing the worktree is not itself archiving, and does not stop the session.** Do that instead
 of calling the archive tool, in response to an instruction to "archive this", and the session is still
@@ -162,18 +167,22 @@ before. Ask it to "archive" again and the same substitution repeats: measured di
 rounds of exactly this loop in one session that ran a manual `worktree remove` on every "archive this"
 instead of ever calling the archive tool.
 
-**So: when the actual intent is to end the session, call the archive tool, and skip the manual removal
-below.** The manual procedure that follows is for the genuine park case (work paused, session staying
-open, so nothing else will ever clean up its worktree), and for the narrower gap the archive tool's own
-"by default" leaves open: a worktree the CURRENT session's native flow did not create.
+**So: when the actual intent is to end the session, call the archive tool, and do not use a manual
+removal as a substitute for it.** Archiving is not disposal either, so the procedure below applies to every
+worktree you own, parked or archived: clear your own before the archive call, or knowingly leave it and name
+its path in the hand-off so whoever sweeps residue can tell it is spent. That order (remove, then archive)
+has not been measured end to end, so check `git worktree list` afterwards where you can; in the data, a
+removal on its own sometimes drew a replacement worktree and sometimes did not, so never assume either
+outcome. The removal is only ever safe immediately before the archive call, never instead of it.
 
-## Remove your own worktree at session close (the park case, and worktrees the native flow cannot see)
+## Remove your own worktree at session close (parked or archived)
 
-**A worktree is not disposed of for you by every closing path.** The native exit / archive helper only
-knows about worktrees it created for the CURRENT session, so a session that resumed into an existing
-worktree, or that made one by hand because the native tool was unavailable or resolved to the wrong
-repository, is invisible to it and gets a clean no-op; the directory stays exactly where it was. Parking
-without ever archiving falls into the same gap, since nothing archive-shaped runs at all.
+**A worktree is not disposed of for you by any closing path.** Archiving does not remove one (see above).
+The native exit helper only knows about worktrees it created for the CURRENT session, so a session that
+resumed into an existing worktree, or that made one by hand because the native tool was unavailable or
+resolved to the wrong repository, is invisible to it and gets a clean no-op; the directory stays exactly
+where it was. Parking without ever archiving falls into the same gap, since nothing archive-shaped runs at
+all.
 
 The accumulation from that gap is quiet. Each leftover is a full second copy of the repository under
 `.claude/worktrees/`, indistinguishable from a live workspace, and nothing reports it. They are found only
@@ -236,7 +245,7 @@ write the closing message from memory without reaching for a tool again.
 | Change ships via a worktree branch and PR | Edit in the worktree; main clone stays clean and current |
 | `pull --ff-only` aborts on a locally-modified file | Confirm the content is yours and merged, then `git restore <path>` and pull |
 | The modified path is not yours, or you cannot confirm it landed | Stop and surface; never `git reset` the shared tree |
-| Intent is to actually END the session | Call the harness's archive tool (own-session id); it cleans up ITS OWN natively-created worktree by default, do not also manually remove first |
+| Intent is to actually END the session | Call the harness's archive tool (own-session id); it ends the session but does NOT remove the worktree, so clear your own first (never INSTEAD of archiving) or name the leftover path in the hand-off |
 | Session merely pausing (park), staying open, or the worktree predates this session / was hand-made | Push, pin any local-only commit to `refs/archive/...`, then `worktree remove` without `--force` as the LAST tool call |
 | `worktree remove` refused (modified or untracked files) | The guard is right: something exists only there. Resolve with the human, or leave the worktree and say so. Never `--force` |
 | A worktree you did not create | Leave it alone. Report it; never remove a peer's |
@@ -254,6 +263,7 @@ write the closing message from memory without reaching for a tool again.
 - Bisecting framework or dependency versions over a config-not-found build error that appears only inside a worktree, without first checking whether the outer checkout has `node_modules`.
 - Removing a worktree this session did not create (provenance check first; a peer's live workspace looks exactly like abandoned residue from outside, and the removal is unrecoverable).
 - Assuming a worktree under `.claude/worktrees/` gets disposed of on its own merely because the session went idle or was resumed elsewhere; for the park case, or a hand-made or inherited worktree, nothing does that for you.
+- Counting on the archive tool to remove the worktree because its description says it does. Measured, it does not; the worktree of an archived session stays on disk as residue.
 - Manually removing a worktree in place of calling the archive tool when the actual intent is to end the session. The session stays alive, the harness re-provisions a fresh worktree on its next turn, and repeating the same substitution loops indefinitely.
 - Clearing your own worktree anywhere other than as the LAST tool call, which strands the rest of the close when the working directory disappears.
 - Reaching for `worktree remove --force` after a refusal, instead of reading what the guard named.
