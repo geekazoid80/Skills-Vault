@@ -42,8 +42,8 @@ Capabilities, defaults and support status are version-bound. Never state an end-
 | MDM, ADE, DDM, supervised, bootstrap token, Platform SSO | macOS management | `macos-mdm-ops` |
 | Ubuntu | Debian family | `ubuntu-ops`; generic Linux in `linux-host-ops` and `linux-host-bringup` |
 | Debian | Debian family | `debian-ops`; generic Linux in `linux-host-ops` and `linux-host-bringup` |
-| RHEL, Rocky Linux, AlmaLinux | RHEL family | no dedicated skill yet; generic Linux in `linux-host-ops` |
-| SLES, SUSE, Btrfs and Snapper | SUSE family | no dedicated skill yet; generic Linux in `linux-host-ops` |
+| RHEL, Rocky Linux, AlmaLinux | RHEL family | `rhel-family-ops`; generic Linux in `linux-host-ops` |
+| SLES, SUSE, Btrfs and Snapper | SUSE family | `sles-ops`; generic Linux in `linux-host-ops` |
 | Any Linux host (systemd, journald, packages, LVM, backups) | Generic Linux | `linux-host-ops`, `linux-host-bringup` |
 | Containers on any OS | Container runtimes | `container-runtime-selection` |
 
@@ -61,7 +61,7 @@ Capabilities, defaults and support status are version-bound. Never state an end-
 
 | Platform | Package system | Patch mechanism |
 |---|---|---|
-| RHEL, Rocky, AlmaLinux | rpm and dnf (modules, streams) | `dnf update`, vendor errata, Red Hat Satellite or equivalent |
+| RHEL, Rocky, AlmaLinux | rpm and dnf (modules on 8 and 9, plain RPMs on 10) | `dnf update`, vendor errata, Red Hat Satellite or equivalent |
 | Ubuntu, Debian | deb and apt | unattended-upgrades; Ubuntu Pro for extended coverage; Landscape |
 | SLES | rpm and zypper | patches versus updates, SUSE's management server product |
 | Windows | MSI, MSIX, winget | Windows Update, WSUS, Windows Update for Business, Autopatch, Azure Update Manager |

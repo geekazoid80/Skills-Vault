@@ -583,7 +583,7 @@ If something is broken:
 ## Cross-references
 
 - `linux-host-bringup`: sibling skill covering fresh-host commissioning. This skill picks up after that one finishes.
-- `ubuntu-ops`, `debian-ops`: distribution-specific operation once the distribution is known (support lifecycles, Ubuntu Pro, Netplan, deb822 sources, release upgrades). This skill stays the generic layer.
+- `ubuntu-ops`, `debian-ops`, `rhel-family-ops`, `sles-ops`: distribution-specific operation once the distribution is known (support lifecycles, subscriptions and registration, Ubuntu Pro, Netplan, deb822 sources, SELinux workflow, Snapper, release upgrades). This skill stays the generic layer.
 - `systematic-debugging`: when something on the host is broken and you don't yet know why; Phase 1 evidence-gathering at component boundaries.
 - `secrets-hygiene`: SSH keys, sudoers credentials, backup encryption passwords, vendor agent secrets. All live in the gitignored secret store; never in tracked files.
 - `bash-defensive`: any custom scripts called by systemd units or cron jobs follow strict mode + traps + ShellCheck.
