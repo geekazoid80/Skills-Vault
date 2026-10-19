@@ -1,6 +1,6 @@
 ---
 name: virtualization-platform-selection
-description: "Use when choosing between server virtualisation platforms, comparing hypervisors, planning a move from one to another, or when the platform is unclear. Triggers include \"which hypervisor\", \"vSphere vs Proxmox\", \"VMware alternative\", \"Proxmox vs KVM\", \"Hyper-V vs Proxmox\", \"Nutanix AHV\", \"XCP-ng\", \"XenServer\", \"Type-1 vs Type-2\", \"live migration requirements\", \"V2V migration\", \"convert VMDK to qcow2\", \"migrate off VMware\", \"HA needs shared storage?\", \"NUMA sizing\", \"can I mix Intel and AMD hosts\". Vendor-neutral comparison and migration reasoning; routes to the platform skill once the platform is known. NOT for day-to-day Proxmox operation (proxmox-ops), NOT for container runtimes (container-runtime-selection), NOT for cloud provider VM operations (aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops), NOT for general cloud-versus-on-premises placement (cloud-platform-selection)."
+description: "Use when choosing between server virtualisation platforms, comparing hypervisors, planning a move from one to another, or when the platform is unclear. Triggers include \"which hypervisor\", \"vSphere vs Proxmox\", \"VMware alternative\", \"Proxmox vs KVM\", \"Hyper-V vs Proxmox\", \"Nutanix AHV\", \"XCP-ng\", \"XenServer\", \"Type-1 vs Type-2\", \"live migration requirements\", \"V2V migration\", \"convert VMDK to qcow2\", \"migrate off VMware\", \"HA needs shared storage?\", \"NUMA sizing\", \"can I mix Intel and AMD hosts\". Vendor-neutral comparison and migration reasoning; routes to the platform skill once the platform is known. NOT for day-to-day Proxmox or Hyper-V operation (proxmox-ops, hyper-v-ops), NOT for container runtimes (container-runtime-selection), NOT for cloud provider VM operations (aws-cloud-ops, azure-cloud-ops, gcp-cloud-ops), NOT for general cloud-versus-on-premises placement (cloud-platform-selection)."
 license: MIT
 metadata:
   version: 1.0.0
@@ -23,7 +23,7 @@ Every mainstream hypervisor solves the same problems (CPU and memory isolation, 
 | Proxmox, PVE, qm, pct, pvesh, vzdump, PBS | Proxmox VE | `proxmox-ops` |
 | KVM, QEMU, libvirt, virsh, virt-install | KVM with libvirt | `kvm-libvirt-ops` |
 | vSphere, ESXi, vCenter, PowerCLI, vMotion, vSAN | VMware vSphere | `vmware-vsphere-ops` |
-| Hyper-V, Windows failover clustering | Microsoft Hyper-V | comparison only here |
+| Hyper-V, Windows failover clustering | Microsoft Hyper-V | `hyper-v-ops`, `windows-failover-clustering-ops` |
 | Nutanix, AHV, Prism | Nutanix AHV | comparison only here |
 | XenServer, XCP-ng, xe | XenServer, XCP-ng | comparison only here |
 | EC2, Azure VM, Compute Engine | Cloud VMs | `aws-cloud-ops`, `azure-cloud-ops`, `gcp-cloud-ops` |
@@ -97,9 +97,9 @@ Virtual switches (vSS and vDS, Linux bridge or Open vSwitch, Hyper-V vSwitch), V
 | Best fit | Existing VMware estates, vendor-backed SLAs, mature backup ecosystem | Small to mid clusters, Linux-heavy, ZFS or Ceph, low licence cost | Linux-native shops that already automate everything, embedded use |
 | Skills curve | Moderate, GUI-driven | Low to moderate | Higher, XML and CLI driven |
 
-Other platforms, for comparison only:
+Other platforms (Hyper-V has its own operations skill; the rest are for comparison only):
 
-- **Hyper-V** suits Windows-centred estates that already hold the licences and System Center or Windows Admin Center skills.
+- **Hyper-V** suits Windows-centred estates that already hold the licences and System Center or Windows Admin Center skills. Operating it is in `hyper-v-ops`, and its clusters in `windows-failover-clustering-ops`.
 - **Nutanix AHV** is hyper-converged with distributed storage and Prism management; it is a commercial platform with its own hardware and software compatibility lists.
 - **XenServer and XCP-ng** use the Xen hypervisor with XAPI and the `xe` CLI; XCP-ng is the open-source fork, with Xen Orchestra for management.
 - **Cloud VMs** trade capital cost for operating cost and shift the hypervisor out of scope; use the cloud-ops skills.
@@ -156,7 +156,7 @@ Verify application behaviour, not just boot. Keep the source guest powered off a
 
 ## Boundaries
 
-- Operating a platform day to day: `proxmox-ops`, `kvm-libvirt-ops`, `vmware-vsphere-ops`.
+- Operating a platform day to day: `proxmox-ops`, `kvm-libvirt-ops`, `vmware-vsphere-ops`, `hyper-v-ops`, `windows-failover-clustering-ops`.
 - Host-level Linux work (systemd, packages, LVM, backups): `linux-host-ops`, `linux-host-bringup`.
 - Containers and Kubernetes: `container-runtime-selection`, `kubernetes-ops`.
 - Cloud versus on-premises placement and cloud migration strategy: `cloud-platform-selection`; cloud VM operations: the cloud-ops skills.

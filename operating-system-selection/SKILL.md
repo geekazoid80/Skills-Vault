@@ -35,7 +35,9 @@ Capabilities, defaults and support status are version-bound. Never state an end-
 |---|---|---|
 | Windows Server 2016 to 2025, Server Core, roles and features, Hotpatch | Windows Server | `windows-server-ops` |
 | Windows 10 or 11, Intune, BitLocker, Windows Update for Business, ESU | Windows client | `windows-client-ops` |
-| Hyper-V, Windows failover clustering, WSL | Windows features | no dedicated skill yet; Hyper-V comparison is in `virtualization-platform-selection` |
+| Hyper-V, VHDX, live migration, Hyper-V Replica | Hyper-V | `hyper-v-ops`; hypervisor choice is in `virtualization-platform-selection` |
+| Failover cluster, quorum, CSV, Cluster-Aware Updating | Windows failover clustering | `windows-failover-clustering-ops` |
+| WSL, WSL 2, `.wslconfig` | Windows Subsystem for Linux | `wsl-ops` |
 | macOS, MDM, Platform SSO | macOS | no dedicated skill yet |
 | Ubuntu, Debian | Debian family | no dedicated skill yet; generic Linux in `linux-host-ops` and `linux-host-bringup` |
 | RHEL, Rocky Linux, AlmaLinux | RHEL family | no dedicated skill yet; generic Linux in `linux-host-ops` |
