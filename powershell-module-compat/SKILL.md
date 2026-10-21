@@ -123,6 +123,32 @@ leaning on the exact behaviour; the symptoms are what to recognise.
    - `$_.ErrorDetails.Message` on this module is the whole HTTP exchange (headers and body), not JSON, so
      `ConvertFrom-Json` on it fails. Extract only the `"code"` token, and never print the dump.
 
+## Five more traps found writing and probing M365 write scripts (2026-10)
+
+Probed on pwsh 7.x on macOS and the Linux NUC with `Microsoft.Graph.Authentication` 2.x. Each was found by a
+test or a failed live run in a write surface; the symptoms are what to recognise.
+
+1. **Variable names are case-insensitive, so `$pid` is the read-only automatic `$PID`.** `$pid = ...` throws
+   "Cannot overwrite variable PID because it is read-only or constant", and a script that sets
+   `$ErrorActionPreference = 'Stop'` fails closed at the first assignment. Use `$pid_` or a descriptive name; a
+   static test over every `.ps1` for assignments to the read-only automatics (`$PID`, `$HOME`, `$Host`, `$PSItem`,
+   `$Matches`, `$Error`, `$args`, `$input`, `$true`, `$false`, `$null`) catches the class.
+2. **`[Runtime.InteropServices.Marshal]::PtrToStringAuto` on Linux reads a UTF-16 BSTR as ONE character.**
+   A password read with `Read-Host -AsSecureString` then `SecureStringToBSTR` and `PtrToStringAuto` came back as
+   a single character on the NUC. Use `PtrToStringBSTR` (and `ZeroFreeBSTR` in a `finally`).
+3. **`$` in a .NET regex also matches before a final newline; use `\z`.** `'^\d{4}$'` accepts `"1234`n"`.
+   A Python `fullmatch` rejects the same string, so a planner and an apply script written in two languages can
+   disagree about one value. Anchor with `\z` for any value that is validated and then sent on, and put a
+   trailing-newline case in the test.
+4. **`pwsh -Command -` with a multi-line script piped on stdin does not run blocks properly.** Symptom: terminal
+   escape codes and a `foreach` that silently does nothing. Send the script as `-EncodedCommand` (base64 of the
+   UTF-16LE text, one argument) and strip escape codes from the output.
+5. **Graph's `authenticationMethodsPolicy/authenticationMethodConfigurations` collection returned HTTP 400.** Read
+   each configuration by id (`Fido2`, `MicrosoftAuthenticator`, `Sms`, `Voice`, `TemporaryAccessPass`, `Email`,
+   `SoftwareOath`, `X509Certificate`); the registration campaign is on the top-level policy under
+   `registrationEnforcement`. And a read script must print only what it read: a constant slipped into the output
+   reads as a finding.
+
 ## Testing a real .ps1 against a fake: shadow the cmdlet
 
 A function shadows a cmdlet of the same name, so a test can run the REAL script against an in-memory fake
