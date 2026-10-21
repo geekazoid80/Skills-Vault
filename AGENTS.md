@@ -71,8 +71,10 @@ and `SKILLS_FARM`, so a clone in another location works once they are set (for e
 ## Landing a change
 
 **A skill change is not finished when the pull request merges.** The consumer is the symlink
-farm, and the farm moves only on **merge plus a local pull plus a rebuild**, so the close
-condition is the text read back through `~/.claude/skills/<skill>/SKILL.md` after a rebuild.
+farm, and the farm moves only on **merge plus a local pull**, because it serves the clone's
+working tree (a rebuild is needed only when a skill directory is added, renamed or removed),
+so the close condition is the text read back through `~/.claude/skills/<skill>/SKILL.md` once
+the clone has the merge.
 "Landed in PR #N" is a claim about a pull request, not about what a session actually loads.
 Whoever lands the change owns that read-back.
 
@@ -91,11 +93,14 @@ Whoever lands the change owns that read-back.
    working TREE, not a ref, so a clone left on a feature branch serves that branch's skills to
    every session on the machine, and a rebuild does not rescue it because it relinks the same
    paths.
-5. **Rebuild, then read the change back through the farm path** and compare it against
-   `origin/main`. Run the builder this machine needs: `./bootstrap.sh`, or the overlay builder if
-   an overlay vault is installed (see Related repos; the brownfield guard, exit 6, enforces
-   this). Verify by CONTENT, not by the PR number, and pair the comparison with a control you
-   know differs, so a comparison that cannot fail is not mistaken for a pass.
+5. **Read the change back through the farm path** and compare it against `origin/main`. Rebuild
+   first only if you added, renamed or removed a skill directory: run the builder this machine
+   needs, `./bootstrap.sh`, or the overlay builder if an overlay vault is installed (see Related
+   repos; the brownfield guard, exit 6, enforces this). The rebuild is also the only place the
+   strict frontmatter gate runs, so after editing a `description:` run it, or parse the
+   frontmatter yourself (step 2). Verify by CONTENT, not by the PR number, and pair the
+   comparison with a control you know differs, so a comparison that cannot fail is not mistaken
+   for a pass.
 6. **Clean up.** Expect `gh pr merge --delete-branch` to leave at least one ref behind; delete
    whatever survives by hand, after `git merge-tree --write-tree origin/main <branch>` equals
    `origin/main^{tree}`, which proves the branch adds nothing.
