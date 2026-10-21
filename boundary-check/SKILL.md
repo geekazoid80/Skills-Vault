@@ -592,7 +592,7 @@ Origin 2026-09-26: a session dispatched two background agents (both completed an
 neither visible in `ListAgents` afterward), stopped a pending `ScheduleWakeup`, and still had
 `archive_session self` refuse twice with the generic message. `get_session self` showed
 `parentSessionId` set and `detached: false`; the named parent's own `get_session` showed `isRunning: true`
-("Graylog monitoring setup investigation", a separate live conversation that had started this session as a
+("<parent session title>", a separate live conversation that had started this session as a
 side session and was still busy). Never confirmed as the sole cause (the refusal was reported to the
 operator rather than chased further that session), but it is the one lead `ListAgents` could not have
 surfaced and `get_session` produced in a single call, which is the point: check it before shrugging.
@@ -615,7 +615,7 @@ outside: no process holds it and no descriptors are open, since a parked session
 removing it destroys uncommitted work irrecoverably. If you notice others, report them and leave them
 alone. Sweeping other sessions' worktrees is a separate and expensive audit, not part of this gate.
 
-**It must be the LAST tool call of the session.** You cannot remove the tree you are standing in partway
+**It must be the LAST tool call of the session, or, when the close ends in the harness's archive tool, the one immediately before that call (the archive call is not a shell call, so the vanished working directory does not strand it; that order is unmeasured).** You cannot remove the tree you are standing in partway
 through a turn: the shell's working directory vanishes underneath you and every remaining step of the close
 is stranded. So the order is fixed. Flush, commit, dispatch the gate and read its report back, reconcile the
 tracker, post the stamp, and only then remove, writing the closing confirmation afterwards from memory

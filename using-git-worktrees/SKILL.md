@@ -169,9 +169,10 @@ instead of ever calling the archive tool.
 
 **So: when the actual intent is to end the session, call the archive tool, and do not use a manual
 removal as a substitute for it.** Archiving is not disposal either, so the procedure below applies to every
-worktree you own, parked or archived: clear your own before the archive call, or knowingly leave it and name
-its path in the hand-off so whoever sweeps residue can tell it is spent. That order (remove, then archive)
-has not been measured end to end, so check `git worktree list` afterwards where you can; in the data, a
+worktree you own, parked or archived: clear your own as the step immediately before the archive call (the archive call is then the
+last tool call, and it is not a shell call, so it does not depend on the vanished working directory), or
+knowingly leave it and name its path in the hand-off so whoever sweeps residue can tell it is spent. That
+order (remove, then archive) has not been measured end to end, so check `git worktree list` afterwards where you can; in the data, a
 removal on its own sometimes drew a replacement worktree and sometimes did not, so never assume either
 outcome. The removal is only ever safe immediately before the archive call, never instead of it.
 
@@ -200,7 +201,7 @@ Removing it destroys uncommitted work irrecoverably. If you notice others, repor
 alone. That hazard is precisely why a sweep is expensive, and it is not something to take on at a close.
 Reducing what YOU leave behind is the whole of this step.
 
-**It is the LAST tool call of the session.** You cannot remove the tree you are standing in partway through
+**It is the LAST tool call of the session, or, on an archive, the one immediately before the archive call.** You cannot remove the tree you are standing in partway through
 a turn: the shell's working directory vanishes underneath you and every remaining step is stranded. Finish
 everything else first, the commits, the flush, the tracker update, the closing gate, then remove, then
 write the closing message from memory without reaching for a tool again.
@@ -245,7 +246,7 @@ write the closing message from memory without reaching for a tool again.
 | Change ships via a worktree branch and PR | Edit in the worktree; main clone stays clean and current |
 | `pull --ff-only` aborts on a locally-modified file | Confirm the content is yours and merged, then `git restore <path>` and pull |
 | The modified path is not yours, or you cannot confirm it landed | Stop and surface; never `git reset` the shared tree |
-| Intent is to actually END the session | Call the harness's archive tool (own-session id); it ends the session but does NOT remove the worktree, so clear your own first (never INSTEAD of archiving) or name the leftover path in the hand-off |
+| Intent is to actually END the session | Call the harness's archive tool (own-session id); it ends the session but does NOT remove the worktree, so clear your own as the step immediately before the archive call (never INSTEAD of archiving) or name the leftover path in the hand-off |
 | Session merely pausing (park), staying open, or the worktree predates this session / was hand-made | Push, pin any local-only commit to `refs/archive/...`, then `worktree remove` without `--force` as the LAST tool call |
 | `worktree remove` refused (modified or untracked files) | The guard is right: something exists only there. Resolve with the human, or leave the worktree and say so. Never `--force` |
 | A worktree you did not create | Leave it alone. Report it; never remove a peer's |
