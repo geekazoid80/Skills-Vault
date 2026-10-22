@@ -1,9 +1,9 @@
 ---
 name: graylog-log-investigation
-description: "Use for any Graylog log investigation, query construction, alerting, or operational work. Covers Graylog 5.x and 6.x; the query language is Lucene + Graylog extensions (range, exists, list, fuzzy, regex). Triggers include 'graylog', 'graylog query', 'graylog search', 'graylog stream', 'graylog dashboard', 'graylog alert', 'graylog sidecar', 'graylog input', 'graylog content pack', 'graylog index set', 'graylog rotation strategy', 'graylog retention strategy', 'graylog API token', 'syslog severity', 'log level numeric', 'investigate this error', 'find logs by correlation id', 'aggregate log counts by host', 'log volume spike', 'log retention policy', 'graylog vs elastic stack', 'pipeline rules', 'pipeline simulator', 'pipeline rule never matches', 'grok', 'extractor', 'streams:read', 'role permissions', 'search returns zero', 'event alert returns nothing', 'GELF', 'beats input', 'syslog input'. Combines Graylog query-language reference (severity numerics 0-7 per RFC 5424, range syntax, exists / list / not, fuzzy + regex, time-range filters with relative + absolute + keyword forms), an investigation workflow (define scope, narrow by source / time / severity, pivot via correlation id, aggregate to spot patterns, escalate or close), index lifecycle management (rotation strategies time / size / message-count, retention strategies delete / close / archive, index set per data class), stream + pipeline + alert mechanics, sidecar / collector basics for Filebeat / NXLog / fluentd / rsyslog. Self-authored from public Graylog and RFC 5424 documentation; the NorceTech graylog-cli wrapper inspired the CLI-friendly query patterns but is not the source (no upstream licence). Pairs with linux-host-ops (host-side log shipping via systemd-journal-upload / Filebeat / rsyslog), zabbix-templates-and-triage (Stage 4 sibling; metrics complement logs in incident triage), oncall-runbooks (the runbook should name the Graylog stream and saved search the on-call engineer should open first), systematic-debugging (Phase 1 boundary evidence often surfaces in Graylog before metrics), secrets-hygiene (Graylog API tokens, LDAP service account, S3 / cold-storage archive credentials). For the Elasticsearch and OpenSearch search backend that Graylog shares with the Elastic Stack (ELK), covering data streams, ILM tiering, and KQL / Lucene / ES|QL log search, see references/elastic-stack-log-backend.md; for vendor-neutral SIEM / SOAR strategy, detection engineering, and SOAR playbooks see siem-soar-investigation. For exporting the admin objects (pipelines, rules, event definitions, notifications, streams, index sets, inputs and extractors, roles) as data and rebuilding a server from that export, including the Swagger API description, the entity catalogue cross-check, permission-filtered empty lists, token lifetime and id remapping, see references/graylog-admin-export-rebuild.md. Triggers also include 'export graylog config', 'rebuild graylog', 'graylog backup of pipelines and alerts', 'graylog api-docs', 'graylog catalog', 'graylog token ttl', 'event definition id changed after rebuild', 'empty list but no 403'."
+description: "Use for any Graylog log investigation, query construction, alerting, or operational work. Covers Graylog 5.x and 6.x; the query language is Lucene + Graylog extensions (range, exists, list, fuzzy, regex). Triggers include 'graylog', 'graylog query', 'graylog search', 'graylog stream', 'graylog dashboard', 'graylog alert', 'graylog sidecar', 'graylog input', 'graylog content pack', 'graylog index set', 'graylog rotation strategy', 'graylog retention strategy', 'graylog API token', 'syslog severity', 'log level numeric', 'investigate this error', 'find logs by correlation id', 'aggregate log counts by host', 'log volume spike', 'log retention policy', 'graylog vs elastic stack', 'pipeline rules', 'pipeline simulator', 'pipeline rule never matches', 'grok', 'extractor', 'streams:read', 'role permissions', 'search returns zero', 'event alert returns nothing', 'GELF', 'beats input', 'syslog input'. Combines Graylog query-language reference (severity numerics 0-7 per RFC 5424, range syntax, exists / list / not, fuzzy + regex, time-range filters with relative + absolute + keyword forms), an investigation workflow (define scope, narrow by source / time / severity, pivot via correlation id, aggregate to spot patterns, escalate or close), index lifecycle management (rotation strategies time / size / message-count, retention strategies delete / close / archive, index set per data class), stream + pipeline + alert mechanics, sidecar / collector basics for Filebeat / NXLog / fluentd / rsyslog. Self-authored from public Graylog and RFC 5424 documentation; the NorceTech graylog-cli wrapper inspired the CLI-friendly query patterns but is not the source (no upstream licence). Pairs with linux-host-ops (host-side log shipping via systemd-journal-upload / Filebeat / rsyslog), zabbix-templates-and-triage (Stage 4 sibling; metrics complement logs in incident triage), oncall-runbooks (the runbook should name the Graylog stream and saved search the on-call engineer should open first), systematic-debugging (Phase 1 boundary evidence often surfaces in Graylog before metrics), secrets-hygiene (Graylog API tokens, LDAP service account, S3 / cold-storage archive credentials). For the Elasticsearch and OpenSearch search backend that Graylog shares with the Elastic Stack (ELK), covering data streams, ILM tiering, and KQL / Lucene / ES|QL log search, see references/elastic-stack-log-backend.md; for vendor-neutral SIEM / SOAR strategy, detection engineering, and SOAR playbooks see siem-soar-investigation. For exporting the admin objects (pipelines, rules, event definitions, notifications, streams, index sets, inputs and extractors, roles) as data and rebuilding a server from that export, including the Swagger API description, the entity catalogue cross-check, permission-filtered empty lists, token lifetime and id remapping, see references/graylog-admin-export-rebuild.md. Triggers also include 'export graylog config', 'rebuild graylog', 'graylog backup of pipelines and alerts', 'graylog api-docs', 'graylog catalog', 'graylog token ttl', 'event definition id changed after rebuild', 'empty list but no 403', 'numeric source', 'source is a number', 'source field is all digits', 'device message counter', 'syslog sequence number prefix', 'cisco message counter', 'event definition grace period', 'alert emailed the wrong people', 'default notification', 'new event definition sent an email'. For a source that turns numeric, the grace-period and default-notification traps on event definitions, and the grok-not-regex rule fix, see the sections on a numeric source and on alert notifications."
 license: Apache-2.0
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Graylog Log Investigation
@@ -311,6 +311,21 @@ the definitions equivalent) rather than silently ignoring the mismatch. (2) A fr
 definition is `state: DISABLED`; enable with `PUT /api/events/definitions/{id}/schedule` (returns
 `state: ENABLED`), disable the same way with `.../unschedule`.
 
+### Grace period limits notifications, not events; and check the notification list on every new definition
+
+- **The grace period (and the search window) shape the notification, not the event.** An event definition
+  keeps creating an alert event every time its condition holds; the grace period only suppresses how often
+  the attached notification fires for it. Do not read a quiet inbox as "the definition is not matching",
+  and do not raise the grace period expecting fewer events: look at the Events list for the truth, and use
+  one definition per entity (or a group-by with a daily bucket) when the aim is one event per device per
+  day.
+- **A new definition can arrive with a notification already attached.** An environment may carry a
+  notification named `Default Notification` (or similar) that emails a real recipient, and the UI or a
+  copied template can attach it without being asked. Open the new definition's notification list before
+  enabling it, and remove any notification you did not choose. When the definition's job is only to file a
+  ticket through a poller, it needs no notification at all. A default that reaches an external party is the
+  case that turns a harmless test into an incident.
+
 ### A token without `streams:read` on a stream gets a silent zero, not an error
 
 Searches and event-alert queries are filtered to the streams the caller may read. Ask for data in a stream the
@@ -334,6 +349,34 @@ seeing none of the traffic.
 - Read-back after the change: list the streams as the reader token and re-run the comparison above, rather
   than trusting the PUT's 200. Note that `streams:read` does not let a token list event definitions; that is
   `eventdefinitions:read`, and the two are independent.
+
+## A numeric `source`: a device message counter prefixed to every line
+
+Symptom: the `source` field fills with long digit strings (for example `2147483712`), one new "host" per
+message or per few, and searches by device name stop finding that device. Cause seen on Cisco IOS-XE
+routers with the global syslog message counter enabled: the counter is prepended to each line, and once it
+passed 2^31 (2147483648) the syslog parser took the counter as the host. The counter is per device and
+only grows, so the problem starts at a predictable moment and never ends by itself.
+
+- **Confirm on the device**, read-only: `show logging | include Trap logging` shows the running count of
+  message lines logged. A count above 2147483648 on a device whose messages arrive with a numeric source is
+  the match. Compute the next crossings from two readings and the rate; the next threshold after 2^31 is
+  2^32 (4294967296), and what the parser does there should be observed, not assumed.
+- **Fix it in a pipeline rule, not by hand.** Match a `source` made only of digits, rewrite `source` to the
+  device's real name (a lookup table keyed on the sending address works), and strip the counter from the
+  message if wanted. Write the match with `grok()` or a plain `contains()` pre-filter, never with
+  `regex(...)["matches"]` in the `when` clause (see the Extractors note above, which applies to Graylog 6.x
+  rules: that form can evaluate false for text every other tool matches). Prove it with the simulator and a
+  negative control.
+- **Scope it by input.** Attach the pipeline to streams that select on `gl2_source_input` (the input id
+  the devices send to), so the rule runs only on the input that carries those devices and never on the
+  whole firehose.
+- **Watch for the flood downstream.** Each distinct numeric source looks like a new host to anything that
+  keys on `source`: a coverage or inventory check files one finding per "host", and the volume can slow
+  every job that works on the findings list. Treat a burst of new hosts with numeric names as this fault
+  before treating it as an estate change.
+- **Say so when it is detected.** One finding per device per day is enough, carrying the latest counter, so
+  the next crossing can be forecast rather than discovered.
 
 ## Index lifecycle
 
@@ -385,6 +428,9 @@ For Linux hosts: prefer Filebeat or rsyslog with the omfwd module shipping to a 
 - **Sidecar configuration drift.** Hosts run different collector configs because someone edited one in place; bring them all back under sidecar control.
 - **Trusting a pipeline rule because it compiled.** A rule can be accepted, connected and never match (see the `["matches"]` note under Extractors); simulate it, with a negative control.
 - **Trusting a zero from a restricted token.** A missing `streams:read` returns an empty 200, not an error; compare against a broader token.
+- **Reading a quiet notification as a non-matching definition.** The grace period throttles the notification only; the alert events are still being created.
+- **A default notification attached to a new event definition.** It can email a real recipient on the first match; check the notification list before enabling.
+- **A numeric `source`.** A device message counter prefixed to each line was read as the host; confirm on the device and fix in a pipeline rule scoped by input.
 - **No timestamp normalisation.** Some shippers send local time; without normalisation, search by `timestamp` returns wrong-timezone results.
 
 ## Exporting and rebuilding the admin objects
@@ -430,6 +476,9 @@ Graylog stores and searches through Elasticsearch or OpenSearch, the same substr
 - About to add a wildcard regex to a pipeline rule that runs on every message (cluster CPU spike).
 - About to rely on `regex(...)["matches"]` in a rule's `when` clause without a simulator run that shows it true.
 - About to believe an empty search or event-alert result from a token whose stream permissions you have not checked.
+- About to enable a new event definition without opening its notification list.
+- About to conclude an event definition is broken because no email arrived (check the Events list; the grace period throttles notifications only).
+- About to "fix" a numeric `source` by editing messages or dashboards instead of a pipeline rule scoped to the input.
 - About to `PUT` a role with only the permission you are adding (the body replaces the whole list).
 
 ## Bottom line
