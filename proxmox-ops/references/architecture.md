@@ -109,7 +109,7 @@ The storage documentation states that a full storage makes every guest on it rec
 - **Linux bridges** (`vmbr0`, `vmbr1`) over physical NICs, defined in `/etc/network/interfaces`. A **VLAN-aware** bridge lets guests set an 802.1Q tag on their NIC.
 - **Open vSwitch** is optional (`openvswitch-switch`) for flow tables and tunnels.
 - **Bonding:** `active-backup` (failover only), `802.3ad` LACP (needs switch support), `balance-alb` (no switch support needed).
-- **SDN:** cluster-wide zones (Simple, VLAN, QinQ, VXLAN, EVPN) and VNets, applied from the Datacenter SDN panel or `pvesh set /cluster/sdn` (community-confirmed).
+- **SDN:** cluster-wide zones (Simple, VLAN, QinQ, VXLAN, EVPN) and VNets, applied from the Datacenter SDN panel or `pvesh set /cluster/sdn` (community-confirmed). A VLAN zone binds to an existing bridge and each VNet carries one tag; a QinQ zone adds a Service VLAN (outer tag) with the VNet tag as the inner one. Operating guidance is in SKILL.md, "Host ports, SDN and MTU".
 - **Firewall:** datacenter, node and guest levels, rules in `/etc/pve/firewall/`, security groups to reuse rule sets. Two backends exist (iptables-based and nftables-based); the nftables one has been described in the roadmap as a technology preview, so confirm which is active.
 
 ---

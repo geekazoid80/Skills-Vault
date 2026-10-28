@@ -1,9 +1,9 @@
 ---
 name: proxmox-ops
-description: "Use for day-to-day Proxmox VE (PVE) operations and troubleshooting: QEMU/KVM guests with qm, LXC containers with pct, clusters with pvecm and Corosync quorum, the HA Manager and watchdog fencing, ZFS and LVM-thin local storage, Ceph, vzdump and Proxmox Backup Server, bridges, VLANs, bonds and SDN, and the pvesh REST API. Triggers include \"Proxmox\", \"PVE\", \"qm\", \"pct\", \"pvecm\", \"pvesh\", \"vzdump\", \"PBS\", \"lost quorum\", \"VM is in io-error\", \"thin pool full\", \"LVM-thin data 100%\", \"discard\", \"HA resource in error\", \"node fenced\", \"migration failed\", \"ZFS ARC\", \"Ceph HEALTH_WARN on Proxmox\". NOT for choosing between hypervisors (virtualization-platform-selection), NOT for Docker, Podman or Kubernetes (the container skills; LXC here means only Proxmox system containers), NOT for generic Linux host chores such as systemd, journald or fstab (linux-host-ops), NOT for EVPN overlay design (evpn-vxlan-fabric)."
+description: "Use for day-to-day Proxmox VE (PVE) operations and troubleshooting: QEMU/KVM guests with qm, LXC containers with pct, clusters with pvecm and Corosync quorum, the HA Manager and watchdog fencing, ZFS and LVM-thin local storage, Ceph, vzdump and Proxmox Backup Server, bridges, VLANs, bonds and SDN, and the pvesh REST API. Triggers include \"SDN VNet\", \"VLAN zone\", \"QinQ zone\", \"service VLAN\", \"MTU 9000 on the NIC\", \"jumbo frames on Proxmox\", \"native VLAN on the host port\", \"Proxmox\", \"PVE\", \"qm\", \"pct\", \"pvecm\", \"pvesh\", \"vzdump\", \"PBS\", \"lost quorum\", \"VM is in io-error\", \"thin pool full\", \"LVM-thin data 100%\", \"discard\", \"HA resource in error\", \"node fenced\", \"migration failed\", \"ZFS ARC\", \"Ceph HEALTH_WARN on Proxmox\". NOT for choosing between hypervisors (virtualization-platform-selection), NOT for Docker, Podman or Kubernetes (the container skills; LXC here means only Proxmox system containers), NOT for generic Linux host chores such as systemd, journald or fstab (linux-host-ops), NOT for EVPN overlay design (evpn-vxlan-fabric)."
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Proxmox VE operations
@@ -161,11 +161,23 @@ Retention is set with `prune-backups` (`keep-last`, `keep-daily`, `keep-weekly`,
 
 ## Networking
 
-- Default model: Linux bridges (`vmbr0`) over physical NICs, configured in `/etc/network/interfaces`. Make a bridge VLAN-aware (`bridge-vlan-aware yes`) and set the tag on the guest NIC rather than building a bridge per VLAN.
+- Default model: Linux bridges (`vmbr0`) over physical NICs, configured in `/etc/network/interfaces`. For VLANs, see "Host ports, SDN and MTU" below rather than building a bridge or a sub-interface per VLAN.
 - Bonds: `active-backup` for management, `802.3ad` (LACP, needs switch configuration) for storage and VM traffic.
-- Jumbo frames (MTU 9000) on Ceph, NFS and migration networks only, set on switch ports, bonds, bridges and host interfaces end to end. Verify with `ping -M do -s 8972 <peer>`.
-- SDN zones (Simple, VLAN, QinQ, VXLAN, EVPN) are cluster-wide. Apply pending SDN changes with the Apply button in the UI; the same action is available as `pvesh set /cluster/sdn` (community-confirmed, not described in the SDN chapter, so check `pvesh usage /cluster/sdn` first). For overlay design, hand off to `evpn-vxlan-fabric`.
 - The built-in firewall has datacenter, node and guest levels, rules under `/etc/pve/firewall/`. The nftables-based firewall is described in the roadmap as a technology preview at the time of writing; confirm which backend is active before debugging rules.
+
+### Host ports, SDN and MTU
+
+Use this when a node has one trunked uplink carrying a management VLAN and several data VLANs.
+
+1. **Host port: management untagged, data tagged.** Put the host address on the bridge over the NIC with the management VLAN as the switch port's native (untagged) VLAN, and carry the data VLANs tagged. The host then needs no VLAN sub-interface for its own address.
+2. **Data VLANs as Proxmox SDN, not hand-built sub-interfaces.** Create a **VLAN zone** on the existing bridge (the bridge must already exist on every node), then one **VNet** per VLAN with its tag. A guest takes the VNet as its bridge and sets no tag of its own. A change is a VNet edit, not a per-node edit of `/etc/network/interfaces`. Changes stay pending until applied at Datacenter level. The configuration lives in `/etc/pve/sdn` and is shared across the cluster. Each node needs `source /etc/network/interfaces.d/*` at the end of `/etc/network/interfaces` so the generated interfaces are included, and `ifupdown2` is the default since Proxmox VE 7.0.
+3. **QinQ testing.** Use a **QinQ zone** on a VLAN-aware bridge: the zone's Service VLAN is the outer tag, the Service VLAN Protocol is `802.1q` (default) or `802.1ad`, and the VNet tag is the inner tag. Every switch on the path must support stacked VLANs, and the outer tag must exist and be allowed on each port that carries it. Try `802.1q` first, then `802.1ad` once the switches are known to pass that ethertype.
+4. **MTU: match the hosts to the switches, and read the switches rather than assuming.** If the switch ports are jumbo, raise `mtu` on the physical NIC and on the bridge to match (9000 leaves headroom under a 9216 port). A virtio guest NIC can inherit the bridge MTU (set its `mtu` option to `1`; the option exists for VirtIO only). A QinQ zone costs 4 bytes per extra tag, so lower the zone `mtu` by 4 per tag. Jumbo helps traffic that stays inside one VLAN across switches that all carry it; anything routed through a firewall or router is limited to the lowest MTU on that routed path, so do not expect jumbo off-subnet unless every hop is raised.
+5. **Prove the path** with `ping -M do -s <mtu-28> <peer>` between two nodes on the same VLAN (`8972` for 9000), and check `bridge vlan show` and `pvesh get /cluster/sdn/vnets` on each node.
+
+**Unproven, so check before relying on it:** that the VLAN-zone VNets come up on a VLAN-aware bridge (the documentation says the zone uses an existing bridge and does not say whether it must be VLAN-aware, while the QinQ zone does require one), and that a given switch model forwards an `802.1ad` outer tag.
+
+Source for the SDN zone, QinQ and MTU statements: https://pve.proxmox.com/pve-docs/chapter-pvesdn.html and the "Network Device" section of https://pve.proxmox.com/pve-docs/chapter-qm.html, both read 2026-10-28. For overlay design (VXLAN, EVPN), hand off to `evpn-vxlan-fabric`.
 
 ## Security
 
@@ -183,6 +195,8 @@ Named admin accounts rather than shared `root`, TOTP two-factor on the UI, API t
 8. Editing `/etc/pve` files by hand during a cluster change without a backup.
 9. Mixing Intel and AMD hosts in one live-migration domain, or choosing CPU type `host` on a heterogeneous cluster.
 10. Counting a snapshot or an unrestored backup as protection.
+11. Hand-building a VLAN sub-interface per node for each data VLAN, then trying to test QinQ by editing every node.
+12. Raising the NIC MTU without reading the switch ports first, or expecting jumbo through a router or firewall that is still at 1500.
 
 ## Red flags
 
@@ -191,6 +205,7 @@ Named admin accounts rather than shared `root`, TOTP two-factor on the UI, API t
 - A command from the destructive column is about to run on a production node without a stated rollback.
 - A "restore tested" claim with no date or restore log.
 - A script or note containing a password, token or `GOVC_PASSWORD`-style literal.
+- A node NIC at MTU 9000 with no `ping -M do -s 8972` between two nodes proving the path.
 
 ## References and scripts
 
