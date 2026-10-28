@@ -45,12 +45,12 @@ LVM-thin, qcow2 and Ceph all allocate on write, so real use grows silently.
 | Corosync | Cluster messaging | Latency matters more than bandwidth; dedicated link, add a second |
 | Ceph public | Client to OSD | 10 to 25 GbE, dedicated VLAN |
 | Ceph cluster | OSD replication | Dedicated, never shared with Corosync |
-| Guest | VM and container traffic | VLAN-tagged on a VLAN-aware bridge |
+| Guest | VM and container traffic | VLAN-tagged, preferably as SDN VNets on the bridge (see SKILL.md) |
 | Migration | Live migration | High bandwidth, dedicated if possible |
 
 **Bonding:** `active-backup` for management; `802.3ad` LACP for storage and guest traffic where the switches are configured for it.
 
-**Jumbo frames:** MTU 9000 on Ceph, NFS and migration paths only, set consistently on switch ports, bonds, bridges and host interfaces. Verify with `ping -M do -s 8972 <peer>`. Leave management at 1500 to keep troubleshooting simple.
+**Jumbo frames:** MTU 9000 on Ceph, NFS and migration paths, and on any same-VLAN east-west path where every switch on it is verified jumbo, set consistently on switch ports, bonds, bridges and host interfaces. Verify with `ping -M do -s 8972 <peer>`. Leave management at 1500 where the path is routed or unread, to keep troubleshooting simple. The SDN, QinQ and per-guest MTU detail is in SKILL.md, "Host ports, SDN and MTU".
 
 ---
 
