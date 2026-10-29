@@ -1,8 +1,8 @@
 ---
 name: macos-office-docs
-description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
+description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save, splicing generated sections into a template docx, pandoc reference-doc output carrying the template's images and comments, a Quick Look thumbnail showing only page one. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.0.6
+  version: 1.1.0
 ---
 
 # macOS Office Docs
@@ -15,7 +15,7 @@ Two halves of working with an Office file on a Mac. **Part A** renders a `.pptx`
 
 **Core principle:** look at the document in the renderer the audience will use (Office itself), and change a document at the level that preserves every part of it. Both halves fail silently: a clean run, exit 0, and no PDF, or a saved deck that has quietly lost parts.
 
-**Version stamp.** Learnt 2026-08-06 on macOS (Darwin 25.5.0) with Microsoft PowerPoint for Mac, `pdftoppm` from Homebrew Poppler, python-docx 1.2.0 and python-pptx 1.0.2. LibreOffice was not installed.
+**Version stamp.** The splice recipe in Part B was added 2026-10-29 from a 32-page proposal built on Word for Mac with `python3` (no `python-docx`, no `lxml`), `pandoc` and Poppler. The base notes were learnt 2026-08-06 on macOS (Darwin 25.5.0) with Microsoft PowerPoint for Mac, `pdftoppm` from Homebrew Poppler, python-docx 1.2.0 and python-pptx 1.0.2. LibreOffice was not installed.
 
 ## When this does NOT fire
 
@@ -114,6 +114,18 @@ Use this when `python-docx` is not installed, the document carries Track Changes
 - **Prove the change:** `unzip -t` the output, parse every edited part, then convert old and new with `pandoc -t plain` and diff them. Only the intended lines may differ.
 - **Spreadsheets:** `sharedStrings` are shared between cells, so write an inline string (`t="inlineStr"`) on the one cell and leave the shared string alone. Edit the sheet XML rather than saving through `openpyxl`, which drops cached formula values and can drop images. A Box file marked read-only (`-r--------`) is a cue to write a new copy beside it, not to `chmod` it.
 
+### Splicing generated sections into a template docx (stdlib only)
+
+Use this when a house template (cover, header and footer, contents, style set) must stay exactly as it is and new sections are written elsewhere, for example in markdown. Learnt 2026-10-29 on a 9 MB, 32-page proposal template, with `python-docx` and `lxml` not installed. Do not feed the template to `pandoc` and ship the result: the output loses the cover and the house formatting of every section you did not write.
+
+- **Split the body into top-level blocks and index them.** Walk `word/document.xml` with a small depth counter over `w:p`, `w:tbl`, `w:sdt` and `w:sectPr`, then print each block's index, style and first words. Splice by index, and assert the block count and the heading text at each index before changing anything, so a changed template fails loudly instead of landing content under the wrong heading.
+- **Replace the body under a heading, or insert after it.** Delete the empty or placeholder blocks, then insert the generated blocks after the heading block. Keep any picture paragraph you want in place (swap the media file's bytes, not the relationship). A template may style a body paragraph as a heading by mistake, which puts the whole paragraph into the contents; replace that block rather than keeping it.
+- **Generate the XML by hand in the template's own run properties** (font, size, colour read from a neighbouring paragraph), with paragraph spacing and justification copied from it. For bullets reuse the template's own bullet `w:numId` (read it from an existing bullet paragraph) and `ListParagraph`. **Never import the numbering, styles or style ids that `pandoc` generated into the template**: the ids collide and silently re-number or restyle the existing sections.
+- **Tables:** copy the template's table style id, border colour and header shading; set fixed widths that sum to the text width; mark the header row `w:tblHeader` and every row `w:cantSplit`. Highlighted placeholders are a `w:highlight` run property, easy to find and strip before submission.
+- **Refresh the contents on open** with `<w:updateFields w:val="true"/>` in `word/settings.xml`. Order matters in that file: insert it before `w:hdrShapeDefaults` (after `w:characterSpacingControl`), not at the top. Drop any stale cached contents entry that still carries replaced text.
+- **If you must use `pandoc --reference-doc` to make a standalone file,** the output still carries every image, comment part and relationship of the reference document (a 9.5 MB file from a 0.5 MB body). Strip image relationships that `document.xml` no longer references, delete the orphaned media, and remove the `comments*.xml` parts with their relationship and content-type overrides. Keep media that the header and footer relationships still use.
+- **Verify like a reader.** `unzip -t`, parse every edited part, grep the text for names that must not appear, then export to PDF with Word (Part A) and look at the pages that changed. `qlmanage -t -s 1400 -o <dir> file.docx` writes a thumbnail of page one only; it is a cheap sanity check that the file opens, not a render. If the first Word export hits `-1712`, call `activate`, retry with a longer `with timeout`, and check for the file before concluding anything: the second attempt on the same file produced the PDF into an agent scratchpad under `/private/tmp`.
+
 ### House style: scanning for em dashes
 
 If the house style bans em dashes, scan for U+2014 with a literal glyph match or a Python codepoint check (`chr(0x2014) in line`), never a PCRE byte-escape such as `\xe2\x80\x94`. Some `grep` builds (ugrep) silently fail to match a byte-escape and the scan false-passes. Replace a `Label`, dash, `value` pairing with a colon and prose em dashes with a comma or semicolon. On terse slides a plain-hyphen range such as `3-5 yrs` is fine.
@@ -129,6 +141,8 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Writing to a document without a fresh byte-compare against the snapshot you edited.
 - Finding a replaced image by its file name after Word has saved the document.
 - Saving a workbook through a library when only a few cells needed to change.
+- Running a template through `pandoc` and shipping the result, or importing its numbering and style ids into the template.
+- Treating a Quick Look thumbnail as a render of the whole document.
 - Retrying a timed-out Word save, or trying another output folder, before checking whether the first save is still running; a busy Word refuses `close` (`-1708`) and the file can appear minutes later.
 
 ## Bottom line
