@@ -28,6 +28,7 @@ Every session has TWO process boundaries that lose ephemeral state: compact (chu
 | External-CI state (PR runs the harness can't track) | GitHub-side (survives) but no completion notification | Plan file: branch + commit + check name + last-known status + exact `gh run list` command to re-poll on resume. |
 | Current cwd assumption | Session-only | Plan file: use ABSOLUTE paths in any "next step" instruction; never rely on cwd surviving. |
 | TCC / OS permission state | OS-level; may or may not survive | Plan file SESSION RESTART PICKUP: step that VERIFIES required permissions before resuming (`Read <path>` as test; on EPERM, surface to user). |
+| Temporary objects this session created (test or trial objects in a tracker or tenant, throwaway projects/tasks/fields, scratch dumps holding personal data, one-off scheduled tasks, temp files on remote hosts) | Live in external systems and on disk; survive the park and are forgotten | Run the exit leftover sweep first (see `boundary-check`, Leftover sweep); then plan file "Open leftovers" note: each remaining item with its identifier, a named owner, and the command that regenerates the list. A permanent delete is the operator's to run; the session prepares the block and re-sweeps afterwards. |
 | Insights / lessons noticed mid-session that lack a durable artefact | In-context only | Per `reread-memory-before-planning` + `author-skill` + the north-star "codify at the point of pain" discipline: write to a global memory file, vault skill, or CLAUDE.md rule. The pre-park moment is the LAST chance. |
 
 ## The SESSION RESTART PICKUP skeleton (verbatim, top of plan file)
@@ -114,6 +115,7 @@ When in doubt, flush. The cost is small and the failure mode (next session loses
 - Removing the worktree anywhere other than as the LAST tool call, which strands whatever the close still owed.
 - Reaching for `worktree remove --force` to get past a dirty-guard refusal at park time, rather than reading what it named.
 - Removing a worktree this session did not create, or widening the park into a sweep of other sessions' leftovers.
+- Parking after creating temporary objects (a test, a trial, a scratch project, a dump of personal data) without the exit leftover sweep, on the assumption that archiving the project or ending the session cleans up. Workspace-level objects such as tracker custom fields survive both.
 
 ## Cross-references
 
