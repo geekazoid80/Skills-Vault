@@ -470,6 +470,11 @@ drift now**, in this turn, before the boundary:
 - **Resource registry** - every durable resource created/handed over this session is catalogued in a durable
   home with its real identifier + access command + credential location (never the secret); the plan holds
   only a pointer.
+- **Proven reads (saved, not rebuilt)** - ask: did a read-only method get proven against a live system this
+  session, and is it saved in the estate's tested-reads repo? If not, save it now (provenance header, plus a
+  test or a recorded run) or hand it to a named owner. A read left only in the transcript or a scratchpad gets
+  rebuilt by the next session. Where the repo `AGENTS.md` names the repo and its rule, that rule governs; if the
+  estate keeps no such repo, note that and move on.
 - **Secrets** - no secret value written to any tracked file, transcript, or memory; `.example`/adapter
   templates carry schema only.
 - **Task hygiene** - TaskList reflects reality (completed marked, stale deleted); >3 in-flight items are in
