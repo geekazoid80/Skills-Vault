@@ -488,7 +488,8 @@ drift now**, in this turn, before the boundary:
   run**: prepare the block, re-verify the targets read-only, then re-sweep after. The **entry sweep** is the
   counterpart at the start of the work: clear what an earlier session left before creating anything, and mark
   every object you create with a greppable marker and record its identifiers in the plan file at creation.
-  Rule and origin: the global `feedback_test_residue_sweep_clean_in_clean_out` memory.
+  Evidence standard for a closed sweep: record the identifiers removed, not only counts, so the exit sweep can be
+  re-run; an open remainder carries a named owner AND the list or the command that regenerates it.
 - **Dates** - every dated row written this turn matches the Step-0 live clock.
 
 Anything off: fix it in this turn. A found-but-unfixed drift is not a passed gate.
