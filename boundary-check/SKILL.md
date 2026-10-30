@@ -474,6 +474,21 @@ drift now**, in this turn, before the boundary:
   templates carry schema only.
 - **Task hygiene** - TaskList reflects reality (completed marked, stale deleted); >3 in-flight items are in
   TaskCreate not plan prose.
+- **Leftover sweep (clean in, clean out; every task, not only tests)** - ask whether this session created
+  anything temporary, for ANY task: test or trial objects, throwaway projects/tasks/custom fields/tags,
+  scratch scripts and data dumps (especially ones holding personal data), spawned one-off scheduled tasks,
+  stale worktrees and branches, temp files on a remote host, test accounts/lists/contacts in a tenant. If
+  yes, the **exit sweep** runs now, before the boundary action: re-run the entry sweep's searches across
+  every surface the work could have touched (the tracker including archived projects AND workspace-level
+  objects that survive a project's deletion, such as custom fields; the identity/mail tenant including
+  soft-deleted objects; remote hosts; the Mac scratchpad; repos, branches and worktrees; memory, plans and
+  scheduled tasks), each with a positive control, because a search that cannot find a known-real object
+  reports absence falsely. It must come back empty or leave a named open item with an owner. Archiving is
+  not cleanup (an archived Asana project keeps its custom fields). **A permanent delete is the operator's to
+  run**: prepare the block, re-verify the targets read-only, then re-sweep after. The **entry sweep** is the
+  counterpart at the start of the work: clear what an earlier session left before creating anything, and mark
+  every object you create with a greppable marker and record its identifiers in the plan file at creation.
+  Rule and origin: the global `feedback_test_residue_sweep_clean_in_clean_out` memory.
 - **Dates** - every dated row written this turn matches the Step-0 live clock.
 
 Anything off: fix it in this turn. A found-but-unfixed drift is not a passed gate.
