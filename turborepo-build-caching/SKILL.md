@@ -1,6 +1,6 @@
 ---
 name: turborepo-build-caching
-description: "Use PROACTIVELY whenever working in a Turborepo monorepo (any repo with a turbo.json), or editing turbo.json / tsconfig.json / CI actions/cache config, or setting up or reviewing a monorepo's build-test-CI pipeline. Audit the build-cache config against the rules on contact; do NOT wait for a symptom. Symptoms that mean a misconfig is ALREADY biting (triple-check every rule if any is seen): cache misses on unrelated edits, a docs/markdown edit busting the build cache, slow or hanging cache save, \"no output files found\" warnings, tsc rebuilding everything, low cache-hit rates. NOT for single-package repos or non-turbo build tools (nx, bazel, plain tsc). Covers source-scoped inputs, outputs matching outDir/declarationDir plus the tsbuildinfo, the build-vs-typecheck tsBuildInfoFile clobber, the **/.turbo CI glob trap, and globalDependencies for shared root data/schema."
+description: "Use PROACTIVELY whenever working in a Turborepo monorepo (any repo with a turbo.json), or editing turbo.json / tsconfig.json / CI actions/cache config, or setting up or reviewing a monorepo's build-test-CI pipeline. Audit the build-cache config against the rules on contact; do NOT wait for a symptom. Symptoms that mean a misconfig is ALREADY biting (triple-check every rule if any is seen): cache misses on unrelated edits, a docs/markdown edit busting the build cache, slow or hanging cache save, \"no output files found\" warnings, tsc rebuilding everything, low cache-hit rates. NOT for single-package repos or non-turbo build tools (nx, bazel, plain tsc). Covers source-scoped inputs, outputs matching outDir/declarationDir plus the tsbuildinfo, the build-vs-typecheck tsBuildInfoFile clobber, the **/.turbo CI glob trap, globalDependencies for shared root data/schema, the package-level override for placeholder packages, and the shared worktree cache that hides cache warnings (prove a fix with --force)."
 ---
 
 # Turborepo build caching
@@ -38,6 +38,12 @@ Undeclared outputs are the number-one mistake: if turbo does not know what a tas
 ### R3 - tsbuildinfo in `outputs` only for tasks that emit it
 `incremental: true` in tsconfig writes a `.tsbuildinfo`. Declare it as an output of the task that **emits** (the `tsc` build), so the cached artifact stays consistent with `dist`. Do **not** declare it for a `tsc --noEmit` typecheck: turbo restores outputs only on a hit (skipping the task), so a `--noEmit` buildinfo yields no benefit and makes turbo warn `"no output files found"` for every package that does not produce it (stubs, echo tasks). A task that produces no cacheable artifact gets `"outputs": []`. If `incremental` is on but nothing declares the buildinfo of the emitting task, either declare it or turn `incremental` off; leaving it undeclared is the worst of both.
 
+**Placeholder packages.** In a workspace with many packages whose `build` script is an `echo` that writes nothing (waiting for a real build), do not edit the root `outputs` to suit them: the packages that do emit would stop caching. Give each placeholder a package-level `turbo.json` that extends the root and overrides only its build outputs, and delete the file when the package gets a real build:
+
+```jsonc
+{ "extends": ["//"], "tasks": { "build": { "outputs": [] } } }
+```
+
 ### R4 - build and typecheck must not share a `tsBuildInfoFile`
 If both `tsc` (build) and `tsc --noEmit` (typecheck) write the same `tsBuildInfoFile`, they clobber each other's incremental state, forcing needless rebuilds. Give typecheck its own file via the CLI flag:
 
@@ -70,6 +76,8 @@ Config changes are not "done" until proven. Two runs of a task in a row: the sec
 
 turbo hashes content, not mtime, so `touch` proves nothing; append real content and revert.
 
+**In a git worktree, reproduce and prove with `--force`.** Worktrees of one repository share a turbo cache with the main checkout (turbo 2.9.8 prints `Remote caching disabled, using shared worktree cache`). A plain run inside a worktree can therefore be all cache hits, and a hit does not re-check declared outputs, so a `"no output files found"` warning (R3) never appears and a fix looks proven when nothing ran. Run `turbo run <task> --force` to reproduce a warning and to prove its fix, then run the two-run check above for the cached second run.
+
 ## Red flags
 
 - A task in `turbo.json` with no `inputs` (hashes everything, incl. markdown).
@@ -82,6 +90,8 @@ turbo hashes content, not mtime, so `touch` proves nothing; append real content 
 - A `continue-on-error` cache save that "succeeds" in exactly `timeout-minutes` (it was timeout-killed and masked; check the step duration).
 - Tests reading root `data/`/schema with nothing in `globalDependencies`.
 - Declaring the config fixed without running the markdown-edit and src-edit acid test.
+- Reproducing or proving a cache warning from a git worktree with a plain run (all hits from the shared worktree cache, so the warning cannot appear); use `--force` (R7).
+- Editing the root `outputs` to silence warnings from placeholder packages (the packages that emit stop caching); use a package-level override (R3).
 
 ## Worked example: the 180s to 1s cache-save
 
