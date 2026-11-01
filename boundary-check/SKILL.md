@@ -70,8 +70,9 @@ Fire it, before doing the boundary action, at any of:
 - **On manual trigger** - "run the boundary gate", "gate check", "are memory and standing followed", etc.
 
 Every open item the chunk leaves behind must be either actioned to completion or carry a single NAMED SSOT
-owner in its durable home - a person (operator), a scheduled job (cron), a plan-file pickup step the next
-session executes, or a peer session. A passive "worth a glance" with no owner fails the gate.
+owner in its durable home - a person (operator), a scheduled job (cron), or a plan-file pickup step the next
+session executes. A session named by title is never an owner: it is only a note on who was last on the work,
+and sessions get archived. A passive "worth a glance" with no owner fails the gate.
 
 By right it fires automatically at these moments in every session; the user may also trigger it manually.
 When it fires, it runs as a real Skill invocation so the usual skill-use chip shows.
