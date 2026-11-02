@@ -68,6 +68,11 @@ env nobody documents is an env the next session re-derives the hard way.
   reproducibility matters (CI, many hosts), lean venv/uv + lockfile even for deps the manager carries.
 - **CLI tools vs libraries.** A standalone CLI the manager carries (jq, ripgrep) is almost always a
   manager install. A library imported by project code is the case the venv/uv branch is really about.
+- **Isolated mode hides user-site installs.** `python3 -I` (the safe way to run a script that reads
+  untrusted data) ignores user-site packages and `PYTHON*` variables, so a library installed with
+  `pip install --user` imports fine in a normal run and raises `ModuleNotFoundError` under `-I`. Seen
+  2026-11-02 with numpy. Run your own code without `-I`, or give it a venv; keep `-I` for the one script
+  that parses untrusted input, and record in the repo which interpreter and flags each script needs.
 
 ## Worked example
 
