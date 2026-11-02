@@ -1,8 +1,8 @@
 ---
 name: macos-office-docs
-description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save, splicing generated sections into a template docx, pandoc reference-doc output carrying the template's images and comments, a Quick Look thumbnail showing only page one. NOT for generating a new deck or document from scratch, NOT for headless or Linux rendering, NOT for Google Docs or Slides."
+description: "Use when turning a .pptx or .docx into a PDF to look at on a Mac (visual QA of a deck or document using Microsoft PowerPoint or Word driven by AppleScript or osascript, no LibreOffice), or when changing an EXISTING .docx or .pptx in place while keeping its formatting (rename, literal text substitution, add a table row or section, harmonise wording). Symptoms and trigger phrases include osascript exits 0 but no PDF appears, 'AppleEvent timed out (-1712)', the Office sandbox refusing /private/tmp, python-pptx save drops parts or media, 'edit the deck without regenerating it', a Box Drive file that is read-only, Word reverting my edit or spawning a conflict copy, textutil to read a docx, editing a docx the author may be saving at the same time, Word renaming embedded images on save, replacing text that is split across runs, changing one cell of an xlsx without a library save, splicing generated sections into a template docx, pandoc reference-doc output carrying the template's images and comments, a Quick Look thumbnail showing only page one, a new docx built on a house template's styles and header and footer without python-docx, Word 'open' returning no document or 'save as' failing with 'missing value' (-1708) even on a known-good file. NOT for generating a new deck or document from nothing (no house template to reuse), NOT for headless or Linux rendering, NOT for Google Docs or Slides."
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # macOS Office Docs
@@ -15,11 +15,11 @@ Two halves of working with an Office file on a Mac. **Part A** renders a `.pptx`
 
 **Core principle:** look at the document in the renderer the audience will use (Office itself), and change a document at the level that preserves every part of it. Both halves fail silently: a clean run, exit 0, and no PDF, or a saved deck that has quietly lost parts.
 
-**Version stamp.** The splice recipe in Part B was added 2026-10-29 from a 32-page proposal built on Word for Mac with `python3` (no `python-docx`, no `lxml`), `pandoc` and Poppler. The base notes were learnt 2026-08-06 on macOS (Darwin 25.5.0) with Microsoft PowerPoint for Mac, `pdftoppm` from Homebrew Poppler, python-docx 1.2.0 and python-pptx 1.0.2. LibreOffice was not installed.
+**Version stamp.** The splice recipe in Part B was added 2026-10-29 from a 32-page proposal built on Word for Mac with `python3` (no `python-docx`, no `lxml`), `pandoc` and Poppler. The base notes were learnt 2026-08-06 on macOS (Darwin 25.5.0) with Microsoft PowerPoint for Mac, `pdftoppm` from Homebrew Poppler, python-docx 1.2.0 and python-pptx 1.0.2. LibreOffice was not installed. The "new document on a template package" recipe and the "Word will not open anything" note were added 2026-11-02, from an 11,000-word response document and a workbook built on Word for Mac 16.114 and macOS Darwin 25.6.0, where Word and Pages could not be driven by script at all.
 
 ## When this does NOT fire
 
-- Building a new deck or document from nothing: use a generation skill.
+- Building a new deck or document from nothing, with no house template whose styles, header and footer you must keep: use a generation skill. (With a template to reuse, see "Building a NEW document on a house template's package" in Part B.)
 - Unattended, headless or Linux work: LibreOffice is the right tool there, because the Office route below needs a logged-in GUI session and can raise a one-time automation prompt.
 - Google Docs or Slides.
 
@@ -56,6 +56,12 @@ APPLESCRIPT
 ```
 
 Word may already be running, so address only the document you opened and close only that one. Do not name an AppleScript variable `before` or `after`; both are reserved words and fail with a `-2741` syntax error. **Word did not reproduce trap 1.** Re-tested on 2026-10-02 with a throwaway document, saving to a plain `/private/tmp/<name>.pdf`. The call ran into the AppleEvent timeout (`-1712`) at 90 seconds and `osascript` reported an error, but Word was still working: it wrote a valid one-page PDF to that path about two minutes after the call began, so there was no sandbox refusal there. While it was busy, Word also refused `close` on the document (`-1708`, "doesn't understand the close message"), including on a retry a few seconds later, and accepted it only once the save had finished. So in Word the timeout is trap 2 at work, not a failed export. Why that save took two minutes is not known (a first write to a new folder is the obvious suspect, and no dialog was seen). A save into an agent scratchpad under `/private/tmp/claude-501/...` returned promptly with a valid PDF. Give Word the long `with timeout`, and after any `-1712` wait and look for the file and the open document before retrying or trying another folder. PowerPoint's silent no-file behaviour was not re-tested in that run.
+
+### When Word will not open anything at all (an environment fault, not your file)
+
+Seen 2026-11-02. `open POSIX file` exits clean, `count of documents` stays 0, `active document` is `missing value`, and the next call fails with `missing value doesn't understand the "save as" message (-1708)`. Before debugging the package, run the SAME script on a document you know is good (the house template itself). **If that also opens nothing, the fault is the session, not your file**, and no change to your XML will fix it. Pages showed the same way: `AppleEvent timed out (-1712)` on a plain open-and-export. A full-screen capture (`screencapture -x`) came back entirely black, which is the tell that no usable GUI session was available (display asleep or the session locked), and why the Office AppleScript route needs a live desktop. Do not loop retries, do not move the file between folders hoping one is allowed, and do not chain sleeps. Tell the operator the render was NOT done, run the non-render checks below, and hand over a file that the first person to open it in Word will update (contents field) and export. A document the operator opened and re-saved in Word themselves is a legitimate render check: ask for it.
+
+Non-render checks that do not need Office: parse every XML part (`xml.etree`), `textutil -convert txt` and `pandoc -t plain` both read it, grep the text for names and words that must not appear, and look at the header and footer images by converting them to JPEG with `sips` (an image can carry an address or a project name that no text search will find).
 
 ### The two traps (observed with PowerPoint; the Word note above says how Word differs)
 
@@ -126,6 +132,18 @@ Use this when a house template (cover, header and footer, contents, style set) m
 - **If you must use `pandoc --reference-doc` to make a standalone file,** the output still carries every image, comment part and relationship of the reference document (a 9.5 MB file from a 0.5 MB body). Strip image relationships that `document.xml` no longer references, delete the orphaned media, and remove the `comments*.xml` parts with their relationship and content-type overrides. Keep media that the header and footer relationships still use.
 - **Verify like a reader.** `unzip -t`, parse every edited part, grep the text for names that must not appear, then export to PDF with Word (Part A) and look at the pages that changed. `qlmanage -t -s 1400 -o <dir> file.docx` writes a thumbnail of page one only; it is a cheap sanity check that the file opens, not a render. If the first Word export hits `-1712`, call `activate`, retry with a longer `with timeout`, and check for the file before concluding anything: the second attempt on the same file produced the PDF into an agent scratchpad under `/private/tmp`.
 
+### Building a NEW document on a house template's package (stdlib, no python-docx)
+
+Use this when the content is new (every section, not a splice into existing ones) but the house look must carry: styles, numbering, header and footer. Learnt 2026-11-02 building a long response from a template, with `python3` only; the `pandoc --reference-doc` route in the splice section above carries the same baggage and is the wrong tool here too.
+
+- **Start from the template's zip and keep only what the new document needs:** `word/styles.xml`, `numbering.xml`, `theme/theme1.xml`, `fontTable.xml`, `settings.xml`, `webSettings.xml`, `footnotes.xml`, `endnotes.xml`, the header and footer parts with their `_rels` and only the media those two use. Write a fresh `word/document.xml` whose root start tag is copied from the template's (it carries every namespace declaration) and whose last element is the template's own final `w:sectPr` (page size, margins, header and footer references).
+- **Drop what must not travel:** comment parts and `people.xml` (they carry reviewers' names), `customXml`, `docProps/custom.xml`, any sensitivity-label part (`docMetadata`), plus their `Override` entries in `[Content_Types].xml` and their relationships. Rewrite `docProps/core.xml` and `app.xml` from scratch: the template's `lastModifiedBy` names a real person and its `app.xml` carries the old page and word counts. Write a new `word/_rels/document.xml.rels` listing only what is left.
+- **Read the template's own look from a neighbouring paragraph and reproduce it by hand:** run fonts, size and colour, paragraph spacing and justification, the bullet `numId` (read it from an existing bullet paragraph), the table style id, border colour and header shading. Do not import numbering or style ids from another generator, since ids collide.
+- **Replace the cover.** A template's cover is nearly always artwork for its original subject (a flag, a place, a named project). Reusing the page would carry the wrong subject onto the new document. Write a text cover instead and let the header and footer carry the house identity.
+- **Settings:** add `<w:updateFields w:val="true"/>` before `w:hdrShapeDefaults` so the contents builds when opened; a TOC field with a placeholder result is enough. This raises a one-time prompt in Word, which is another reason to expect the first opener to update fields.
+- **Internal notes:** put drafting notes in the text as highlighted runs (`w:highlight` yellow) so they are easy to find and strip, and report the count. Never leave one in a file that goes out.
+- **Verify without Office** (see "When Word will not open anything at all"), then say plainly that the render was not checked.
+
 ### House style: scanning for em dashes
 
 If the house style bans em dashes, scan for U+2014 with a literal glyph match or a Python codepoint check (`chr(0x2014) in line`), never a PCRE byte-escape such as `\xe2\x80\x94`. Some `grep` builds (ugrep) silently fail to match a byte-escape and the scan false-passes. Replace a `Label`, dash, `value` pairing with a colon and prose em dashes with a comma or semicolon. On terse slides a plain-hyphen range such as `3-5 yrs` is fine.
@@ -143,6 +161,8 @@ If the house style bans em dashes, scan for U+2014 with a literal glyph match or
 - Saving a workbook through a library when only a few cells needed to change.
 - Running a template through `pandoc` and shipping the result, or importing its numbering and style ids into the template.
 - Treating a Quick Look thumbnail as a render of the whole document.
+- Rewriting the XML of a document that Word will not open, when Word also opens nothing for a known-good file. The session is at fault, not the package; say the render was not done.
+- Shipping a new document that reused a template cover, comment parts, last-modified names or a sensitivity-label part from the template.
 - Retrying a timed-out Word save, or trying another output folder, before checking whether the first save is still running; a busy Word refuses `close` (`-1708`) and the file can appear minutes later.
 
 ## Bottom line
