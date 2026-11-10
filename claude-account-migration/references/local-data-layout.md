@@ -1,6 +1,6 @@
 # Local data layout for a Claude account migration
 
-Learnt on the Claude desktop app 4.4212.0, macOS (Darwin 25.6.0), on 2026-11-10 by reading the app's own files and log. The layout is not a documented interface and may change between versions: re-verify with the checks at the end before trusting a path or key. Everything here is read-only except the copies you make yourself. No credential is needed for any of it.
+Learnt on the Claude desktop app 4.4212.0, macOS (Darwin 25.6.0), on 2026-11-10 by reading the app's own files and log. The app then updated itself to 4.23118.1 (`CFBundleShortVersionString`) the same evening, and the session folders, registry file and log lines below still worked on it, so both versions are "seen". The layout is not a documented interface and may change between versions: re-verify with the checks at the end before trusting a path or key. Everything here is read-only except the copies you make yourself. No credential is needed for any of it.
 
 Paths are under `~/Library/Application Support/Claude/` ("the app folder") unless stated. The log is `~/Library/Logs/Claude/main.log`.
 
@@ -102,6 +102,7 @@ Original uploaded files are not included, only extracted text. A single conversa
 ## Re-verify before relying on this
 
 ```bash
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /Applications/Claude.app/Contents/Info.plist   # the installed version
 ls "$HOME/Library/Application Support/Claude/claude-code-sessions"/*/*/ | head
 python3 -c 'import json,sys;print(list(json.load(open(sys.argv[1])).keys()))' \
   "$HOME/Library/Application Support/Claude/claude-code-sessions/<account>/<org>/scheduled-tasks.json"
