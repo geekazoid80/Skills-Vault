@@ -3,7 +3,7 @@ name: windows-server-ops
 description: "Use for day-to-day Windows Server 2016, 2019, 2022 and 2025 administration and troubleshooting: roles and features, Server Core versus Desktop Experience, PowerShell remoting and CIM, event log and performance counter triage, SMB and networking, storage (NTFS, ReFS, Storage Spaces), security settings (Credential Guard, VBS, SMBv1, TLS, LAPS, audit policy), patching and Hotpatch, Windows Server Backup and VSS, editions and licensing, and version differences. Triggers include \"Windows Server\", \"Server Core\", \"sconfig\", \"WinRM\", \"PowerShell remoting\", \"Get-WindowsFeature\", \"event ID 41\", \"event ID 4625\", \"Hotpatch\", \"SMB over QUIC\", \"Storage Spaces\", \"ReFS\", \"Windows Server 2025\", \"2022 end of mainstream support\", \"WSUS\", \"Windows Admin Center\", \"server won't boot BSOD stop code\". NOT for Active Directory, Group Policy design or DNS (ad-ds, ad-cs, ad-fs, windows-dns-ops), NOT for choosing an operating system (operating-system-selection), NOT for Linux hosts (linux-host-ops), NOT for patch tooling products (action1-patch-management)."
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Windows Server operations

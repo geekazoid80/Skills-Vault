@@ -2,7 +2,7 @@
 name: using-git-worktrees
 description: Use when starting feature work that needs isolation from the current workspace, before executing an implementation plan, when about to create a worktree manually, or when deciding WHICH tree to edit in once a worktree exists. Triggers include "set up a worktree", "isolate this work", "branch off in a worktree", "git worktree add", "worktree for this PR", "worktree vs main clone", "which tree do I edit in", "edited the wrong tree", "dirty main tree". Also fires on the symptoms of having edited the main clone instead of the worktree, which is how most sessions actually meet this - "pull --ff-only aborting", "Aborting due to local changes", "would be overwritten by merge", "Please commit your changes or stash them before you merge", a main clone that refuses to fast-forward after its own PR merged, an uncommitted copy of content that is already on main. Also covers the cost of in-repo placement, where a tool that walks the tree without respecting .gitignore (plain find, grep -r, os.walk, a docs generator, a file-count or licence audit) counts the nested worktree as part of the repo, so prefer git-aware forms or exclude the directory. Also owns worktree DISPOSAL at session close, and the distinction between PARKING a session (paused, still open) and ARCHIVING one (actually ended via the harness's own session-archive tool). Triggers include "clear the worktree", "remove the worktree", "worktree cleanup", "leftover worktrees", "worktree residue", "who cleans up the worktree", "does archiving remove the worktree", "does archive_session clean up the worktree", "worktree remove refused", "contains modified or untracked files", "archive this", "park vs archive", "session recycled a new worktree", "archive did not stop the session", "worktree keeps coming back". A worktree a session created or resumed by hand, outside the native flow, is not disposed of by anything automatically; the owning session clears its OWN as the LAST tool call, never a peer's, without --force, pinning any local-only commit to refs/archive first. Calling the harness's own session-archive tool ends the session but does NOT remove its worktree, whatever that tool's own description says (measured, worktrees of archived sessions are found still on disk), so archiving is not disposal; manually removing a worktree is not the same act as archiving the session and does not stop it, so doing that instead of calling the archive tool on "archive this" reliably loops (the session stays alive and gets a fresh worktree on its next turn). Also covers a build, typecheck or bundler that fails ONLY inside a worktree with a misleading config or dependency error ("Tsconfig not found", "plugin threw" from a Vite or rolldown resolve step, a nested tsconfig that cannot extend a package), because the tool's project-root walk escaped the worktree into the outer checkout, whose .git is a directory where the worktree's is a file; triggers include "builds in the main clone but not in the worktree", "works on a fresh clone but not a worktree", "Tsconfig not found astro". NOT for choosing where on disk a repo or worktree lives (repo-safe-locations); NOT for peer-session and shared-ref coordination (multi-agent-repo-coordination); NOT for sweeping OTHER sessions' leftovers, which is a separate and expensive audit. Enforces detect-existing-isolation first, prefer-the-native-tool second, edit-in-the-worktree throughout, clear-your-own-at-close, never-fight-the-harness always. Localised lightweight version of obra/superpowers/skills/using-git-worktrees that drops the .worktrees/ fallback machinery and gitignore-verification logic since this vault uses Claude Code's native EnterWorktree tool throughout.
 metadata:
-  version: 1.4.1
+  version: 1.5.0
 ---
 
 # Using Git Worktrees
@@ -36,6 +36,14 @@ If that prints a path, you are in a submodule, not a worktree; treat as a normal
 **If `GIT_DIR != GIT_COMMON` and not a submodule:** you are already in a linked worktree. Skip to "Project setup" below. Do NOT create another worktree (nesting worktrees creates phantom state the harness can't see).
 
 **If `GIT_DIR == GIT_COMMON` or you are in a submodule:** you are in a normal repo checkout. Continue to Step 1 if isolation is wanted.
+
+**Check the repo before you trust the worktree.** `GIT_DIR != GIT_COMMON` proves only that a directory is some linked worktree, not that it belongs to the repo you were asked to change. A worktree you were handed must share the common git directory of the target repo:
+
+```bash
+[ "$(git -C <worktree> rev-parse --path-format=absolute --git-common-dir)" = "$(git -C <target-repo> rev-parse --path-format=absolute --git-common-dir)" ] || echo "WRONG REPO: stop and report"
+```
+
+On a mismatch, stop and report the path. Do not write into it, and do not create a worktree under the other repo; the dispatcher creates one under the target repo (Step 2 placement) and hands over its path. `--path-format` needs git 2.31 or later.
 
 ## Step 1: Use the native tool first
 
@@ -238,6 +246,7 @@ write the closing message from memory without reaching for a tool again.
 |---|---|
 | `GIT_DIR != GIT_COMMON` and not submodule | Already in a worktree; skip creation |
 | In a submodule | Treat as normal repo |
+| Handed a worktree path | Run the common-git-dir check; a mismatch means stop and report, never write |
 | Native `EnterWorktree` tool available | Use it; do NOT call `git worktree add` |
 | No native tool | Manual `git worktree add` to a gitignored path UNDER the repo (`<repo>/.claude/worktrees/<branch>`), never a sibling |
 | Permission error on create | Sandbox fallback; work in place; report |
@@ -254,6 +263,7 @@ write the closing message from memory without reaching for a tool again.
 ## Red flags
 
 - Creating a worktree when Step 0 detects existing isolation.
+- Writing into a worktree whose common git directory belongs to another repo.
 - Counting, indexing or scanning a repo with a tool that does not respect `.gitignore` while a worktree
   is nested inside it, so the worktree's copy is silently included (use `git grep` / `git ls-files`, or
   exclude the directory explicitly).

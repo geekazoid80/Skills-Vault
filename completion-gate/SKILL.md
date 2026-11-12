@@ -2,7 +2,7 @@
 name: completion-gate
 description: Use before any claim of "done", "fixed", "passing", "ready to merge", or any expression of satisfaction with code state, AND before pushing any sub-agent diff that exceeds trivial scope, AND when finishing a development branch (verify, push, PR, cleanup). Combines the iron law of verification (no claim without fresh evidence; the gate function; red flags; rationalisation prevention) with the mandatory code-review trigger (run engineering:code-review on diffs over 50 LOC, public-contract changes, or new module additions; skip only for typo, single-line, or bookkeeping diffs) and the incremental write-then-verify-fast loop (typechecker, schema validators, lint preemptively after writes, without pausing to ask permission). Layer 2 includes the BASE_SHA / HEAD_SHA dispatch pattern, the four-severity response model (Critical / Important / Minor / push-back) for code-review subagent dispatch, the deep security-review pass (5-phase attack-surface + checklist sweep folded from getsentry/skills/find-bugs), and the reception discipline for incoming review feedback (no performative agreement, verify against codebase before implementing, ask if unclear, push back with technical reasoning); the dispatch pattern folded from obra/superpowers/skills/requesting-code-review and the reception discipline from obra/superpowers/skills/receiving-code-review. Layer 4 covers branch finishing (verify, push, PR with squash-merge convention, worktree cleanup); folded from obra/superpowers/skills/finishing-a-development-branch. Layer 3 also gates the supervised first run of a new capability an unattended schedule (cron/CI) will apply at scale, run once supervised in dry-run against the case it was designed for before the schedule owns it. It also covers a scheduled job whose normal exit code is non-zero (a crash must not read as a healthy run; own failure code, entry-point catch-all, ok_rc). Operational superset; further source skills will be folded in over time.
 metadata:
-  version: 1.5.1
+  version: 1.6.0
 ---
 
 # Completion Gate
@@ -406,7 +406,7 @@ After the merge:
 ### When NOT to use Layer 4
 
 - The branch is part of a stacked-PR sequence and merging it would orphan the children. Hold the merge or use the rebase-and-replace pattern (see PR #5/#6/#7's history for the worked example).
-- The PR has open required reviews, failing CI, or merge conflicts. Resolve before invoking Layer 4.
+- The PR has open required reviews, merge conflicts, or failing CI. Resolve before invoking Layer 4. A repo with no CI gates on its local suite instead: run the full suite once per Python version the repo declares, one after the other, and quote the command, the interpreter and the test count for each in the PR body. Before a run counts, confirm the interpreter can import every module the suite needs (for example `tomli` on Python 3.9, since `tomllib` arrived in 3.11).
 - The user explicitly says "hold this PR for now" or "don't merge yet".
 
 ## When to apply
