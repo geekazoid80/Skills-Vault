@@ -112,6 +112,8 @@ pktmon etl2pcap PktMon.etl                     # pktmon is available on 2019 and
 
 Capture only as long as needed and treat capture files as sensitive.
 
+**Server 2016 has no pktmon.** `pktmon` arrives with Windows Server 2019, so on 2016 the native capture is `netsh trace`, with a circular 60 MB file, `report=disabled` and an address filter, pinned to a directory you delete afterwards. `netsh trace convert dump=txt` produced no output from a 2016 capture in one live case, so keep a byte-level fallback: scan for IPv4 headers with protocol 6 and read the TCP ports and payload from the header offsets, checking checksums. That fallback is a sketch, not a tool. Check the netsh syntax on the host before relying on it.
+
 ---
 
 ## Stop errors (blue screens)

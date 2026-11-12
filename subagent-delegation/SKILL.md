@@ -2,7 +2,7 @@
 name: subagent-delegation
 description: "Use when about to delegate non-trivial work to a sub-agent (Explore, general-purpose, or any specialist) OR write any hand-off that briefs another session/agent (spawn_task chip, throwaway-session prompt, TaskCreate brief, scheduled/cron agent, PR body handing off work). Covers Pattern A \"thin master, heavy sub-agents\": when to stay inline vs. delegate, the standing-instructions + memory precondition every hand-off brief must open with (the receiving session reads CLAUDE.md + global memory + project memory + repo AGENTS.md from disk for itself; the prose is never the control; multi-PAT keychain token / pull --ff-only / secrets hygiene are the canonical misses), the fence-plus-disposition rule for a brief that forbids touching a line the change must reconcile with (reconcile anyway / do half and escalate to a named place / stop and ask), the canonical-path-pinning preamble for every brief that does file I/O, the adjacent-pattern scan instruction for cross-cutting briefs, the master-side blast-radius grep before pushing a contract change, the AskUserQuestion gate when adjacent findings come back (bundle / follow-up PR / accept the gap), the AskUserQuestion gate for generalisable patterns (extract now / follow-up PR / defer with TODO / accept duplication), and the leaf rule (sub-agents do not spawn sub-sub-agents). Also covers the plan-execution loop for subagent-driven development (fresh subagent per task, two-stage review, implementer status model, model selection per task complexity, and the BOUNDED FIX LOOP: five rounds per task, resume the original implementer for rounds 1-3 then a fresh one a model tier up for 4-5, scoped re-review verdicting each finding ADDRESSED or NOT ADDRESSED, and the breaker that adjudicates open findings on the record at the cap instead of looping forever); folded from obra/superpowers/skills/subagent-driven-development. Fires on \"the review keeps finding things\", \"how many times do I re-dispatch\", \"this task is stuck in review\", \"fix loop\", \"re-review\", \"the implementer cannot fix it\", \"when do I stop retrying a subagent\". Parallel-Dispatch (independent problems) pattern for fanning out 2+ unrelated investigations or fixes concurrently; folded from obra/superpowers/skills/dispatching-parallel-agents. Parallel-Design Sub-Agents pattern (\"Design It Twice\") for exploring alternative interfaces. Specialist review dispatches catalogue (GHA security review with five-element finding contract; folded from getsentry/skills/gha-security-review)."
 metadata:
-  version: 1.10.0
+  version: 1.11.0
 ---
 
 # Sub-agent Delegation
@@ -70,6 +70,8 @@ Expected output:
 - last commit: <expected SHA + subject>
 
 If you don't see that exact state, STOP and report. Do not proceed.
+
+Confirm the repo identity as well: `git -C <canonical path> remote get-url origin`. Expected: <owner/repo>. A different origin means the wrong repository. If the state or the origin differs, STOP and report. Do not create a worktree: the dispatcher creates one under the target repo and hands you its path.
 ```
 
 This adds maybe 10 lines to the brief and saves an entire wasted sub-agent turn when the worktree hazard is live. If the project does not use worktrees, the block still helps any sub-agent that gets confused by `pwd` drift.
@@ -541,6 +543,7 @@ Cross-reference: `secrets-hygiene` § GitHub Actions secrets discipline carries 
 - Any hand-off brief (sub-agent, spawn_task chip, throwaway-session prompt, TaskCreate, scheduled/cron agent, PR body handing off work) WITHOUT the standing-instructions + memory precondition at the top. The recurring miss: handed-off work that ran bare `gh` and failed the multi-PAT keychain rule because the brief never told the new session to read memory.
 - A brief that FENCES a line ("do not touch X") the change must reconcile with, WITHOUT saying what to do if the work runs into the fence (reconcile anyway / do half and escalate to a named place / stop and ask). Silence forces the receiving session to choose between disobeying the fence and shipping a half-connected result.
 - Sub-agent brief without the canonical-path block on a worktree-flavoured repo.
+- A brief that hands a sub-agent a worktree path with no origin check, or that lets the sub-agent create its own worktree.
 - Cross-cutting fix briefed without the adjacent-pattern scan instruction.
 - Public-surface change pushed without the master-side blast-radius grep.
 - Adjacent finding tucked into a PR-body footnote instead of an AskUserQuestion.
