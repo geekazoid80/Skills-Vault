@@ -1,9 +1,9 @@
 ---
 name: proxmox-ops
-description: "Use for day-to-day Proxmox VE (PVE) operations and troubleshooting: QEMU/KVM guests with qm, LXC containers with pct, clusters with pvecm and Corosync quorum, the HA Manager and watchdog fencing, ZFS and LVM-thin local storage, Ceph, vzdump and Proxmox Backup Server, bridges, VLANs, bonds and SDN, and the pvesh REST API. Triggers include \"SDN VNet\", \"VLAN zone\", \"QinQ zone\", \"service VLAN\", \"MTU 9000 on the NIC\", \"jumbo frames on Proxmox\", \"native VLAN on the host port\", \"Proxmox\", \"PVE\", \"qm\", \"pct\", \"pvecm\", \"pvesh\", \"vzdump\", \"PBS\", \"lost quorum\", \"VM is in io-error\", \"thin pool full\", \"LVM-thin data 100%\", \"discard\", \"HA resource in error\", \"node fenced\", \"migration failed\", \"ZFS ARC\", \"Ceph HEALTH_WARN on Proxmox\". NOT for choosing between hypervisors (virtualization-platform-selection), NOT for Docker, Podman or Kubernetes (the container skills; LXC here means only Proxmox system containers), NOT for generic Linux host chores such as systemd, journald or fstab (linux-host-ops), NOT for EVPN overlay design (evpn-vxlan-fabric)."
+description: "Use for day-to-day Proxmox VE (PVE) operations and troubleshooting: QEMU/KVM guests with qm, LXC containers with pct, clusters with pvecm and Corosync quorum, the HA Manager and watchdog fencing, ZFS and LVM-thin local storage, Ceph, vzdump and Proxmox Backup Server, bridges, VLANs, bonds and SDN, and the pvesh REST API. Triggers include \"SDN VNet\", \"VLAN zone\", \"QinQ zone\", \"service VLAN\", \"MTU 9000 on the NIC\", \"jumbo frames on Proxmox\", \"native VLAN on the host port\", \"Proxmox\", \"PVE\", \"qm\", \"pct\", \"pvecm\", \"pvesh\", \"vzdump\", \"PBS\", \"lost quorum\", \"VM is in io-error\", \"thin pool full\", \"LVM-thin data 100%\", \"discard\", \"HA resource in error\", \"node fenced\", \"migration failed\", \"ZFS ARC\", \"Ceph HEALTH_WARN on Proxmox\", \"LXC with two NICs\", \"a NIC per VLAN\", \"VNet strips the outer tag\", \"inner VLAN sub-interface in the guest\", \"S-tag and C-tag test host\", \"VLAN interface lost after restart\". NOT for choosing between hypervisors (virtualization-platform-selection), NOT for Docker, Podman or Kubernetes (the container skills; LXC here means only Proxmox system containers), NOT for generic Linux host chores such as systemd, journald or fstab (linux-host-ops), NOT for EVPN overlay design (evpn-vxlan-fabric)."
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Proxmox VE operations
@@ -175,7 +175,17 @@ Use this when a node has one trunked uplink carrying a management VLAN and sever
 4. **MTU: match the hosts to the switches, and read the switches rather than assuming.** If the switch ports are jumbo, raise `mtu` on the physical NIC and on the bridge to match (9000 leaves headroom under a 9216 port). A virtio guest NIC can inherit the bridge MTU (set its `mtu` option to `1`; the option exists for VirtIO only). A QinQ zone costs 4 bytes per extra tag, so lower the zone `mtu` by 4 per tag. Jumbo helps traffic that stays inside one VLAN across switches that all carry it; anything routed through a firewall or router is limited to the lowest MTU on that routed path, so do not expect jumbo off-subnet unless every hop is raised.
 5. **Prove the path** with `ping -M do -s <mtu-28> <peer>` between two nodes on the same VLAN (`8972` for 9000), and check `bridge vlan show` and `pvesh get /cluster/sdn/vnets` on each node.
 
-**Unproven, so check before relying on it:** that the VLAN-zone VNets come up on a VLAN-aware bridge (the documentation says the zone uses an existing bridge and does not say whether it must be VLAN-aware, while the QinQ zone does require one), and that a given switch model forwards an `802.1ad` outer tag.
+**Unproven, so check before relying on it:** whether a VLAN zone needs a VLAN-aware bridge (the documentation says the zone uses an existing bridge and does not say whether it must be VLAN-aware, while the QinQ zone does require one; in one live use, VNets in a VLAN zone applied and showed UP in `ip -br link`, but the bridge's VLAN-awareness was not recorded), and that a given switch model forwards an `802.1ad` outer tag.
+
+### A multi-VLAN test host: one NIC per VNet, and a QinQ path tested from inside the guest
+
+Use this when a container or VM must sit on several VLANs at once, for example to test an external layer-2 service that carries a service tag (S-tag) and customer tags (C-tags). It is the alternative to the QinQ zone above: here the outer tag is a plain VLAN VNet and the inner tags are handled in the guest.
+
+1. **A VNet per VLAN, a NIC per VNet.** Create one VNet for each VLAN under test, then give the guest one NIC on each, so each VLAN is a separate interface. For an LXC container, one `net<N>` line per NIC, with the VNet as the bridge and no tag on the NIC (`pct set 201 --net2 name=eth99,bridge=vlan99,mtu=1500`; syntax from `man pct`, not run on a live node). Every change stays pending until the SDN configuration is applied at Datacenter level.
+2. **The VNet strips the outer tag.** A frame that arrives tagged 999 on the wire reaches the guest NIC untagged as far as the outer tag goes. For a single-tag service (VLAN 99) the guest therefore answers on the plain NIC. For a double-tagged service (S-tag 999, C-tag 101) the guest sees only the **inner** tag, so it needs **inner VLAN sub-interfaces** on the NIC attached to the S-tag VNet: `ip link add link eth999 name eth999.101 type vlan id 101`, then an address, for example `192.0.2.17/29` (documentation range). A reply on `eth999.101` and not on `eth999` is the evidence that the inner tag survived.
+3. **Sub-interfaces made with `ip link` are not persistent.** They vanish on a guest reboot or container restart. To keep them, write them into the guest's own network configuration (in a Debian guest, an `iface eth999.101 inet static` stanza with `address` and `vlan-raw-device eth999`, and the `vlan` package installed), or re-create them from a script run at boot. Unverified: whether Proxmox rewrites a container's network file on a later `pct set`, so check the file after any NIC change.
+4. **MTU arithmetic: 4 bytes per tag.** Start from the MTU of the NIC (and of the VNet and bridge under it). A single-tag sub-interface is that minus 4, a QinQ inner interface minus 8 (1500 gives 1496 for the S-tag interface and 1492 for the inner one; 9000 gives 8996 and 8992). The largest do-not-fragment IPv4 ping payload is the MTU minus 28 (1472, 1468 and 1464 at a base of 1500, so sweep the size down by 4 for each tag). Treat this as the planning rule when a hop counts the tag against its MTU; whether a given path does is what the sweep proves. A jumbo sweep over such a path has been planned but not run on live equipment, so this is arithmetic, not a measured result.
+5. **Prove which tags arrive.** `tcpdump -e -nn -i eth999` shows the inner `vlan 101` the guest receives; the outer tag is not visible there by design. To see the outer tag, read the MAC table of the switch port that faces the service, by VLAN. Replies on the right sub-interface plus that table are enough to decide single versus double tagging; a capture is the stronger evidence.
 
 Source for the SDN zone, QinQ and MTU statements: https://pve.proxmox.com/pve-docs/chapter-pvesdn.html and the "Network Device" section of https://pve.proxmox.com/pve-docs/chapter-qm.html, both read 2026-10-28. For overlay design (VXLAN, EVPN), hand off to `evpn-vxlan-fabric`.
 
@@ -197,6 +207,8 @@ Named admin accounts rather than shared `root`, TOTP two-factor on the UI, API t
 10. Counting a snapshot or an unrestored backup as protection.
 11. Hand-building a VLAN sub-interface per node for each data VLAN, then trying to test QinQ by editing every node.
 12. Raising the NIC MTU without reading the switch ports first, or expecting jumbo through a router or firewall that is still at 1500.
+13. Looking for the outer VLAN tag inside a guest on a VNet (it is stripped), or testing a double-tagged service with no inner sub-interfaces, then reading the silence as a network fault.
+14. Adding a VLAN sub-interface by hand in a guest and assuming it survives a restart.
 
 ## Red flags
 
@@ -206,6 +218,7 @@ Named admin accounts rather than shared `root`, TOTP two-factor on the UI, API t
 - A "restore tested" claim with no date or restore log.
 - A script or note containing a password, token or `GOVC_PASSWORD`-style literal.
 - A node NIC at MTU 9000 with no `ping -M do -s 8972` between two nodes proving the path.
+- A QinQ test whose guest has no inner VLAN sub-interface, or whose sub-interfaces were added with `ip link` and never written into the guest's network configuration.
 
 ## References and scripts
 
