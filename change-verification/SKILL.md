@@ -54,6 +54,8 @@ Run the steps in order for each change event. Steps 1 and 2 happen before anythi
 
 Capture state snapshots before any change and store them with timestamps. Use exactly the commands you will re-run in Step 4.
 
+**A device that will start using a new server address or route.** Test the path from the device before any firewall rule is discussed. Ping the server from the device's intended source and VRF, then ping the device's source back from the server (both are cheap and work on every platform). Then try a TCP connect to the service port, only where the platform has one: confirm the syntax with `?`, because it differs by platform and version. Then confirm on the server that it saw that source, with a counting rule (`-j RETURN` plus a comment, removed afterwards) or the service's own log. A failed ping is a hint and not proof, because security groups and ACLs often drop ICMP while allowing the port. Only a failed live test opens the route, policy and NAT reading.
+
 **Routing state**
 
 - **[Cisco]** `show ip route summary`, `show ip bgp summary`, `show ip ospf neighbor`
@@ -104,6 +106,8 @@ A change with no written rollback trigger has no rollback decision, only an argu
 **Multi-device changes** go in stages: apply to one device, run Step 4 against it, and continue only after it passes every check.
 
 **Security changes** (AAA, ACLs on management or VTY lines) carry the highest risk of locking yourself out. Keep a second session or console path open and prefer commit-confirm or a timed replace. The loss of management access may not be reversible without physical console access.
+
+**Proving a fallback with a time-boxed refusal.** To prove that a client falls back to its local account when a shared service refuses it, refuse the client from the SERVICE host, not on the device: a REJECT with `tcp-reset` (not a drop, so IOS and EOS fail over at once) on the client's source address and the service port. Schedule the revert first, as host-side transient timers (`systemd-run --on-calendar=... --timer-property=AccuracySec=1s`): a removal at the end of a three-minute window, a second removal later as a belt, and the add timer last. Read the timer list back with the rule absent, verify the rule at the window start before the tester is told, then verify the removal and that the source authenticates again. Pick a window that avoids the estate's own scheduled logins and state the blast radius first: a shared NAT address takes every device behind it, including the firewall's own admin logins, so keep a console or local super-admin session open on any firewall in that radius. One device type at a time.
 
 ### Step 4: Post-change verification
 

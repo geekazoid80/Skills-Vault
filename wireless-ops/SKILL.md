@@ -84,6 +84,10 @@ The day-2 wireless operations loop:
 
 Security posture review (step 6 in `wireless-security-audit`) is deliberately separated. Ops and audit use different toolsets and different change authorities.
 
+## A captive portal that ends in an empty response after login
+
+When the browser shows ERR_EMPTY_RESPONSE after a captive portal login on some PCs and not others, check what the firewall's own DNS answers for the portal's name on EACH network before touching a firewall rule: a single static record answered on every VLAN can send a guest to an address on another network, where the connection opens and then closes. On a failing PC, and BEFORE using the switch-network workaround (it clears the fault and the evidence with it), note the address on the error page, run `nslookup` for the portal name and note the answer and the server, look for secure DNS, a VPN client, custom DNS or a hosts entry, flush the DNS cache and retry, then `curl -vk --connect-timeout 5` the portal port on each candidate address (refused, timed out, empty reply or answered). The cause is not proven by this: a flush that fixes it means a stale client cache and not a firewall problem.
+
 ## Cross-references
 
 - `wireless-security-audit`: security half of wireless operations. SSID encryption posture, 802.1X/RADIUS validation, rogue AP triage, PMF audit, WIDS/WIPS review, WPA3 migration, PCI DSS wireless compliance. Cross-check with this skill when an ops change has a security impact (e.g. adding a new SSID, changing VLAN assignment, adjusting containment policy).
