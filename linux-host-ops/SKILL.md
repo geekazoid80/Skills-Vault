@@ -131,6 +131,7 @@ Key choices:
 - `OnCalendar=` over `OnUnitActiveSec=` for human-readable schedules.
 - `Persistent=true` on timers so a missed run during downtime fires on next boot.
 - `RandomizedDelaySec=` for fleet-wide tasks (avoid thundering herd).
+- A unit systemd generates from a sysv init script (`/etc/init.d`) has `Restart=no`, `RemainAfterExit=yes` and no `PIDFile`, so systemd cannot see the daemon die and an OOM kill leaves it dead with nothing to restart it. Check with `systemctl cat <svc>`. Fix with a native unit that wraps the init script (`Type=forking`, `PIDFile=`, `Restart=always` with a start limit, `KillMode=control-group` so orphaned children die with it), and prove it by `kill -9` of the master and watching it return.
 
 ## journalctl triage
 
@@ -601,6 +602,7 @@ If something is broken:
 - Backup script with no encryption to a network target with no at-rest encryption (credentials and data leak via the backup channel).
 - OS upgrade with no snapshot (no rollback path; one-way).
 - Holding the kernel for so long that security patches accumulate (defeats the purpose of holds; review monthly).
+- A small cloud host with no `sysstat` history (`/var/log/sysstat` empty), so an OOM kill cannot be reconstructed afterwards. Enable collection (the `sysstat` package, `ENABLED="true"` in `/etc/default/sysstat` on Debian and Ubuntu) before the next memory event, not after it.
 
 ## Red flags
 

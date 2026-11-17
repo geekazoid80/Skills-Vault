@@ -521,6 +521,7 @@ Related skills:
 - An Azure app registration using a client secret when federated identity credential is available
 - A role assignment using Owner when User Access Administrator (or a scoped custom role) would suffice
 - A managed-identity-eligible workload using a service principal with a long-lived secret
+- A config read "for display" behind a redaction written for `=` or `=>` (`key = value`, `'key' => 'value'`): it misses `define('KEY', 'value')` and other positional forms, and a database password printed this way (2026-11-17). Do not display the file at all: build a `--defaults-extra-file` (or the tool's equivalent) in `/dev/shm` on the host, use it, `shred` it, and read values blind (counts, names, exit codes)
 - A subagent briefed to read a live `config.toml` / `config.py` / `.env` / secret file "for structure only"; the brief is not the control, never give the subagent access to the live secret (point it at the tracked example template; do credential-adjacent extraction in the main agent with non-secret-field-only projection)
 
 ## Bottom line
