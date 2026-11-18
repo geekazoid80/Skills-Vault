@@ -439,6 +439,7 @@ For Linux hosts: prefer Filebeat or rsyslog with the omfwd module shipping to a 
 - **A default notification attached to a new event definition.** It can email a real recipient on the first match; check the notification list before enabling.
 - **A numeric `source`.** A device message counter prefixed to each line was read as the host; confirm on the device and fix in a pipeline rule scoped by input.
 - **No timestamp normalisation.** Some shippers send local time; without normalisation, search by `timestamp` returns wrong-timezone results.
+- **Querying a Fortinet CEF field by its short name.** Fortinet's CEF output arrives with its own keys prefixed `FTNTFGT` (`FTNTFGTlogid`, `FTNTFGTsubtype`), so `subtype:user` matched nothing while `FTNTFGTsubtype:user` matched every user event; the standard CEF keys (`src`, `act`, `outcome`, `name`, `reason`) are unprefixed. Run a count with a query you know matches before reading a zero as "no events". The user-authentication events are log ids `0102043008` (success) and `0102043009` (failure), and grouping by `name`, `FTNTFGTlogid` and `outcome` counts them by result.
 
 ## Exporting and rebuilding the admin objects
 
