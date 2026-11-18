@@ -176,6 +176,18 @@ including plain interactive reads, not an exception.
 reference's "How to refresh" section: re-fetch the OpenAPI spec, re-run the generator, re-assemble, re-stamp
 the date to today), then use it. No scheduler - refresh happens only on use, when stale.
 
+## Direct REST traps that bite a bulk build
+
+These are in `references/asana-rest-api.md`, "API behaviours worth knowing"; read them before a bulk create
+or move, because each passes silently:
+
+- **Subtasks created in order list in REVERSE** (new ones land at the top). Create them last-to-first, or
+  reorder afterwards with `POST /tasks/{gid}/setParent` and `insert_after: null`, called for the LAST step
+  first. A `1.`, `2.`, ... title sort is the intended order.
+- **`POST /tasks` needs `projects`** (not only `memberships`); then `POST /sections/{gid}/addTask` to place it.
+- **Read every bulk change back** (due dates, assignees, parents) in a separate pass. A parent read
+  2026-12-04 the evening after a bulk move to 2026-11-18, cause unknown; the run's own 200s showed nothing.
+
 ## Cross-references
 
 - `revops`: when a RevOps automation lands as an Asana task (handoff, SLA alert, deal-desk approval). The revops skill drives the trigger and the field set; this skill drives the MCP-side call shape.
@@ -194,6 +206,7 @@ the date to today), then use it. No scheduler - refresh happens only on use, whe
 - Treating `add_comment` (preview) and `asana_create_task_story` (enterprise) as interchangeable. The story tool supports rich formatting and attachments; the comment tool is plain text. Match the tool to the content.
 - Sending PII (customer names, deal sizes, headcount numbers) into a comment or task description without a sensitivity check.
 - Calling enterprise tools for a clearly acting-user-scope operation (e.g. `asana_get_tasks` when `get_my_tasks` would do). Wastes parameters and obscures intent.
+- Trusting a bulk run (a loop of due-date, parent or assignee writes) without its own read-back, or building a subtask list in order and not checking that it came out reversed.
 - Forgetting that `asana_get_time_periods` returns GIDs; you cannot pass a free-text period name to allocation queries.
 
 ## Bottom Line
