@@ -581,6 +581,18 @@ If something is broken:
 - LVM snapshot: revert the snapshot.
 - No snapshot: the upgrade is one-way; restore from backup or fix forward. This is why the snapshot is mandatory pre-upgrade.
 
+## Reading a server's local database over ssh
+
+When a task needs a read from a database on the host (a management GUI's MySQL or MariaDB, a local Postgres), the credential is in an application config on that host. Build the client's credentials file inside the same process that reads the config, and never show the config.
+
+1. Write one small script on the host (or pipe it to `bash -s`) that reads the value from the config (parse it with the application's own language or an anchored extraction), writes a client defaults file to `/dev/shm` with `umask 077` (`[client]`, `user`, `password`), and runs the client with `--defaults-extra-file=<that file>`.
+2. Set a `trap 'shred -u "$f"' EXIT` before the file is created, so the failure path removes it too. `shred -u` (or `rm -P` where `shred` is absent); a plain `rm` leaves the bytes.
+3. Never print, `cat`, `grep`, `sed` or `awk` the config for display, and never put the password in argv, where `ps` and shell history show it. A redaction pattern written for `=` or `=>` misses `define('DB_PASSWORD', '...')` and other positional forms.
+4. Return only blind facts: row counts, column names, exit codes, the query result you actually need. If a debug or log file might hold the password (a `mavis_debug`-style dump), do not `cat` it either.
+5. After the call, confirm the file is gone (`ls /dev/shm` shows no leftover) and say in the report that the value was never printed.
+
+The wider rule, and the leak-response if a value does land in output, is in `secrets-hygiene`.
+
 ## Cross-references
 
 - `linux-host-bringup`: sibling skill covering fresh-host commissioning. This skill picks up after that one finishes.
@@ -613,6 +625,7 @@ If something is broken:
 - Backup config with the encryption password in the script itself.
 - OS upgrade plan without the snapshot step.
 - Hold list with no review cadence (security patches accumulate).
+- Reading a database password out of an application config to "build the defaults file by hand" (printed, `sed`ed or put in argv); build it in process and `shred -u` it.
 - Disk full and the script's first instinct is `rm -rf /var/log/` instead of investigating what filled it.
 
 ## Bottom line

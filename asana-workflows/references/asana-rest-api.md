@@ -127,6 +127,33 @@ access token or OAuth2).
   `html_text`) and confirm the `<table>` / `<tr>` structure persisted. The plain `notes` / `text` mirror
   flattens a table to ordinary text and looks fine, so reading that field proves nothing.
 
+### Subtask order: new subtasks land at the TOP, so a build in order reads reversed
+- `POST /tasks` with a `parent` (or `POST /tasks/{gid}/subtasks`) inserts the new subtask at the **top** of
+  the parent's list. Create steps 1 to N in order and the parent lists N down to 1. Seen 2026-11-17 on a build
+  of 323 assigned steps across 75 parent tasks.
+- **Either create last-to-first, or reorder afterwards.** To reorder, call `POST /tasks/{subtask_gid}/setParent`
+  with `{"data": {"parent": "<parent_gid>", "insert_after": null}}`, **for the LAST step first** and the first
+  step last: each call moves its subtask to the top, so after the whole run step 1 sits on top. Read the order
+  back (`GET /tasks/{parent}/subtasks?opt_fields=name`) and count parents whose subtasks are out of order
+  (that run ended at 0 of 75).
+- A numeric title prefix (`1.`, `2.`, ...) sorted ascending is the intended order and the thing to check the
+  read-back against; do not rely on the list position as the only record of sequence.
+
+### Creating a task: `projects`, then `addTask` for the section
+- `POST /tasks` needs `projects: ["<project_gid>"]` in the body. `memberships` alone does not reliably put the
+  task in the project. A task created with `projects` lands in the project's default (first) section, so place
+  it with `POST /sections/{section_gid}/addTask` (`{"data": {"task": "<task_gid>"}}`) as a second call.
+- Read the task back with `opt_fields=projects.name,memberships.section.name` before building anything on it.
+
+### A bulk write is not proven by its own run: read it back
+- A bulk change to due dates (or any field) is verified by a **separate read of every target afterwards**, not
+  by the loop's HTTP 200s. On 2026-11-18 a bulk move of parent due dates to 2026-11-18 had one parent reading
+  2026-12-04 the next evening; the cause was never found (a later edit, a rule, or a write that did not take).
+  Without the read-back the stale date would have been trusted.
+- Read back by effect (`GET` the field), compare against the intended value per object, report the mismatches
+  by GID, and re-read again after a day when the date drives a commitment. Name the unknown cause in the
+  report rather than guessing one.
+
 ### Mechanics
 - **Pagination**: `limit` (1-100) + `offset` (opaque token from `next_page.offset`).
 - **Sparse fields**: `opt_fields=a,b.c` (nested with dots). Many fields are opt-in (e.g. `parent`, `members`).

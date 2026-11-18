@@ -109,6 +109,14 @@ A change with no written rollback trigger has no rollback decision, only an argu
 
 **Proving a fallback with a time-boxed refusal.** To prove that a client falls back to its local account when a shared service refuses it, refuse the client from the SERVICE host, not on the device: a REJECT with `tcp-reset` (not a drop, so IOS and EOS fail over at once) on the client's source address and the service port. Schedule the revert first, as host-side transient timers (`systemd-run --on-calendar=... --timer-property=AccuracySec=1s`): a removal at the end of a three-minute window, a second removal later as a belt, and the add timer last. Read the timer list back with the rule absent, verify the rule at the window start before the tester is told, then verify the removal and that the source authenticates again. Pick a window that avoids the estate's own scheduled logins and state the blast radius first: a shared NAT address takes every device behind it, including the firewall's own admin logins, so keep a console or local super-admin session open on any firewall in that radius. One device type at a time.
 
+**Timed windows: verify in its own call, never wait inside one.**
+
+- **Verify a live block in its OWN capped call.** Add the block, then read it back in a short call with a hard timeout of its own (`ssh -o ConnectTimeout=10 ...` or a bounded `timeout 20` on Linux). Message the peer or tester only after that call has returned and shown the block present. A "verified" that arrives after the window has opened is not a verification.
+- **Never wait for a window inside one long tool call.** A `sleep` that spans the wait can run past the tool's timeout (600 s in one harness), which moves the call to the background; it then returns late and the window passes unverified (seen 2026-11-18). Schedule the work on the host with timers, end the call, and poll in short calls.
+- **macOS has no `timeout`.** The GNU command is absent from a stock Mac (`gtimeout` only if coreutils is installed). Bound a call with the tool's own timeout, the client's connect and alive options, or run the bounded command on the Linux host.
+- **An approval covers the slot it names.** When the slot slips (a missed start, a later window), the old yes does not carry over: ask again for the new time, stating the blast radius, before the add timer is set.
+- **Timer order: removals first, the add last, then a belt removal.** Schedule the removal timer(s) before anything that adds the rule, schedule the add timer LAST, and add one more removal a few minutes after the first as a belt. Read the timer list back with the rule absent. If the session dies between steps, the worst state is a removal that finds nothing to remove.
+
 ### Step 4: Post-change verification
 
 Re-run every Step 1 capture with identical commands and diff against the baseline.
@@ -335,6 +343,8 @@ Route count differs from baseline by more than 2%
 - About to treat "no alarms" as success when the diff has not been read line by line.
 - About to roll back and not verify the device returned to its baseline.
 - About to run a **WRITE** step because the skill described it, without a change ticket and an open window.
+- About to `sleep` until a window opens inside a single tool call, or to tell a peer to start before the block has been read back in its own call.
+- About to reuse an earlier approval for a slot that has since moved.
 
 ## Bottom line
 
