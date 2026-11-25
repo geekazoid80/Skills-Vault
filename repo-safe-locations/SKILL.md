@@ -30,6 +30,7 @@ File-level sync races git's own atomic ref updates. A repo whose `.git` lives un
 - `~/Documents/Programming` on this estate is **one-way NAS-backed** (Mac -> NAS backup only), so it is safe for live repos. This is the default home for work repos here.
 - `~/dev` or `~/Developer` are **unsynced**; safe, with GitHub as the backup.
 - Avoid `~/Documents` root, `~/Desktop`, and any tree under a two-way sync. On macOS, `~/Desktop` and `~/Documents` are the exact folders iCloud Desktop & Documents syncs, so a repo dropped there is under two-way sync by default.
+- **Windows:** OneDrive's Known Folder Move ("Back up this PC's folders") syncs `Desktop`, `Documents` and `Pictures` two-way, so a repo under `Documents` is under two-way sync by default, the same shape as iCloud on macOS. Prefer a folder outside OneDrive (for example `C:\dev`). If a repo must live inside OneDrive anyway (an owner's choice), the iron rule cannot be met and the mitigations below become mandatory.
 - Avoid a small tmpfs for large clones (the NUC `/tmp` is ~293 MB; a large clone dies "No space left"); use a disk-backed, configurable work dir.
 
 ## Verify before you drop a repo (checklist)
@@ -38,9 +39,18 @@ Before cloning into a candidate location, confirm no two-way sync covers it. Do 
 
 1. **iCloud Desktop & Documents:** `brctl status` shows sync activity; check whether `~/Documents` is a real directory or a CloudDocs firmlink (`ls -la ~ | grep Documents`, and `readlink`), which means iCloud owns it.
 2. **A NAS / rsync launchd job:** `launchctl list | grep -i sync`, then READ the script it runs. Confirm it is one-way (Mac -> NAS backup) and that `.git` is not a synced path. A step that pulls NAS -> Mac additively (the two-way shape) copies the NAS's older `.git` back onto the Mac.
-3. **Syncthing / Dropbox / OneDrive:** check each is not configured over the candidate tree.
+3. **Syncthing / Dropbox / OneDrive:** check each is not configured over the candidate tree. **On Windows, OneDrive sets `OneDrive` and `OneDriveCommercial`**, so in Git Bash: `OD="$(cygpath -u "${OneDriveCommercial:-$OneDrive}")"; case "$PWD" in "$OD"*) echo "under OneDrive";; esac` (verified). A scheduled sync or copy job on Windows shows in Task Scheduler: `schtasks //query //fo LIST` in Git Bash, **two slashes, because Git Bash rewrites a single `/query` into a file path** (it is slow, a minute or more), then READ the action it runs as in step 2.
 
 If any two-way sync covers the location, pick a different home. If the sync can be made one-way or the tree excluded, do that first, then verify again.
+
+## When the repo has to stay inside a synced folder anyway
+
+Sometimes the owner has decided it. Then treat the sync as a known hazard instead of pretending it is absent:
+
+- **Commit and push early and often.** A pushed blob is immune to a local revert; an uncommitted edit is not.
+- **Put worktrees under the repo, never beside it**, so they inherit the repo's sync treatment instead of the parent folder's.
+- **Expect finished worktrees to refuse deletion** (`Permission denied`): the sync client holds a handle on the folder. `git worktree remove` can then fail halfway and leave a **half-removed `.git` pointer file, after which `git -C <worktree> status` silently reports the PARENT clone**, so a "clean" answer from inside such a folder is not evidence. Prove the work is merged and pushed instead (`git merge-tree --write-tree origin/main <branch>` equals `origin/main^{tree}`), then delete the folder by its exact path and prune. Never force a removal on the strength of that status.
+- **Do not trust a diff of a file the sync may have rewritten.** Compare with line endings and a byte-order mark normalised, and read back what landed.
 
 ## The backup model (so "no two-way sync" does not mean "no backup")
 

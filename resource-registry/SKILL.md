@@ -81,8 +81,8 @@ and only a deliberate cross-project index avoids needing that exercise at all.
 **The fix is a dedicated, machine- or account-wide registry, one row per credential, kept separate from any
 single project's own resource table:** its identifier or display name (never the secret value), the identity
 it authenticates as, every consumer (which projects, hosts, or jobs actually use it), and when it was last
-confirmed live. Build it by enumerating the credential store itself (a secret manager's list, a Keychain
-dump filtered to credential-shaped names, whatever the platform offers) rather than working forward from
+confirmed live. Build it by enumerating the credential store itself (a secret manager's list, a Keychain or
+Windows Credential Manager listing filtered to credential-shaped names, whatever the platform offers) rather than working forward from
 memory of what you think exists, and update it at the moment of creation or rotation, since reconstructing it
 after an incident is exactly the expensive exercise this section opens with. This is the same iron rule as
 above (durable resource, durable record) applied at the scope where duplication actually happens: many

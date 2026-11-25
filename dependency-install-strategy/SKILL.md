@@ -30,7 +30,7 @@ habit.
 
 1. **Gate: ask + refresh.** Surface the missing dependency and get the go-ahead before installing
    (do not hand the user a paste-and-fix loop). Refresh the package index first on that host
-   (`sudo apt-get update`, `brew update`, …). These are the `ask-before-install` and
+   (`sudo apt-get update`, `brew update`, `winget source update`, … see the per-OS table below). These are the `ask-before-install` and
    the refresh-the-package-index-first rule; this skill picks up after it.
 
 2. **Manager-first for version-flexible deps.** If the dependency needs **no specific version** AND the
@@ -50,6 +50,51 @@ habit.
    anti-pattern this skill exists to avoid. If step 2 does not apply, go to step 3. Use
    `--break-system-packages` only as a consciously-justified last resort on a throwaway/base image you
    own, never on a shared operational host.
+
+## Per-OS package managers (step 2 on each host)
+
+Name the host first (`uname -s`: `Darwin`, `Linux`, or `MINGW64_NT-*` / `MSYS_NT-*` for Git Bash on
+Windows), then use that host's manager. Never present one host's command as the only form.
+
+| Host | First choice | Then | Index refresh | Elevation |
+|---|---|---|---|---|
+| macOS | Homebrew: `brew install <pkg>` | none | `brew update` | not needed |
+| Windows | `winget install --id <Publisher.Package> -e --silent --accept-package-agreements --accept-source-agreements` | `scoop install <pkg>` | `winget source update` | user-scope packages need none; `choco` usually wants an elevated shell, so do not choose it for anything unattended |
+| Debian, Ubuntu | `apt-get install -y <pkg>` | none | `apt-get update` | root or `sudo` |
+| RHEL family | `dnf install -y <pkg>` | `yum install -y <pkg>` | `dnf makecache` | root or `sudo` |
+| SUSE | `zypper --non-interactive install <pkg>` | none | `zypper --non-interactive refresh` | root or `sudo` |
+| Alpine | `apk add <pkg>` | none | `apk update` | root or `sudo` |
+| Arch | `pacman -S --noconfirm <pkg>` | none | the install syncs; never run `pacman -Sy` alone (a partial upgrade) | root or `sudo` |
+
+Look the package up read-only before trusting a name (`winget show --id <id> -e`, `brew info <pkg>`,
+`apt-cache policy <pkg>`): a package id that resolves is a cheap check that the command will do what you
+think. On Windows, a Git Bash script that passes a flag starting with `/` to a native tool has it rewritten
+into a path; write `//flag` or set `MSYS2_ARG_CONV_EXCL='*'`.
+
+## Automating an install (a hook or a script installing its own prerequisite)
+
+Only when the dependency is a hard prerequisite of something that must not run without it (a safety
+check, a guard) and the owner has asked for it: that request is the go-ahead step 1 requires, so record it.
+Then keep every one of these:
+
+1. **The platform's own manager only.** Never download and run a script or binary, and never bootstrap the
+   manager itself (no `curl | sh` to install Homebrew). If the manager is absent, say what to run and stop.
+2. **Never ask for a password.** Linux needs root or `sudo -n`; with neither, report and stop.
+3. **Never block the caller.** Start it detached (`nohup <cmd> >> log 2>&1 < /dev/null &`, then `disown`).
+4. **One attempt at a time, and not in a loop.** A lock directory (`mkdir` is atomic) with a stale-lock
+   timeout, and a stamp file that limits retries (for example one per 30 minutes).
+5. **Leave evidence.** A log file, and the failure message the caller shows says what was started or why
+   nothing was.
+6. **An off switch** the owner can set without editing code (a marker file).
+7. **Find the result without a restart.** A running process does not see a `PATH` entry added after it
+   started, so also look in the manager's own folder (for example winget's `Links` folder, `/opt/homebrew/bin`).
+8. **Test it with seams, never the real thing.** Read the platform and the tools present from environment
+   variables a test can set, stub the installer, and prove the tests fail against the old code.
+
+Worked example: a security hook that blocks credential-writing commands needs `jq` to read its input. A
+hook that allowed everything when `jq` was missing only looked armed, so it now fails closed, says why, and
+starts one background install by the rules above. Details of that failure mode: a blocking hook must fail
+closed when it cannot read its input, while an advisory hook may fail open.
 
 ## Record the outcome (resource-registry)
 

@@ -80,6 +80,7 @@ Use the credential store's lookup-by-metadata mode and redirect output:
 | Store | Probe |
 |---|---|
 | macOS Keychain | `security find-generic-password -s NAME > /dev/null 2>&1 && echo found` |
+| Windows Credential Manager | `cmdkey //list \| grep -qi NAME && echo found` in Git Bash (`cmdkey /list` in PowerShell or cmd). `cmdkey /list` prints target names, type and user only, never a value. **In Git Bash write the flag with two slashes**: a single `/list` is rewritten into a file path and the tool answers "The command line parameters are incorrect", which a script that discards stderr reads as "not found" |
 | Linux libsecret | `secret-tool lookup KEY VALUE > /dev/null 2>&1` |
 | GNU pass | `pass show NAME > /dev/null 2>&1` |
 | 1Password CLI | `op item get NAME > /dev/null 2>&1` |
@@ -107,6 +108,22 @@ echo "Token starts with $TOKEN"
 security find-generic-password -a "$USER" -s gh_<org>_pat -w && echo found
 ```
 
+**The same patterns on Windows.** Windows Credential Manager has no built-in command that prints a stored secret, so the value is read through a small helper (a script that calls the Win32 `CredRead` API). Build it so that it **refuses to print to a terminal** (check that stdout is redirected) and so that its "test" action prints identity and expiry only. Then the right form is the same as above, with the helper in place of `security`:
+
+```bash
+# Right: consumed in the same command, never an echoed variable
+GH_TOKEN="$(pwsh -NoProfile -File <helper> -Action Get -Name gh_<org>_pat)" gh pr list
+
+# Wrong: the helper's output sent to a file, so the secret persists
+pwsh -NoProfile -File <helper> -Action Get -Name gh_<org>_pat > tok.txt
+```
+
+PowerShell accepts any unambiguous prefix of a parameter name (`-A Get`, `-Action:Get`), so a rule or a hook that guards the fetch must match those forms too, or it is bypassed by the abbreviation.
+
+**Same entry name on every host, but check what the lookup returned.** The service name alone is enough on macOS. Adding `-a "$USER"` only matches an entry created with that account, and a mismatch returns an empty value that fails later as a 401 or a silent anonymous call, far from the cause. Test the result for non-empty before using it.
+
+**An API that returns success without a key proves nothing.** Some services answer 200 to an anonymous request, so "it returned 200" does not show the stored key was used. Prove a key by effect: the stored key must get 200 and a deliberately wrong but well-formed key must get the rejection status (404 for the NVD API). A credential helper's test action is the right place for that check.
+
 Beware `set -x` / `set -v` debug modes; they echo variable assignments to stderr, leaking the right-hand side. Disable them around credential-fetching commands. Beware `-v` / `--debug` on consumer tools: curl logs `Authorization:` headers; some CLIs log token values on token-set events.
 
 ## Characterising a credential without reading it
@@ -122,7 +139,8 @@ Hash each one **in place, on the host that holds it**, and compare only the dige
 ```bash
 # Run separately on each host. Print a short prefix, never the full digest.
 security find-generic-password -s <entry> -w | tr -d '\n' | shasum -a 256 | cut -c1-12   # macOS Keychain
-sudo cat /path/to/secret | tr -d '\n' | shasum -a 256 | cut -c1-12                        # a file on another host
+pwsh -NoProfile -File <helper> -Action Get -Name <entry> | tr -d '\n' | sha256sum | cut -c1-12   # Windows, Git Bash
+sudo cat /path/to/secret | tr -d '\n' | sha256sum | cut -c1-12                            # a file on a Linux host (sha256sum; shasum -a 256 on macOS)
 ```
 
 - **Normalise before hashing, on both sides.** A trailing newline changes the digest, so two hosts whose extraction commands differ in that one respect report "different secrets" for an identical value. `tr -d '\n'` on every side, or the comparison is worthless in the direction that matters (a false "these differ" reads as reassuring).
@@ -512,7 +530,7 @@ Related skills:
 - The same credential value found in three or more files (fragmentation)
 - A commit message that quotes a config value
 - Tool output (TodoWrite, plan, summary) that quotes a real secret
-- `security find-generic-password -w`, `secret-tool lookup`, `op item get`, `vault kv get -field=`, or similar credential-store fetches WITHOUT `> /dev/null` or inline-pipe-to-consumer (probe leaks the value to stdout / transcript / CI log)
+- `security find-generic-password -w`, `secret-tool lookup`, `op item get`, `vault kv get -field=`, a Windows credential helper's get action, or similar credential-store fetches WITHOUT `> /dev/null` or inline-pipe-to-consumer (probe leaks the value to stdout / transcript / CI log)
 - A long-lived cloud credential in `secrets` when the cloud supports OIDC federation
 - `permissions: write-all` (explicit or default) on a `GITHUB_TOKEN` that doesn't need it
 - A `pull_request_target` workflow that checks out fork code

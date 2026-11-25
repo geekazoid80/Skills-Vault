@@ -67,6 +67,18 @@ subprocess.run(["pdfunite", str(target), "merged.pdf"], check=True)
 
 vs the bash equivalent that has to handle Windows paths with spaces, PowerShell vs CMD quoting, and the difference between `pdfunite` on Linux vs `pdfunite.exe` on Git-Bash.
 
+### Cross-host traps that bite even when the script is Python
+
+Each of these produced a real failure when work moved between macOS and Windows (Git Bash plus PowerShell 7). Check them before calling a script portable.
+
+1. **Git Bash rewrites a leading-slash argument into a path.** A Windows tool flag such as `/list` or `/query` becomes `C:/Program Files/Git/list`, and the tool answers "parameters are incorrect". Write `//list`, or set `MSYS2_ARG_CONV_EXCL='*'` for the call. A script that discards stderr reads this as "nothing found".
+2. **A text-mode write converts line endings.** Python `open(p, "w")` on Windows turns every LF into CRLF, so a one-paragraph edit becomes a whole-file diff. Write bytes, or pass `newline=""` or `newline="\n"`. A Windows checkout may also give you CRLF files that git shows as unchanged.
+3. **Compare files across hosts with a tool that normalises line endings and a byte-order mark.** `md5`, `diff` and raw size report a difference between a CRLF copy and an LF copy of identical text. Deploy a file from the committed blob (`git show <ref>:<path> > target`), so the target gets git's endings whatever the host.
+4. **The Windows console is not UTF-8.** `print()` of a non-breaking space or an accented name can raise `UnicodeEncodeError`. Call `sys.stdout.reconfigure(encoding="utf-8")` inside the script. `python -I` (isolated mode) ignores `PYTHON*` variables, so `PYTHONIOENCODING` does nothing under it.
+5. **Host-only tools.** `timeout` (use a `subprocess` timeout), `pbcopy`, `osascript`, `launchctl`, `grep -P` (the grep may be ugrep, and a byte escape silently fails), and `tr -d '\\'` (an unescaped backslash at the end of a character list warns; use octal, `tr -d '\042\134'`).
+6. **A background job started with a bare `&` dies when the call returns.** Detach it: `nohup <cmd> >> log 2>&1 < /dev/null &` then `disown`, with a lock and a log.
+7. **Test the OS-specific branch without the OS.** Read the platform and the tools present from environment variables a test can set, stub any installer, and run the new tests against the old code to prove they fail there.
+
 ## When to Reach for Python by Default
 
 Even before a platform quirk surfaces, default to Python when the script does any of:
