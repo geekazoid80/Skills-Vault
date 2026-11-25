@@ -22,7 +22,7 @@ markdown and shell, and the builder only makes symlinks.
 
 **Credentials.** None to clone, build, or read the vault. Publishing a change needs a GitHub
 push credential for `geekazoid80/Skills-Vault`; read it from your own credential store at push
-time (a Keychain entry, a `gh` login, an env var), never a value committed here.
+time (a macOS Keychain entry, a Windows Credential Manager entry, a `gh` login, an env var), never a value committed here.
 
 **First run, and what working looks like.** `./bootstrap.sh` prints `base: linked N generic
 skills into <farm>`. Then `ls ~/.claude/skills/` shows one symlink per skill, and

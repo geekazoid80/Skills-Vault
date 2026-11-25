@@ -33,7 +33,7 @@ If `MEMORY.md` has changed since the last session (new entries, removed entries)
 
 Path: `~/.claude/projects/<encoded-project-path>/memory/MEMORY.md` + every file it links to.
 
-The encoded project path is the absolute project path with `/` replaced by `-` and leading `-` preserved. Example: project at `/Users/alice/code/foo-app` → memory dir at `~/.claude/projects/-Users-alice-code-foo-app/memory/`.
+The encoded project path is the absolute project path with `/` replaced by `-` and leading `-` preserved. Example: project at `/Users/alice/code/foo-app` → memory dir at `~/.claude/projects/-Users-alice-code-foo-app/memory/`. **On Windows** every `\`, `:` and space also becomes `-` and nothing is collapsed: `C:\Users\Alice\My Code\foo-app` → `C--Users-Alice-My-Code-foo-app`, and a space-hyphen-space in a folder name such as `OneDrive - Org` becomes `---`. If unsure which form a host uses, list `~/.claude/projects/` and match the clone's path by eye.
 
 If the directory doesn't exist OR is empty (only `.` and `..`), this is a fresh project with no project-scoped overrides yet. Note that in the plan's Reminders block ("project memory: empty"); do NOT skip silently.
 

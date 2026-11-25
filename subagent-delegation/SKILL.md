@@ -90,7 +90,7 @@ The brief's prose is NEVER the control. Cross-cutting rules (the multi-PAT keych
 Before acting: read your standing instructions and memory for yourself, from disk.
 Global ~/.claude/CLAUDE.md, ~/.claude/memory/MEMORY.md and its linked files, this
 project's memory index, and the repo AGENTS.md. Honour them even where this prompt does
-not restate them: the correct per-org Keychain GH_TOKEN before any gh or HTTPS push (the
+not restate them: the correct per-org GH_TOKEN from this host's credential store (macOS Keychain or Windows Credential Manager) before any gh or HTTPS push (the
 entry name is in the repo AGENTS.md / CLAUDE.md and the credential registry; do not guess
 the org), pull --ff-only, and secrets hygiene. Your own fresh-disk read is the control,
 never this prose.
