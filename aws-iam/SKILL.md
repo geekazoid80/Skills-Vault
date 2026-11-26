@@ -1,6 +1,6 @@
 ---
 name: aws-iam
-description: "Use for AWS Identity and Access Management (IAM) and IAM Identity Center implementation, configuration, and troubleshooting. Covers IAM policy language (identity-based, resource-based, permission boundaries, session policies, VPC endpoint policies), policy evaluation logic and explicit-deny semantics, IAM roles and trust policies (cross-account, service principal, OIDC federation, SAML federation), IAM Identity Center (formerly AWS SSO) with permission sets and account assignments, Service Control Policies (SCPs) and AWS Organizations guardrails, ABAC with tags and tag-based conditions, IAM Access Analyzer (external-access findings, unused-access findings, custom policy checks), credential management (root account lockdown, access key rotation, STS temporary credentials, service-linked roles), and AssumeRole patterns including ExternalId for confused-deputy prevention. References: architecture.md, operations.md. Triggers include \"AWS IAM\", \"IAM policy\", \"IAM role\", \"IAM Identity Center\", \"AWS SSO\", \"SCP\", \"permission set\", \"cross-account\", \"IAM Access Analyzer\", \"assume role\", \"trust policy\", \"sts:AssumeRole\", \"permission boundary\", \"ABAC tags\", \"aws:PrincipalTag\", \"ExternalId\", \"service-linked role\", \"identity-based policy\", \"resource-based policy\", \"session policy\", \"VPC endpoint policy\", \"aws:RequestedRegion\", \"organizations:LeaveOrganization\", \"accessanalyzer\", \"sso-admin\", \"arn:aws:iam\", \"AdministratorAccess\", \"OrganizationAccountAccessRole\". For IAM architecture, federation protocols, MFA strategy, access-control models, and IdP selection see identity-access-management; for credential and secret storage see secrets-hygiene."
+description: "Use for AWS Identity and Access Management (IAM) and IAM Identity Center implementation, configuration, and troubleshooting. Covers IAM policy language (identity-based, resource-based, permission boundaries, session policies, VPC endpoint policies), policy evaluation logic and explicit-deny semantics, IAM roles and trust policies (cross-account, service principal, OIDC federation, SAML federation), IAM Identity Center (formerly AWS SSO) with permission sets and account assignments, Service Control Policies (SCPs) and AWS Organizations guardrails, ABAC with tags and tag-based conditions, IAM Access Analyzer (external-access findings, unused-access findings, custom policy checks), credential management (root account lockdown, access key rotation, STS temporary credentials, service-linked roles), and AssumeRole patterns including ExternalId for confused-deputy prevention. References: architecture.md, operations.md. Triggers include \"AWS IAM\", \"IAM policy\", \"IAM role\", \"IAM Identity Center\", \"AWS SSO\", \"SCP\", \"permission set\", \"cross-account\", \"IAM Access Analyzer\", \"assume role\", \"trust policy\", \"sts:AssumeRole\", \"permission boundary\", \"ABAC tags\", \"aws:PrincipalTag\", \"ExternalId\", \"service-linked role\", \"identity-based policy\", \"resource-based policy\", \"session policy\", \"VPC endpoint policy\", \"aws:RequestedRegion\", \"organizations:LeaveOrganization\", \"accessanalyzer\", \"sso-admin\", \"arn:aws:iam\", \"AdministratorAccess\", \"OrganizationAccountAccessRole\", \"ViewOnlyAccess\", \"ReadOnlyAccess\", \"tag policy\", \"Tag Editor\", \"organizations:DescribePolicy\", \"resource-explorer-2:Search\", \"read-only permission set\". For IAM architecture, federation protocols, MFA strategy, access-control models, and IdP selection see identity-access-management; for credential and secret storage see secrets-hygiene."
 license: MIT
 metadata:
   version: 1.0.0
@@ -123,6 +123,24 @@ aws sso-admin create-account-assignment \
   --target-type AWS_ACCOUNT \
   --target-id "123456789012"
 ```
+
+#### A "read-only" permission set is not one thing: `ViewOnlyAccess` cannot read tag policies
+
+The AWS managed policies `ViewOnlyAccess` and `ReadOnlyAccess` differ in ways that surface as one denial after another. Checked against the AWS managed policy reference pages (`ViewOnlyAccess` v49, `AWSOrganizationsReadOnlyAccess` v6, 2026-11-26):
+
+| Managed policy | Organizations | Tag reads | Resource Groups |
+|---|---|---|---|
+| `ViewOnlyAccess` | `organizations:List*` only, no `Describe*` | none (no `tag:Get*`) | none |
+| `ReadOnlyAccess` | `Describe*` and `List*` | `tag:Get*`, `tag:DescribeReportCreation` | `Get*`, `List*`, `Search*` |
+| `AWSOrganizationsReadOnlyAccess` | `Describe*` and `List*`, plus a few `account:` reads | none | none |
+
+Symptoms of a permission set built on `ViewOnlyAccess`:
+
+- Tag policies (management account, Organizations > Policies): the names list, but opening one fails, because `organizations:DescribePolicy` is denied.
+- Tag Editor: no `tag:Get*` and no `resource-groups:` action.
+- Resource Explorer: `resource-explorer-2:Search` denied on the service view; the error names the assumed role, the action and the view.
+
+Do not fix this by swapping the group to `ReadOnlyAccess` without weighing it: it applies in every account the group is assigned in, and it adds reads of data contents (objects, items, logs) that a tag review does not need. The narrow fix is a second permission set: attach `AWSOrganizationsReadOnlyAccess`, add an inline policy of `tag:Get*`, `resource-groups:Get*`, `List*`, `Search*` and `resource-explorer-2:Search`, `Get*`, `List*`, and assign it to the same group in the management account (tag policies live only there) and in the accounts whose tags are read. A second assigned set shows beside the first in the user's access portal, and the user has to choose it, so the old role keeps failing. Verify the result by reading the set, not by asking for a screenshot: `list-managed-policies-in-permission-set`, `get-inline-policy-for-permission-set` and `list-account-assignments` are all read-only, and the account-name list from `organizations list-accounts` shows which accounts the set is not assigned in. Editing the inline policy re-provisions the assigned accounts by itself; the user signs in again to pick up the change.
 
 ### Service Control Policies
 
