@@ -3,7 +3,7 @@ name: wireless-ops
 description: "Use for wireless LAN OPERATIONS: deploying, configuring, optimising, and troubleshooting enterprise wireless networks across Cisco Catalyst 9800 (IOS-XE-WLC), Aruba (AOS 8 Mobility Controller and AOS 10 / Central), Juniper Mist, and Cisco Meraki. References: cisco-wireless.md, aruba-wireless.md, juniper-mist.md, meraki-wireless.md, rf-design.md. Triggers include \"wireless operations\", \"WLAN config\", \"RF optimisation\", \"RRM tuning\", \"channel planning\", \"AP density\", \"roaming optimisation\", \"band steering\", \"DFS event\", \"client connectivity troubleshooting\", \"wireless deployment\", \"Catalyst 9800 config\", \"C9800\", \"FlexConnect\", \"Aruba Central\", \"AOS 10\", \"AirMatch\", \"ClearPass wireless\", \"Mist AI\", \"Marvis\", \"SLE\", \"Mist Edge\", \"Meraki wireless\", \"Meraki SSID\", \"RF profiles\", \"site survey\", \"Wi-Fi 6\", \"Wi-Fi 6E\", \"Wi-Fi 7\", \"802.11ax\", \"802.11be\", \"MLO\", \"OFDMA\", \"WLC troubleshooting\", \"AP join failure\", \"radioactive trace\", \"RRM DCA\", \"channel utilisation\", \"signal quality\", \"client roaming\", \"SSID management\", \"wireless health assessment\". For wireless SECURITY audit (SSID encryption posture, 802.1X/RADIUS validation, rogue AP triage, WLAN compliance) see wireless-security-audit; for multi-vendor switching/routing context see multi-vendor-network-ops."
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Wireless operations
@@ -91,6 +91,15 @@ When the browser shows ERR_EMPTY_RESPONSE after a captive portal login on some P
 Know the portal's own ports before testing it. On FortiOS the captive portal listens on HTTP 1000 and HTTPS 1003 by default (`auth-http-port` and `auth-https-port` under `config system global`), and a saved config omits defaults, so read the effective values live (see `fortigate-firewall-audit`). Test the HTTP address on 1000 for a portal that signs in over HTTP, and do not assume 1003.
 
 One FortiOS cause to rule in or out: a Fortinet community article reports the portal login failing with ERR_EMPTY_RESPONSE on FortiOS 7.6.7 and 8.0.0, after a change (bug 1222371) that replaced the fixed 30 second pre-login timeout with the configurable `auth-portal-timeout`. Pre-login sessions then stay tracked per client, and when too many build up authd drops new sessions, including the credential POST. The article gives 7.6.9 and 8.0.3 as the fixed releases and `auth-portal-timeout 1` with HTTPS removed from `auth-type` as a mitigation. It is a vendor community article and not a release note, and it does not give the threshold. On a failing PC run `diagnose firewall auth list`: a client with no entry, beside a failed request to the portal address, fits it; a normal entry rules it out. The mitigation moves the sign-in to HTTPS under a certificate issued for the portal name, so test it and take approval before applying it. No single check here proves the cause.
+
+To test the pre-login pile-up from logs, line the user's own failure and success times up against the firewall's login events (convert the user's
+time zone first). The pattern that fits: each success is logged within a minute of the user's own record, each failure leaves NO event (it never
+reaches the login stage, so it is not a failed login), and a success follows about ten minutes after a failure as the held sessions clear. Matching
+the successes to the minute also proves the clock assumption. The least invasive change is `auth-portal-timeout` alone; do not assume the other
+mitigation settings are needed. `auth-type http` removes HTTPS from the portal triggers, so on a unit whose other portal signs in over HTTPS (a SAML
+single sign-on network, for example) it may break that sign-in; test it first. The article says the mitigation reduces the problem but cannot fully
+eliminate it, and gives no test results. Judge a change by a repeated reproduction (the same method, at least ten attempts) against the earlier
+failure rate, and prove only one setting moved by comparing every setting read before and after.
 
 ## Cross-references
 

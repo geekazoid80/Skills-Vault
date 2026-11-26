@@ -2,7 +2,7 @@
 name: asana-workflows
 description: Use when the user wants to do something concrete with Asana, whether via the wired MCPs or the REST API. Triggers include "what's on my Asana", "my Asana tasks", "create an Asana task for", "update that Asana task", "Asana project", "Asana portfolio", "Asana goal", "Asana allocation", "Asana workspace report", "Asana cross-team", "Asana dependency", "set up Asana project", "draft an Asana project". Does NOT fire on vague "what's my workload" without an Asana hook, or on idle "should we use Asana" architecture chatter (defer to plan-time-tooling). Two Asana MCPs are wired (lighter preview surface and enterprise full surface); this skill carries the routing table that maps each use case to the right MCP. An estate may pin the Asana access path instead (direct REST under a named token identity, connectors forbidden, for identity control and auditability); check for that rule first, it overrides the routing table. For working against the Asana REST API directly (a script, a service, a CI job, or an estate whose access rule mandates it), a bundled full REST reference lives in references/asana-rest-api.md (endpoint index for every operation, schemas with exact enums, team-sharing via POST /memberships, the private_to_team privacy trap, refresh recipe); consult it for direct-REST work and refresh it on use when older than its 30-day TTL.
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Asana Workflows
@@ -187,6 +187,21 @@ or move, because each passes silently:
 - **`POST /tasks` needs `projects`** (not only `memberships`); then `POST /sections/{gid}/addTask` to place it.
 - **Read every bulk change back** (due dates, assignees, parents) in a separate pass. A parent read
   2026-12-04 the evening after a bulk move to 2026-11-18, cause unknown; the run's own 200s showed nothing.
+
+## Direct REST recipes proven in use
+
+- **Add a task to a second project, in a section:** `POST /tasks/{gid}/addProject` with JSON `{"data":{"project":"<gid>","section":"<gid>"}}`; read the
+  memberships back. List a project's sections first (`GET /projects/{gid}/sections`) and pick the one where comparable tasks live.
+- **Find a person's comments across the workspace:** `GET /workspaces/{gid}/tasks/search` with `commented_on_by.any=<user gid>` and `sort_by=modified_at`; a task search
+  by text can lag new tasks by minutes.
+- **"Portfolio" in a request may mean a project.** Search portfolios by typeahead (`resource_type=portfolio`) and projects by typeahead; confirm which one before writing.
+- **Reading an attachment is a download.** Ask first (name, source, size). `GET /attachments/{gid}?opt_fields=download_url`, then fetch that signed URL WITHOUT the
+  Authorization header, into a new empty directory; delete it afterwards.
+- **Prepend a dated update block to a description:** read `html_notes`, assert it is non-empty and does not already contain the block, put the block inside
+  `<body>` ahead of the old text (keep the old text), PUT `html_notes`, then read back the length and an anchor from the old text. Use only supported tags and
+  newlines; a `<table>` cannot share a body with `<p>` or `<br/>`.
+- **Printing Asana text on Windows can crash:** a name with an accent or an emoji raised `UnicodeEncodeError` under the default console code page; set
+  `PYTHONIOENCODING=utf-8` or print ASCII-replaced text.
 
 ## Cross-references
 

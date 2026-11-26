@@ -2,7 +2,7 @@
 name: bgp-analysis
 description: Use for any BGP-related diagnostic, change review, or peering design work across Cisco (IOS / IOS-XE / NX-OS / IOS-XR), Juniper (JunOS), or Arista (EOS). Triggers include "BGP neighbour not establishing", "BGP stuck in Idle / Connect / Active / OpenSent / OpenConfirm", "BGP route flap", "BGP convergence", "review this peering policy", "RPKI / route-server / IXP peering", "BGP route-reflector design", "iBGP full-mesh / RR migration", "AS-path / community / local-pref / MED policy", "graceful restart / non-stop routing", "BGP add-path / multipath", "BGP unexpected route selection", "JunOS sends no routes / missing export policy", "BGP route leak", "dampened / suppressed routes", "MD5 / TCP-AO mismatch". Six-step diagnostic procedure with peer-state and route-selection decision trees; threshold tables for neighbour state, prefix counts, holdtime / keepalive defaults per vendor. Multi-vendor syntax labels [Cisco] [JunOS] [EOS]. Diagnose-first; read-only `show` / `display` evidence before any state-changing command. Maps onto multi-vendor-network-ops 9-element response contract for production-impacting changes. Customised from vahagn-madatyan/netsec-skills-suite (Apache-2.0); references swapped to local vault skills.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # BGP Analysis
@@ -378,6 +378,24 @@ JunOS sends no routes to a peer without an explicit export policy. If a peer sho
 ### eBGP multihop and TTL
 
 Direct-eBGP defaults to TTL=1; multihop peerings need explicit `neighbor X ebgp-multihop N` (Cisco / EOS) or `multihop ttl N` (JunOS). Symptom: stuck in Connect / Active despite Layer 3 reachability.
+
+## Verify a prefix withdrawal from outside
+
+Removing a prefix from configuration is not the same as the neighbours dropping the route. An `advertised-routes` view shows what the current
+policy would send, not necessarily what the peer still holds, and on some platforms an outbound policy edit does not send withdrawals until the
+session is refreshed outbound (a soft out; confirm the behaviour in the platform's documentation). So prove it from outside:
+
+- **Use several public views and record each one's query time, path count, AS-path tails and newest last-updated time.** A route collector looking
+  glass (the RIPEstat looking-glass API) lists the routes currently held with a per-route last-updated time; a live super looking glass (Hurricane
+  Electric, delayed up to about five minutes) lists paths, where "last updated" is the last time the route changed, not the time of the query; a
+  routing-status API is a daily snapshot of the eight-hourly table dump and can show a prefix visible for hours after a withdrawal; bgp.tools says
+  it is not connected to real-time data, has no as-of time, and its "not visible" banner loads late (screenshot it). Carrier looking glasses often
+  need cookies and a CAPTCHA, which a person must complete.
+- **The tell that no withdrawal was sent:** a route whose last update is OLDER than the change, still carrying an attribute you removed (for example
+  a prepend). Then ask the operator of the session to refresh outbound and re-check; confirm the cause from their reply before writing it down.
+- **A reclaimed block can be reissued quickly.** Until the internal static routes and permit rules toward it are removed, traffic for the new holder
+  can loop or drop. When several routers hold the same prefixes, remove the `network` or aggregate statements before the Null0 statics, or a router
+  can re-originate the prefix from a copy it learned elsewhere.
 
 ## Cross-references
 
