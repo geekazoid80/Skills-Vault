@@ -1,8 +1,8 @@
 ---
 name: verify-before-asserting
-description: "Use before stating a finding about state that someone might act on: that something is missing, orphaned, lost, stranded, at risk, broken, unmerged, dead, stale, absent, duplicated, unowned, unused or misconfigured. Fires on \"X is missing\", \"that was never done\", \"this is orphaned\", \"nobody owns this\", \"it would have been lost\", \"there is no PR\", \"the branch is unmerged\", \"that account is unused\", \"the data is gone\", \"this is at risk\", and on any finding about to be written into a tracker, ticket, PR, alert, report or message to another person. NOT for claims about whether your own work is finished (completion-gate owns done, fixed, passing, ready to merge). Covers the falsifying-check-first rule, naming the check before running it, what a tool actually measures (a direction, a subset or a derived signal rather than the state you asked about), the blast-radius ladder that raises the bar as a finding moves from thought to speech to a shared surface, and treating an inherited framing from a summary, brief or handoff as a hypothesis rather than evidence."
+description: "Use before stating a finding about state that someone might act on: that something is missing, orphaned, lost, stranded, at risk, broken, unmerged, dead, stale, absent, duplicated, unowned, unused or misconfigured. Fires on \"X is missing\", \"that was never done\", \"this is orphaned\", \"nobody owns this\", \"it would have been lost\", \"there is no PR\", \"the branch is unmerged\", \"that account is unused\", \"the data is gone\", \"this is at risk\", \"none is filed\", \"there is no ticket for this\", \"nothing is tracking it\", and on any finding about to be written into a tracker, ticket, PR, alert, report or message to another person. NOT for claims about whether your own work is finished (completion-gate owns done, fixed, passing, ready to merge). Covers the falsifying-check-first rule, naming the check before running it, what a tool actually measures (a direction, a subset or a derived signal rather than the state you asked about), the blast-radius ladder that raises the bar as a finding moves from thought to speech to a shared surface, and treating an inherited framing from a summary, brief or handoff as a hypothesis rather than evidence."
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Verify Before Asserting
@@ -93,6 +93,7 @@ inherited framing as the moment to verify it, not the moment to build on it.
 | "There is no time" | The decisive check is usually one command and a few seconds. |
 | "It is only a note for later" | Notes are read as settled fact by whoever finds them next. |
 | "I would look slow if I checked" | You will look far slower retracting it. |
+| "I have not seen a task for it, so none is filed" | Your memory of the tracker is not the tracker. Search it (by subject and by asset name), read the hits, and say what you searched. A search that found existing but stale tasks turned "none is filed" into "update these" (2026-11-27). |
 
 ## Worked example
 
@@ -129,6 +130,7 @@ skipped because the inherited framing arrived as settled and the tools agreed.
 - The words "clearly", "obviously" or "definitely" doing the work that evidence should be doing.
 - About to raise it with a person, or write it into a shared surface, while thinking "I am fairly sure".
 - Noticing the check is cheap and deciding to run it afterwards.
+- Saying that nothing is filed, tracked or owned without a search of the tracker run in this session, or reporting a zero from a search whose index lags new items (read the project's own task list as well).
 
 ## Bottom line
 
