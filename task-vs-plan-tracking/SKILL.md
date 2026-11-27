@@ -1,8 +1,8 @@
 ---
 name: task-vs-plan-tracking
-description: Use when the in-flight queue in a plan file would cross 4 items, when the harness emits the "task tools haven't been used recently" reminder while a chunk has 4+ pending items, or when the user says "too many tasks", "switch to TaskCreate", "plan file is getting long", "should this be tasks", "track these as tasks", "the plan is getting unwieldy", "use the task tool", "I can't read this plan anymore". Routes the queue to harness TaskCreate / TaskList / TaskUpdate and trims the plan file to background + carry-forward principles + a one-line pointer to the task list. Also covers the reverse direction (collapsing a TaskList back into plan-file prose when in-flight items drain to ≤3 AND the chunk has more than one logical session ahead of it). Counts only pending + in_progress items; completed and deleted tasks don't count toward the threshold. Aligns with the always-on rule in ~/.claude/CLAUDE.md "Switch from plan.md prose to TaskCreate at four in-flight items"; this skill is the safety net for moments when only the trigger phrase fires (no plan-mode entry).
+description: Use when the in-flight queue in a plan file would cross 4 items, when the harness emits the "task tools haven't been used recently" reminder while a chunk has 4+ pending items, or when the user says "too many tasks", "switch to TaskCreate", "plan file is getting long", "should this be tasks", "track these as tasks", "the plan is getting unwieldy", "use the task tool", "I can't read this plan anymore", "are you tracking all the work in a task list", "what else is pending / partial / skipped", a long session whose work has outgrown its task list. Routes the queue to harness TaskCreate / TaskList / TaskUpdate and trims the plan file to background + carry-forward principles + a one-line pointer to the task list. Also covers the reverse direction (collapsing a TaskList back into plan-file prose when in-flight items drain to ≤3 AND the chunk has more than one logical session ahead of it). Counts only pending + in_progress items; completed and deleted tasks don't count toward the threshold. Aligns with the always-on rule in ~/.claude/CLAUDE.md "Switch from plan.md prose to TaskCreate at four in-flight items"; this skill is the safety net for moments when only the trigger phrase fires (no plan-mode entry).
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Task vs Plan Tracking
@@ -48,6 +48,23 @@ The trigger fires the moment the queue **would** cross the threshold, not retroa
 - **Sub-agent batches.** Delegating 5 file analyses to Explore in parallel is tracked by the sub-agent return summaries, not as harness tasks. Add a harness task only when a sub-agent's output gates the next user-visible step.
 - **One-shot operations.** A single discrete action (run the deploy, file the PR, post the comment) is the assistant's current turn; no task needed.
 
+## Keep the list current as the work grows
+
+The threshold is about where a queue lives. A second failure is a list that was right at the start and then stopped
+being updated while the session's work multiplied. In a long session, new work arrives mid-task (a follow-up found
+while doing the first thing, a "while you are there", a defect noticed on the way past); if each piece is done or
+parked from memory, the list no longer shows what is in flight, and the user has to ask whether everything is tracked.
+That question is a failure signal, not a prompt to build a list then.
+
+- **Add the item when the work is accepted, not when it is finished.** A new request, a found defect, a deferral and a
+  "do this after" each get an entry at the moment they appear.
+- **Re-read the list at every turn boundary and after every merge or deploy**, and reconcile it with what was actually
+  done: tick what finished, add what appeared, and say what is deliberately not started.
+- **Answer "what is pending, partial, prose-only, skipped or ignored?" from the list**, then check the list against the
+  session (the plan file, the open PRs, the tracker) rather than from recall.
+- **A one-off script or artefact that a later item will reuse stays until the whole task set is done.** Deleting it
+  after its first use means rebuilding it for the next item; list it on the task it serves and remove it at the end.
+
 ## The reverse direction (TaskList → plan file)
 
 If a `TaskList` drains back to ≤3 in-flight items AND the chunk has more than one logical session ahead of it, it is fine to fold the remainder back into the plan file's current-chunk section.
@@ -81,4 +98,6 @@ Three concrete problems with using harness tasks at low count:
 - Plan file's current-chunk section is over 30 lines of bullets, overdue migration to harness tasks.
 - Harness `TaskList` has 1-2 items and you find yourself opening the plan file to read background, fine, that's expected; the plan file owns background.
 - Both surfaces carrying overlapping todos, single-source violation; pick one and clear the other in the same turn.
+- The user asking "are you tracking all of this in a task list?": the list fell behind the work; reconcile it now, and add items at acceptance from here on.
+- A found defect or a deferred follow-up held in prose in the reply and nowhere durable.
 - "I'll TaskCreate this when the count hits 4", no; the trigger is the **would-cross** moment, not after-the-fact.
